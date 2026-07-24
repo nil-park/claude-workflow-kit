@@ -1,11 +1,11 @@
 ---
 name: review-criteria
 description: >-
-  Apply my standing code-review criteria to a GitHub PR, branch, or working diff
+  Apply my standing code-review criteria to a PR/MR, branch, or working diff
   (including self-review). Use whenever I ask for a review — e.g. "6번 PR 리뷰해줘",
-  "N번 PR 리뷰", "리뷰해줘", "브랜치 리뷰", "셀프 리뷰 해보자", "review PR #6",
-  "review this PR / branch / diff". Reviews directly without subagents; flags only
-  genuine issues.
+  "N번 MR 리뷰", "리뷰해줘", "브랜치 리뷰", "셀프 리뷰 해보자", "review PR #6",
+  "review this PR / MR / branch / diff". Reviews directly without subagents; flags
+  only genuine issues.
 ---
 
 # Code Review
@@ -16,23 +16,24 @@ Standing criteria — follow them by default without my restating them.
 
 - Review directly with your own analysis; never spawn subagents or use a built-in
   code-review skill/agent.
-- For a PR: identify the project from `origin`, fetch the diff, description, and
-  discussion via `gh`. The local branch is usually already synced — read files
-  from the local checkout.
-- For a branch, working diff, or self-review (no PR yet): review the local
-  `git diff` against the base branch.
+- Apply these criteria to whatever change is in front of you — a hosted PR/MR, a
+  branch, or an uncommitted working diff (self-review). Read files from the local
+  checkout and review the local `git diff` against the base branch.
+- For a hosted PR/MR, first pull its diff, description, and discussion — `gh` for
+  a GitHub PR, `glab` for a GitLab MR — then read the code from the local checkout
+  (usually already synced).
 
 ## What to look for
 
-- Read the PR description and any linked docs; call out missing pieces or
+- Read the PR/MR description and any linked docs; call out missing pieces or
   inconsistencies, and judge whether the description itself is accurate and
   adequate for the changes.
 - Check the reverse direction too: does this change make any project doc
   (architecture specs, ADRs) stale or leave a decision undocumented? Flag
-  docs that should be updated in the same PR, linked or not. This applies
-  only when implementation started without a spec doc (PR description only,
-  e.g. the pr-workflow escape hatch); in a design-first workflow the spec
-  doc was already written and iterated before coding, so skip this check.
+  docs that should be updated in the same PR/MR, linked or not. This applies
+  only when implementation started without a spec doc (description only); in a
+  design-first workflow the spec doc was already written and iterated before
+  coding, so skip this check.
 - Hunt for potential/latent bugs, not just surface issues.
 - Flag memory leaks and inefficient / wasteful code.
 - Flag error-suppression that hides a problem instead of fixing it — Python
@@ -45,6 +46,6 @@ Standing criteria — follow them by default without my restating them.
 - Don't manufacture findings to hit some count — flag only what's genuinely wrong
   or clearly worth changing, no filler. If nothing's wrong, say so.
 - Lead with the conclusion (BLUF / 두괄식). Write the review to
-  `<repo-root>/.refs/review-<PR-number>.md` (for a branch/self-review, use a
-  descriptive slug instead of the PR number) — if `.refs` isn't gitignored yet,
-  add it to `.gitignore` first.
+  `<repo-root>/.refs/review-<number>.md` (the PR or MR number; for a
+  branch/self-review, use a descriptive slug instead) — if `.refs` isn't
+  gitignored yet, add it to `.gitignore` first.
