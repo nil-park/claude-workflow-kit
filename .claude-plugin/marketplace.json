@@ -1,0 +1,14 @@
+{
+  "name": "claude-workflow-kit",
+  "owner": {
+    "name": "nil-park"
+  },
+  "description": "nil-park's personal Claude Code workflow skills, managed via GitOps.",
+  "plugins": [
+    {
+      "name": "workflow-kit",
+      "source": "./plugins/workflow-kit",
+      "description": "GitHub PR workflow, pre-push protection, and code-review skills."
+    }
+  ]
+}
