@@ -23,7 +23,7 @@
 
 ## Development Convention
 
-- On the first prompt of a session, run `tree --gitignore` to get an up-to-date view of the project structure.
+- On the first prompt of a session, run `eza --tree --git-ignore -a --ignore-glob='.git' .` for an up-to-date, `.gitignore`-respecting tree of the project. The trailing `.` is required (without an explicit path this build prints nothing); `-a` shows dotfiles like `.claude-plugin/`, and `.git` is excluded.
 
 ## Formatting
 
