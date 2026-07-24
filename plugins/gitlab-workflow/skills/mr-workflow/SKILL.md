@@ -27,8 +27,7 @@ is ready for me to merge.
 4. When you judge the implementation complete, self-review it per the
    `review-criteria` skill's instructions.
    - Repeat the implement → push → self-review cycle until a clean self-review
-     pass. Save each cycle's review to `.refs/mr-review-<mr>-<cycle>.md`
-     (local scratch — don't commit it).
+     pass. Leave each cycle's review as its own markdown doc (don't commit it).
 5. Only when it's truly ready, flip the draft MR to ready
    (`glab mr update --ready`) and tell me it's done. I merge it myself.
 
@@ -52,8 +51,7 @@ ask for it.
 - Include the Jira issue key only in the **MR title** (not in individual commit
   messages). When committing directly to main, put the key in the commit message.
 - Write the description to a `.refs/mr-body-<branch-slug>.md` temp file and pass
-  via `-d "$(cat ...)"` (never inline `-d "..."`), per the `refs-scratch` skill's
-  convention.
+  via `-d "$(cat ...)"`; never inline `-d "..."`.
 - MR descriptions: concise, aim for ≤25 lines. Frame it as the **delta between
   the current state and the desired state** the spec doc lays out — what this MR
   changes to close that gap — not a re-explanation of the spec. No checkboxes

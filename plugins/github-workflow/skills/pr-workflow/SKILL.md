@@ -25,8 +25,7 @@ is ready for me to merge.
 4. When you judge the implementation complete, self-review it per the
    `review-criteria` skill's instructions.
    - Repeat the implement → push → self-review cycle until a clean self-review
-     pass. Save each cycle's review to `.refs/review-<pr>-<cycle>.md`
-     (local scratch — don't commit it).
+     pass. Leave each cycle's review as its own markdown doc (don't commit it).
 5. Only when it's truly ready, flip the draft PR to **ready for review**
    (`gh pr ready`) and tell me it's done.
 
@@ -48,8 +47,6 @@ On its own, "open the PR" / "PR 작성" means everything up to the draft PR
     --title "Add user SSH key" \
     --body-file .refs/pr-body-<branch-slug>.md
   ```
-- Write the body to `.refs/pr-body-<branch-slug>.md` per the `refs-scratch` skill's
-  convention.
 - PR descriptions: concise, aim for ≤25 lines. Frame it as the **delta between
   the current state and the desired state** the spec doc lays out — what this PR
   changes to close that gap — not a re-explanation of the spec. No checkboxes
@@ -98,5 +95,4 @@ On its own, "open the PR" / "PR 작성" means everything up to the draft PR
 
 ## Editing a PR description
 
-- Use `gh pr edit --body-file <path>`, writing the body to `.refs/` per the
-  `refs-scratch` skill's convention.
+- Use `gh pr edit --body-file <path>`, writing the body to a file (never inline).

@@ -50,7 +50,5 @@ Standing criteria — follow them by default without my restating them.
 
 - Don't manufacture findings to hit some count — flag only what's genuinely wrong
   or clearly worth changing, no filler. If nothing's wrong, say so.
-- Lead with the conclusion (BLUF / 두괄식). Write the review to
-  `.refs/review-<number>.md` (the PR or MR number; for a branch/self-review, use a
-  descriptive slug instead; when reviewing in a loop, append the round —
-  `review-<number>-<cycle>.md`), per the `refs-scratch` skill's convention.
+- Lead with the conclusion (BLUF / 두괄식). Write the review to its own markdown
+  doc — one per review, and one per round when reviewing in a loop.
