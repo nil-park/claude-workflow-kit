@@ -13,8 +13,9 @@ description: >-
 committed. Use it for `gh`/`glab` body-file inputs, saved reviews, and
 "revisit this later" jottings.
 
-- **Never commit these files.** If `.refs/` isn't in `.gitignore` yet, add it
-  there first, before writing anything into it.
+- **Never commit these files.** `.refs/` must be gitignored before you write into
+  it. If it isn't yet, **ask me before adding it to `.gitignore`** — editing that
+  file changes shared repo config, and this may not be a repo I control.
 - **Unique, descriptive kebab-case names** — never a fixed name, or a parallel
   session clobbers it. Tie the name to its branch or subject, e.g.
   `pr-body-<branch-slug>.md`, `mr-body-<branch-slug>.md`, `review-<number>.md`.
