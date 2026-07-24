@@ -48,6 +48,8 @@ On its own, "open the PR" / "PR 작성" means everything up to the draft PR
     --title "Add user SSH key" \
     --body-file .refs/pr-body-<branch-slug>.md
   ```
+- Write the body to `.refs/pr-body-<branch-slug>.md` per the `refs-scratch` skill's
+  convention (gitignored scratch, unique kebab-case name).
 - PR descriptions: concise, aim for ≤25 lines. Frame it as the **delta between
   the current state and the desired state** the spec doc lays out — what this PR
   changes to close that gap — not a re-explanation of the spec. No checkboxes
@@ -96,4 +98,5 @@ On its own, "open the PR" / "PR 작성" means everything up to the draft PR
 
 ## Editing a PR description
 
-- Use `gh pr edit --body-file <path>`, same temp-file convention as above.
+- Use `gh pr edit --body-file <path>`, writing the body to `.refs/` per the
+  `refs-scratch` skill's convention.

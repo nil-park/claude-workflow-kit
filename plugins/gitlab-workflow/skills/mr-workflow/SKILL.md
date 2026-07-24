@@ -51,11 +51,9 @@ ask for it.
   ```
 - Include the Jira issue key only in the **MR title** (not in individual commit
   messages). When committing directly to main, put the key in the commit message.
-- Write the description to a temp file (literal backticks, no escaping) and pass
-  via `-d "$(cat ...)"`; never inline `-d "..."`. Give the file a unique-per-branch
-  name, e.g. `mr-body-<branch-slug>.md` — a fixed name gets clobbered by a parallel
-  session. Put it in `<repo-root>/.refs/` — if `.refs` isn't gitignored yet, add
-  it to `.gitignore` first.
+- Write the description to a `.refs/mr-body-<branch-slug>.md` temp file and pass
+  via `-d "$(cat ...)"`; never inline `-d "..."`. See the `refs-scratch` skill for
+  the `.refs` naming and gitignore convention.
 - MR descriptions: concise, aim for ≤25 lines. Frame it as the **delta between
   the current state and the desired state** the spec doc lays out — what this MR
   changes to close that gap — not a re-explanation of the spec. No checkboxes

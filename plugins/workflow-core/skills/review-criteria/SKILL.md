@@ -46,6 +46,5 @@ Standing criteria — follow them by default without my restating them.
 - Don't manufacture findings to hit some count — flag only what's genuinely wrong
   or clearly worth changing, no filler. If nothing's wrong, say so.
 - Lead with the conclusion (BLUF / 두괄식). Write the review to
-  `<repo-root>/.refs/review-<number>.md` (the PR or MR number; for a
-  branch/self-review, use a descriptive slug instead) — if `.refs` isn't
-  gitignored yet, add it to `.gitignore` first.
+  `.refs/review-<number>.md` (the PR or MR number; for a branch/self-review, use a
+  descriptive slug instead), per the `refs-scratch` skill's convention.

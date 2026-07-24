@@ -9,13 +9,14 @@
 설치 후 스킬은 플러그인 이름으로 네임스페이스된다. `github-workflow`·`gitlab-workflow`는
 `review-criteria`를 참조하므로 `workflow-core`에 의존한다(설치 시 자동으로 함께 설치·활성화됨).
 
-| 플러그인          | 명령                             | 설명                                             |
-| ----------------- | -------------------------------- | ------------------------------------------------ |
-| `workflow-core`   | `/workflow-core:docs-standards`  | 프로젝트 문서/주석 작성·배치·정리 기준           |
-| `workflow-core`   | `/workflow-core:review-criteria` | PR·MR·브랜치·작업 diff에 표준 코드리뷰 기준 적용 |
-| `workflow-core`   | `/workflow-core:pre-push`        | 보호 브랜치(main/master) 직접 push 차단 훅 설치  |
-| `github-workflow` | `/github-workflow:pr-workflow`   | GitHub 브랜치 + PR 워크플로 (`gh`)               |
-| `gitlab-workflow` | `/gitlab-workflow:mr-workflow`   | GitLab 브랜치 + MR 워크플로 (`glab`)             |
+| 플러그인          | 명령                             | 설명                                                           |
+| ----------------- | -------------------------------- | -------------------------------------------------------------- |
+| `workflow-core`   | `/workflow-core:docs-standards`  | 프로젝트 문서/주석 작성·배치·정리 기준                         |
+| `workflow-core`   | `/workflow-core:review-criteria` | PR·MR·브랜치·작업 diff에 표준 코드리뷰 기준 적용               |
+| `workflow-core`   | `/workflow-core:pre-push`        | 보호 브랜치(main/master) 직접 push 차단 훅 설치                |
+| `workflow-core`   | `/workflow-core:refs-scratch`    | `.refs/` 스크래치 디렉터리 규약 (임시파일 위치·이름·gitignore) |
+| `github-workflow` | `/github-workflow:pr-workflow`   | GitHub 브랜치 + PR 워크플로 (`gh`)                             |
+| `gitlab-workflow` | `/gitlab-workflow:mr-workflow`   | GitLab 브랜치 + MR 워크플로 (`glab`)                           |
 
 ## 설정
 
