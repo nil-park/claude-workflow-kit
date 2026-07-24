@@ -6,9 +6,19 @@
   "description": "nil-park's personal Claude Code workflow skills, managed via GitOps.",
   "plugins": [
     {
-      "name": "workflow-kit",
-      "source": "./plugins/workflow-kit",
-      "description": "GitHub PR workflow, pre-push protection, and code-review skills."
+      "name": "workflow-core",
+      "source": "./plugins/workflow-core",
+      "description": "Standalone, dev-environment-neutral skills: docs standards, code review, and a pre-push guard."
+    },
+    {
+      "name": "github-workflow",
+      "source": "./plugins/github-workflow",
+      "description": "GitHub branch + PR workflow driven by the gh CLI. Depends on workflow-core."
+    },
+    {
+      "name": "gitlab-workflow",
+      "source": "./plugins/gitlab-workflow",
+      "description": "GitLab branch + MR workflow driven by the glab CLI. Depends on workflow-core."
     }
   ]
 }
