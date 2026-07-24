@@ -28,18 +28,23 @@ Standing criteria — follow them by default without my restating them.
 - Read the PR/MR description and any linked docs; call out missing pieces or
   inconsistencies, and judge whether the description itself is accurate and
   adequate for the changes.
-- Check the reverse direction too: does this change make any project doc
-  (architecture specs, ADRs) stale or leave a decision undocumented? Flag
-  docs that should be updated in the same PR/MR, linked or not. This applies
-  only when implementation started without a spec doc (description only); in a
-  design-first workflow the spec doc was already written and iterated before
-  coding, so skip this check.
 - Hunt for potential/latent bugs, not just surface issues.
 - Flag memory leaks and inefficient / wasteful code.
-- Flag error-suppression that hides a problem instead of fixing it — Python
-  `# type: ignore`, `# noqa`, bare `except:` / `except Exception: pass`, etc.
-  Only when the underlying issue should have been fixed.
+- Flag error-suppression that hides a problem instead of fixing it (e.g. Python
+  `# type: ignore`, `# noqa`, bare `except:` / `except Exception: pass`) — only
+  when the underlying issue should have been fixed.
 - Flag vacuous tests that assert nothing meaningful.
+- Flag leftover debug output, dead or commented-out code, and stray TODOs.
+- Flag code that doesn't match the surrounding style and naming.
+- For client implementations (HTTP/RPC/외부 서비스 클라이언트 등), check that a
+  retry policy is properly attached — retries on transient failures, sensible
+  backoff, and bounded attempts. Flag missing or misconfigured retry handling.
+- Circular dependencies between source files. Check whether an import the diff
+  adds closes a cycle — don't audit the whole dependency graph.
+- Judge docs and comments against the `docs-standards` skill's criteria. Scope it
+  to what the diff touches — never ask for a repo-wide reorganization or a change
+  to the repo's existing convention. This axis produces filler easily, so flag
+  only what's genuinely hard to read or bound to go stale.
 
 ## Reporting
 
@@ -47,4 +52,5 @@ Standing criteria — follow them by default without my restating them.
   or clearly worth changing, no filler. If nothing's wrong, say so.
 - Lead with the conclusion (BLUF / 두괄식). Write the review to
   `.refs/review-<number>.md` (the PR or MR number; for a branch/self-review, use a
-  descriptive slug instead), per the `refs-scratch` skill's convention.
+  descriptive slug instead; when reviewing in a loop, append the round —
+  `review-<number>-<cycle>.md`), per the `refs-scratch` skill's convention.
