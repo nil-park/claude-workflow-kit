@@ -1,11 +1,11 @@
-# 0003. `workflow-core-max`는 `workflow-core`의 세 스킬을 각각 다르게 처리한다
+# 0003. `workflow-core-max`가 대체하는 범위와 남은 스킬의 처리
 
 ## 배경
 
 켜고 끄는 단위가 플러그인이라, `workflow-core`를 끄면 그쪽 스킬이 전부 같이 꺼진다.
 `-max` 계열([설계](../architecture/max-plugins.md))은 `workflow-core`를 대체하므로,
-`review-criteria` 말고 남는 `docs-standards`·`pre-push`·`refs-scratch`를 어떻게 할지
-정해야 했다.
+`review-criteria` 말고 남는 `docs-standards`·`pre-push`·`refs-scratch`를 어떻게 할지,
+그리고 나머지 플러그인을 함께 켤 수 있는지 정해야 했다.
 
 ## 결정
 
@@ -14,9 +14,7 @@
   방향은 `docs-intent-auditor`가, "문서 셋 이상이 링을 닫으면 안 된다"는
   `structure-auditor`가 가져간다.
 - **`pre-push`는 싣지 않는다.**
-- **`github-workflow`·`gitlab-workflow`도 함께 끈다.** 둘 다 `workflow-core`에 의존해서,
-  켜는 순간 `workflow-core`가 따라 켜지고 `review-criteria`가 둘이 된다. 1단계 동안은
-  브랜치·PR·MR 워크플로 스킬 없이 리뷰만 쓴다.
+- **`github-workflow`·`gitlab-workflow`도 함께 끈다.**
 
 ## 근거
 
@@ -29,6 +27,10 @@
 
 `pre-push`는 리뷰와 무관하다. 리포지토리당 한 번 훅을 깔면 끝나는 설치용 스킬이라 없어서
 아쉬울 순간이 거의 없고, 필요하면 그때 `workflow-core`를 잠깐 켜면 된다.
+
+`github-workflow`·`gitlab-workflow`를 끄는 것은 선택이 아니라 의존성의 결과다. 둘 다
+`workflow-core`에 의존해서, 켜는 순간 `workflow-core`가 따라 켜지고 `review-criteria`가
+둘이 된다. 그래서 1단계 동안은 브랜치·PR·MR 워크플로 스킬 없이 리뷰만 쓴다.
 
 ## 버리는 것
 
