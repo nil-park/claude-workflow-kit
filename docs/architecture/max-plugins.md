@@ -25,8 +25,8 @@ flowchart TB
 
 ## 단계
 
-1단계는 기존 `workflow-core:review-criteria`와 동등한 역할까지다. 판정 기준을 늘리지
-않는다. 산출물은 `workflow-core-max` 플러그인 하나이고, 그 뒤는 [확장 후보](#확장-후보).
+1단계의 판정 축은 기존 `workflow-core:review-criteria`의 기준을 바탕으로 한다. 산출물은
+`workflow-core-max` 플러그인 하나이고, 그 뒤는 [확장 후보](#확장-후보).
 
 ## 플러그인 경계
 
@@ -78,8 +78,7 @@ plugins/workflow-core-max/
 
 ### 리뷰어 (1단계)
 
-기존 `review-criteria`의 판정 항목을 그대로 여덟으로 분해한 것이다. 새 기준을 더하지
-않는다.
+기존 `review-criteria`의 판정 항목을 여덟으로 분해한 것이다.
 
 | 에이전트                    | 축                          |
 | --------------------------- | --------------------------- |
@@ -88,7 +87,7 @@ plugins/workflow-core-max/
 | `silent-failure-hunter`     | 문제를 숨기는 억제          |
 | `test-auditor`              | 지키지 못하는 테스트        |
 | `hygiene-auditor`           | 작업 흔적과 주변 관례 이탈  |
-| `docs-intent-auditor`       | 말과 코드의 어긋남          |
+| `docs-intent-auditor`       | 문서와 설명의 규율          |
 | `structure-auditor`         | 변경이 그은 참조 선         |
 | `client-resilience-auditor` | 외부 호출의 복원력 (조건부) |
 
