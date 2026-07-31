@@ -25,7 +25,7 @@ flowchart TB
 
 ## 단계
 
-1단계는 기존 `workflow-core:review-criteria`가 하던 리뷰에서 출발했다. 산출물은
+1단계의 판정 축은 기존 `workflow-core:review-criteria`의 기준을 바탕으로 한다. 산출물은
 `workflow-core-max` 플러그인 하나이고, 그 뒤는 [확장 후보](#확장-후보).
 
 ## 플러그인 경계
