@@ -1,0 +1,11 @@
+{
+  "name": "workflow-core-max",
+  "description": "Parallel fan-out code review: specialized reviewer agents plus a verification pass by the main agent. Trades tokens for coverage. Replaces workflow-core; don't enable both.",
+  "author": {
+    "name": "nil-park"
+  },
+  "homepage": "https://github.com/nil-park/claude-workflow-kit",
+  "repository": "https://github.com/nil-park/claude-workflow-kit",
+  "license": "MIT",
+  "keywords": ["workflow", "code-review", "subagents", "parallel"]
+}

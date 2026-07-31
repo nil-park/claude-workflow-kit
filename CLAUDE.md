@@ -15,6 +15,9 @@
 
 - CLAUDE.md, commit messages, and PR titles/descriptions: English.
 - Issues and everything under `docs/`: Korean.
+- Skill and agent bodies: English, except the `-max` plugins, which are Korean —
+  see [ADR 0001](docs/decisions/0001-max-plugins-in-korean.md). Plugin and
+  marketplace manifests stay English either way.
 
 ## Git Convention
 

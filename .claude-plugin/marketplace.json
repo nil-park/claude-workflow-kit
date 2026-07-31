@@ -11,6 +11,11 @@
       "description": "Standalone, dev-environment-neutral skills: docs standards, code review, and a pre-push guard."
     },
     {
+      "name": "workflow-core-max",
+      "source": "./plugins/workflow-core-max",
+      "description": "Parallel fan-out code review driven by specialized reviewer agents. Replaces workflow-core; don't enable both."
+    },
+    {
       "name": "github-workflow",
       "source": "./plugins/github-workflow",
       "description": "GitHub branch + PR workflow driven by the gh CLI. Depends on workflow-core."
