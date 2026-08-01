@@ -20,9 +20,9 @@
 
 ### `-max` 계열
 
-`workflow-core`·`gitlab-workflow`를 **대체하는** 별도 계열이다. 토큰 여유는 많고 작업
-속도가 아쉬운 환경을 위해, 리뷰를 전문 에이전트 여덟에게 병렬로 흩뿌리고 메인 에이전트가
-검증해 확정한다. 설계는 [docs/architecture/max-plugins.md](docs/architecture/max-plugins.md).
+`workflow-core`·`gitlab-workflow`를 **대체하는** 별도 계열이다. 토큰 여유는 많고 작업 속도가
+아쉬운 환경을 위해, 작업을 작성-리뷰 사이클로 완주시키고 그 리뷰를 전문 에이전트 여덟에게
+병렬로 흩뿌린다. 설계는 [docs/architecture/max-plugins.md](docs/architecture/max-plugins.md).
 
 | 명령                                 | 설명                                       |
 | ------------------------------------ | ------------------------------------------ |

@@ -13,7 +13,7 @@
     {
       "name": "workflow-core-max",
       "source": "./plugins/workflow-core-max",
-      "description": "Parallel fan-out code review driven by specialized reviewer agents. Replaces workflow-core; don't enable both."
+      "description": "A write-review work cycle backed by parallel fan-out review across specialized reviewer agents. Replaces workflow-core; don't enable both."
     },
     {
       "name": "github-workflow",
