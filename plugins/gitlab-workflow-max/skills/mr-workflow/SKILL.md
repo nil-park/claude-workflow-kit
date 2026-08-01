@@ -45,7 +45,7 @@ glab mr create --remove-source-branch --squash-before-merge \
 
 ## 3. ready 전환
 
-`work-cycle`이 빈 라운드로 끝났고 push까지 마쳤을 때만 전환한다.
+`work-cycle`이 빈 라운드 3연속으로 끝났고 push까지 마쳤을 때만 전환한다.
 
 ```
 glab mr update --ready
