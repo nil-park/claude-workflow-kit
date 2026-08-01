@@ -24,12 +24,12 @@
 아쉬운 환경을 위해, 작업을 작성-리뷰 사이클로 완주시키고 그 리뷰를 전문 에이전트 여덟에게
 병렬로 흩뿌린다. 설계는 [docs/architecture/max-plugins.md](docs/architecture/max-plugins.md).
 
-| 명령                                 | 설명                                       |
-| ------------------------------------ | ------------------------------------------ |
-| `/workflow-core-max:work-cycle`      | 작성-리뷰 사이클을 완주해 완성본으로 제시  |
-| `/workflow-core-max:review-criteria` | 리뷰어 에이전트 병렬 팬아웃 + 메인의 검증  |
-| `/workflow-core-max:refs-scratch`    | `.refs/` 스크래치 디렉터리 규약            |
-| `/gitlab-workflow-max:mr-workflow`   | GitLab 브랜치 + MR 전달 (구현·리뷰는 위임) |
+| 명령                                 | 설명                                            |
+| ------------------------------------ | ----------------------------------------------- |
+| `/workflow-core-max:work-cycle`      | 작성-리뷰 사이클을 완주해 완성본으로 제시       |
+| `/workflow-core-max:review-criteria` | 리뷰어 에이전트 병렬 팬아웃 + 메인의 검증       |
+| `/workflow-core-max:refs-scratch`    | `.refs/` 스크래치 디렉터리 규약                 |
+| `/gitlab-workflow-max:mr-workflow`   | GitLab 브랜치 + MR 전달 (설계·구현·리뷰는 위임) |
 
 `workflow-core`와 **같이 켜지 않는다** — `review-criteria`가 둘이 된다.
 `github-workflow`·`gitlab-workflow`도 함께 끈다. 둘 다 `workflow-core`에 의존해서 켜는 순간

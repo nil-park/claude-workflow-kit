@@ -1,7 +1,7 @@
 ---
 name: mr-workflow
 description: >-
-  브랜치를 만들고 GitLab MR을 열거나 고친다. 구현과 리뷰는 `work-cycle`에 넘기고 전달
+  브랜치를 만들고 GitLab MR을 열거나 고친다. 설계·구현·리뷰는 `work-cycle`에 넘기고 전달
   단계만 맡는다. 이렇게 부를 때 쓴다 — "브랜치 만들고 MR 작성하자", "MR 작성", "MR
   만들자", "draft MR 열자", "MR 설명 고쳐줘", "create the branch and open the MR",
   "open the MR".

@@ -28,7 +28,7 @@
     {
       "name": "gitlab-workflow-max",
       "source": "./plugins/gitlab-workflow-max",
-      "description": "GitLab branch + MR delivery on top of workflow-core-max. Implementation and review go to the work-cycle skill."
+      "description": "GitLab branch + MR delivery on top of workflow-core-max. Design, implementation and review go to the work-cycle skill."
     }
   ]
 }

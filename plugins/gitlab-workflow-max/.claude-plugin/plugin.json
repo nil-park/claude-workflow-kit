@@ -1,6 +1,6 @@
 {
   "name": "gitlab-workflow-max",
-  "description": "GitLab branch + MR delivery on top of workflow-core-max. Implementation and review are delegated to the work-cycle skill.",
+  "description": "GitLab branch + MR delivery on top of workflow-core-max. Design, implementation and review are delegated to the work-cycle skill.",
   "author": {
     "name": "nil-park"
   },
