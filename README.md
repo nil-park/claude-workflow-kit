@@ -18,21 +18,23 @@
 | `github-workflow` | `/github-workflow:pr-workflow`   | GitHub 브랜치 + PR 워크플로 (`gh`)                             |
 | `gitlab-workflow` | `/gitlab-workflow:mr-workflow`   | GitLab 브랜치 + MR 워크플로 (`glab`)                           |
 
-### `workflow-core-max`
+### `-max` 계열
 
-`workflow-core`를 **대체하는** 별도 계열이다. 토큰 여유는 많고 작업 속도가 아쉬운 환경을
-위해, 리뷰를 전문 에이전트 여덟에게 병렬로 흩뿌리고 메인 에이전트가 검증해 확정한다.
-설계는 [docs/architecture/max-plugins.md](docs/architecture/max-plugins.md).
+`workflow-core`·`gitlab-workflow`를 **대체하는** 별도 계열이다. 토큰 여유는 많고 작업 속도가
+아쉬운 환경을 위해, 작업을 작성-리뷰 사이클로 완주시키고 그 리뷰를 전문 에이전트 여덟에게
+병렬로 흩뿌린다. 설계는 [docs/architecture/max-plugins.md](docs/architecture/max-plugins.md).
 
-| 명령                                 | 설명                                      |
-| ------------------------------------ | ----------------------------------------- |
-| `/workflow-core-max:review-criteria` | 리뷰어 에이전트 병렬 팬아웃 + 메인의 검증 |
-| `/workflow-core-max:refs-scratch`    | `.refs/` 스크래치 디렉터리 규약           |
+| 명령                                 | 설명                                            |
+| ------------------------------------ | ----------------------------------------------- |
+| `/workflow-core-max:work-cycle`      | 작성-리뷰 사이클을 완주해 완성본으로 제시       |
+| `/workflow-core-max:review-criteria` | 리뷰어 에이전트 병렬 팬아웃 + 메인의 검증       |
+| `/workflow-core-max:refs-scratch`    | `.refs/` 스크래치 디렉터리 규약                 |
+| `/gitlab-workflow-max:mr-workflow`   | GitLab 브랜치 + MR 전달 (설계·구현·리뷰는 위임) |
 
-`workflow-core`와 **같이 켜지 않는다** — `review-criteria`가 둘이 된다. 같은 이유로
-`github-workflow`·`gitlab-workflow`도 함께 끈다. 둘 다 `workflow-core`에 의존해서 켜는
-순간 그것을 끌고 들어온다. 스킬과 에이전트 본문은 한국어다
-([ADR 0001](docs/decisions/0001-max-plugins-in-korean.md)).
+`workflow-core`와 **같이 켜지 않는다** — `review-criteria`가 둘이 된다.
+`github-workflow`·`gitlab-workflow`도 함께 끈다. 둘 다 `workflow-core`에 의존해서 켜는 순간
+그것을 끌고 들어오고, `gitlab-workflow`는 `mr-workflow`까지 겹친다. 스킬과 에이전트 본문은
+한국어다 ([ADR 0001](docs/decisions/0001-max-plugins-in-korean.md)).
 
 ## 다른 환경에서 쓸 때 (충돌 가능 요소)
 
@@ -45,8 +47,8 @@
 | 요소                                           | 위치                     | 왜 충돌                                                    | 탈출구                          |
 | ---------------------------------------------- | ------------------------ | ---------------------------------------------------------- | ------------------------------- |
 | 한국어 트리거·본문                             | 전 스킬 description 등   | 비한국어 사용자는 트리거가 안 맞고 텍스트도 안 읽힘        | 없음                            |
-| Jira 키를 MR 제목에 (`GAI-123 Title`)          | mr-workflow              | Jira 미사용·키 포맷 다른 팀엔 전면 충돌                    | 없음                            |
-| `--squash-before-merge --remove-source-branch` | mr-workflow create       | 머지 전략·소스브랜치 유지 정책을 강제                      | 없음                            |
+| Jira 키를 MR 제목에 (`GAI-123 Title`)          | 양 계열의 mr-workflow    | Jira 미사용·키 포맷 다른 팀엔 전면 충돌                    | 없음                            |
+| `--squash-before-merge --remove-source-branch` | 양 계열의 mr-workflow    | 머지 전략·소스브랜치 유지 정책을 강제                      | 없음                            |
 | subagent·빌트인 리뷰 금지                      | workflow-core            | 서브에이전트/`/code-review`를 쓰라는 규약과 정면 충돌      | `workflow-core-max`를 대신 켠다 |
 | 서브에이전트 여덟 병렬 + 큰 토큰 소모          | workflow-core-max        | 토큰 예산이 빡빡하거나 서브에이전트를 금지하는 규약과 충돌 | `workflow-core`를 대신 켠다     |
 | main 직접 push 차단 → PR 강제                  | pre-push + 워크플로 전제 | 트렁크기반·솔로 개발자와 충돌                              | pre-push는 `--no-verify` 우회   |
@@ -85,15 +87,20 @@ GitHub 환경 예시:
 GitLab 환경이면 `github-workflow` 대신 `gitlab-workflow`를 켠다. 플랫폼 플러그인은
 `workflow-core`에 의존하므로 그것만 켜도 `workflow-core`는 자동으로 함께 활성화된다.
 
-병렬 리뷰 계열을 쓰려면 다른 것을 전부 끄고 `workflow-core-max` 하나만 켠다:
+`-max` 계열을 쓰려면 다른 것을 전부 끄고 이쪽만 켠다. GitLab 환경 예시:
 
 ```json
 {
   "enabledPlugins": {
-    "workflow-core-max@claude-workflow-kit": true
+    "gitlab-workflow-max@claude-workflow-kit": true
   }
 }
 ```
+
+`gitlab-workflow-max`는 `workflow-core-max`에 의존하므로 그것만 켜도 함께 활성화된다.
+
+GitHub 환경용 `-max` 전달 플러그인은 아직 없다. `workflow-core-max` 하나만 켜서 작업
+사이클과 리뷰를 쓰고, 브랜치와 PR은 직접 다룬다.
 
 설정만으로 플러그인 설치가 안 됐을 경우 다음 명령을 실행한다(의존성 `workflow-core`는 자동 설치):
 

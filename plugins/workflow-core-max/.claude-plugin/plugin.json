@@ -1,6 +1,6 @@
 {
   "name": "workflow-core-max",
-  "description": "Parallel fan-out code review: specialized reviewer agents plus a verification pass by the main agent. Trades tokens for coverage. Replaces workflow-core; don't enable both.",
+  "description": "A write-review work cycle backed by parallel fan-out review: specialized reviewer agents plus a verification pass by the main agent. Trades tokens for coverage. Replaces workflow-core; don't enable both.",
   "author": {
     "name": "nil-park"
   },
