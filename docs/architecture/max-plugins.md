@@ -44,7 +44,7 @@ plugins/
       mr-workflow/        브랜치·draft MR·ready 전환
 ```
 
-`gitlab-workflow-max`는 `workflow-core-max`에 의존한다. 전달 단계만 담고 구현과 리뷰는
+`gitlab-workflow-max`는 `workflow-core-max`에 의존한다. 전달 단계만 담고 설계·구현·리뷰는
 `work-cycle`에 넘긴다.
 
 `workflow-core`의 `docs-standards`는 스킬로 남지 않고 `docs-intent-auditor`·
