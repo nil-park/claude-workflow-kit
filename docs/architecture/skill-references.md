@@ -72,6 +72,7 @@ flowchart LR
   mrm --> wc
   wc --> rcm
   rcm ==팬아웃==> ag
+  mrm -.-> rsm
   wc -.-> rsm
   rcm -.-> rsm
 ```
@@ -85,5 +86,5 @@ flowchart LR
 `structure-auditor`로 분해돼 들어갔고, 그래서 이 계열에는 `review-criteria` →
 `docs-standards` 강결합이 없다.
 
-`gitlab-workflow-max`의 `plugin.json`은 `dependencies: ["workflow-core-max"]`를 유지한다.
+`gitlab-workflow-max`의 `plugin.json`은 `dependencies: ["workflow-core-max"]`를 선언한다.
 `work-cycle`을 이름으로 부르므로 그것이 설치돼 있어야 한다.
