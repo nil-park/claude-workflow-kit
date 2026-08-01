@@ -53,25 +53,37 @@ flowchart LR
 
 ## `-max` 계열
 
-`workflow-core-max`는 위 그래프와 **같이 켜지지 않는** 별도 계열이다
-([설계](max-plugins.md)). 스킬이 스킬을 부르는 대신, 스킬 하나가 에이전트 여덟을 띄운다.
+`-max` 계열은 위 그래프와 **같이 켜지지 않는** 별도 계열이다 ([설계](max-plugins.md)).
+스킬 사이 참조는 위와 같은 모양이고, 거기에 스킬 하나가 에이전트 여덟을 띄우는 결합이
+더해진다.
 
 ```mermaid
 flowchart LR
+  subgraph glm["gitlab-workflow-max"]
+    mrm["mr-workflow"]
+  end
   subgraph wcm["workflow-core-max"]
+    wc["work-cycle"]
     rcm["review-criteria"]
     rsm["refs-scratch"]
     ag["agents ×8"]
   end
 
+  mrm --> wc
+  wc --> rcm
   rcm ==팬아웃==> ag
+  wc -.-> rsm
   rcm -.-> rsm
 ```
 
 - **굵은 화살표 = 팬아웃.** 이름을 직접 부르는 강결합이라는 점은 실선과 같고, 하나가 여럿을
   병렬로 띄운 뒤 결과를 검증해 확정한다는 점만 다르다.
-- **점선은 위와 같다.** `.refs/` 위치·이름 규약은 `refs-scratch`가 트리거로 발동해 채운다.
+- **실선·점선은 위와 같다.** `mr-workflow` → `work-cycle` → `review-criteria`는 이름을 직접
+  부르는 강결합이고, `.refs/` 위치·이름 규약은 `refs-scratch`가 트리거로 발동해 채운다.
 
 `docs-standards`에 해당하는 노드가 없다. 그 내용은 `docs-intent-auditor`와
 `structure-auditor`로 분해돼 들어갔고, 그래서 이 계열에는 `review-criteria` →
 `docs-standards` 강결합이 없다.
+
+`gitlab-workflow-max`의 `plugin.json`은 `dependencies: ["workflow-core-max"]`를 유지한다.
+`work-cycle`을 이름으로 부르므로 그것이 설치돼 있어야 한다.

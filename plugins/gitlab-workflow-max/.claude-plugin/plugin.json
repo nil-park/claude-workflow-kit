@@ -1,0 +1,12 @@
+{
+  "name": "gitlab-workflow-max",
+  "description": "GitLab branch + MR delivery on top of workflow-core-max. Implementation and review are delegated to the work-cycle skill.",
+  "author": {
+    "name": "nil-park"
+  },
+  "homepage": "https://github.com/nil-park/claude-workflow-kit",
+  "repository": "https://github.com/nil-park/claude-workflow-kit",
+  "license": "MIT",
+  "keywords": ["workflow", "gitlab", "mr", "glab"],
+  "dependencies": ["workflow-core-max"]
+}

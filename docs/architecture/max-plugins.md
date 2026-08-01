@@ -9,35 +9,42 @@
 
 ```mermaid
 flowchart TB
-  subgraph core["workflow-core-max"]
-    M["메인 에이전트"]
-    RC["review-criteria<br/>(팬아웃 오케스트레이션)"]
-    A1["항상 도는 리뷰어 7종"]
-    A2["조건부 리뷰어 1종"]
+  subgraph gl["gitlab-workflow-max"]
+    MR["mr-workflow<br/>브랜치·draft MR·ready"]
   end
 
-  U([사용자]) <--> M
-  M --> RC
-  RC --> A1 & A2
-  A1 & A2 -.보고.-> RC
+  subgraph core["workflow-core-max"]
+    WC["work-cycle<br/>작업 사이클"]
+    RC["review-criteria<br/>팬아웃 오케스트레이션"]
+    AG["리뷰어 8종"]
+  end
+
+  U([사용자]) <--> WC
+  U <--> MR
+  MR --> WC
+  WC --> RC
+  RC --> AG
+  AG -.보고.-> RC
   RC --> L[(".refs/review/…<br/>라운드 대장")]
 ```
-
-## 단계
-
-1단계의 판정 축은 기존 `workflow-core:review-criteria`의 기준을 바탕으로 한다. 산출물은
-`workflow-core-max` 플러그인 하나이고, 그 뒤는 [확장 후보](#확장-후보).
 
 ## 플러그인 경계
 
 ```
-plugins/workflow-core-max/
-  .claude-plugin/plugin.json
-  skills/
-    review-criteria/    팬아웃 오케스트레이션
-    refs-scratch/       .refs/ 규약
-  agents/               리뷰어 8종
+plugins/
+  workflow-core-max/
+    skills/
+      work-cycle/         작업 사이클
+      review-criteria/    팬아웃 오케스트레이션
+      refs-scratch/       .refs/ 규약
+    agents/               리뷰어 8종
+  gitlab-workflow-max/
+    skills/
+      mr-workflow/        브랜치·draft MR·ready 전환
 ```
+
+`gitlab-workflow-max`는 `workflow-core-max`에 의존한다. 전달 단계만 담고 구현과 리뷰는
+`work-cycle`에 넘긴다.
 
 `workflow-core`의 `docs-standards`는 스킬로 남지 않고 `docs-intent-auditor`·
 `structure-auditor`로 분해돼 들어갔고, `pre-push`는 싣지 않는다. 그래서 문서를 **쓸 때**
@@ -46,13 +53,38 @@ plugins/workflow-core-max/
 스킬 사이 참조는 [skill-references.md](skill-references.md), 구성을 이렇게 고른 근거는
 [0003](../decisions/0003-max-plugin-composition.md).
 
+## 작업 사이클
+
+git 리포지토리에 변경을 만드는 모든 작업이 대상이다. "CLAUDE.md 개정"처럼 가벼운 단위도
+워킹 트리 안에서 사이클을 완주한 뒤 완성본으로 올라간다.
+
+| 단계          | 하는 일                                               | 사용자와 |
+| ------------- | ----------------------------------------------------- | -------- |
+| 1 작업 단위   | 무엇을 바꾸는 작업이고 어떤 도메인인지 합의           | 대화     |
+| 2 설계        | 규모에 따라 spec doc 또는 한 문단짜리 의도 진술       | 대화     |
+| 3 구현        | 메인이 직접 한다. 서브 에이전트에 나누지 않는다       | 없음     |
+| 4 리뷰 라운드 | `review-criteria`를 불러 빈 라운드가 나올 때까지 반복 | 없음     |
+| 5 제시        | 완주한 결과물을 올린다                                | 대화     |
+
+1단계의 도메인 판정이 4단계의 조건부 리뷰어 투입을 결정한다. 판정은 메인이 하고 결과를
+1단계에서 알린다.
+
+**4단계는 사용자를 부르지 않는다.** 메인이 지적을 받고, 고치고, 다시 돌린다. 예외는 메인이
+혼자 정할 수 없는 것뿐이다 — 설계를 바꾸거나 작업 범위를 넓히는 지적은 그 자리에서 올린다.
+
+라운드에 상한은 없다. 다만 같은 지적이 반복되거나 수정이 계속 회귀를 만들면 멈추고
+사용자에게 올린다.
+
+`work-cycle`은 `review-criteria`를 이름으로 부르고 팬아웃 표는 모른다. 사이클을 돌지 않는
+순수 리뷰 요청이 따로 있어 두 스킬은 분리돼 있다.
+
 ## 리뷰 팬아웃
 
 ### 대상
 
-기존 `review-criteria`와 같다 — 호스팅된 PR/MR, 브랜치, 커밋 전 워킹 디렉터리의 변경분.
-마지막 것이 자기리뷰다. **수집은 메인이 한 번만 한다.** 절차는 `review-criteria` 스킬에
-있다.
+호스팅된 PR/MR, 브랜치, 커밋 전 워킹 디렉터리의 변경분. 마지막 것이 자기리뷰이고,
+`work-cycle` 4단계가 도는 것이 이것이다. **수집은 메인이 한 번만 한다.** 절차는
+`review-criteria` 스킬에 있다.
 
 ### 조율
 
@@ -76,9 +108,7 @@ plugins/workflow-core-max/
 
 에이전트는 자신이 실제로 적용한 범위를 보고와 함께 반환한다.
 
-### 리뷰어 (1단계)
-
-기존 `review-criteria`의 판정 항목을 여덟으로 분해한 것이다.
+### 리뷰어
 
 | 에이전트                    | 축                          |
 | --------------------------- | --------------------------- |
@@ -106,18 +136,18 @@ plugins/workflow-core-max/
   ledger.md        라운드를 넘어 지속되는 지적 대장 (미해결/수정함/보류/기각)
 ```
 
-**파일은 메인이 쓴다.** 에이전트는 읽기 전용이라 소스를 건드릴 수 없다.
+**파일은 메인이 쓴다.** 에이전트는 읽기 전용이라 소스를 건드릴 수 없다. 지적마다
+`r2-3`(라운드-순번) 형태의 번호를 붙이고, `ledger.md`가 그 번호와 상태를 이어받아 라운드를
+넘어 누적된다.
 
-`verdict.md`가 사용자와의 소통 채널이다. 지적마다 `r2-3`(라운드-순번) 형태의 번호를 붙이고,
-대화는 그 번호로 한다. 한 항목의 결론이 나면 다음 항목으로 넘어가기 전에 그 자리에 상태와
-한 줄 근거를 적는다. `ledger.md`는 그 번호와 상태를 그대로 이어받아 라운드를 넘어 누적된다.
+`verdict.md`는 **리뷰를 단독으로 요청했을 때** 사용자와 대화하는 채널이다. 항목마다 결론이
+날 때 상태와 한 줄 근거가 그 자리에 적힌다. `work-cycle` 안에서 돌 때는 메인이 스스로 읽고
+처리하므로 기록으로만 남는다.
 
 채널 형태를 파일로 정한 근거와 기각한 대안은
 [0002](../decisions/0002-parallel-review-fanout.md)에 있다.
 
 ## 확장 후보
 
-1단계를 실제로 써본 뒤에 손댈 목록은 이슈로 옮겼다.
-
-- 리뷰어 확장 후보: [#3](https://github.com/nil-park/claude-workflow-kit/issues/3)
-- 작업 사이클 일반화와 `gitlab-workflow-max`: [#4](https://github.com/nil-park/claude-workflow-kit/issues/4)
+리뷰 축을 넓히는 후보는 [#3](https://github.com/nil-park/claude-workflow-kit/issues/3)에
+모아 두었다.

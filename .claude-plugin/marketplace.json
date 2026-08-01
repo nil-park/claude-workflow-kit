@@ -24,6 +24,11 @@
       "name": "gitlab-workflow",
       "source": "./plugins/gitlab-workflow",
       "description": "GitLab branch + MR workflow driven by the glab CLI. Depends on workflow-core."
+    },
+    {
+      "name": "gitlab-workflow-max",
+      "source": "./plugins/gitlab-workflow-max",
+      "description": "GitLab branch + MR delivery on top of workflow-core-max. Implementation and review go to the work-cycle skill."
     }
   ]
 }

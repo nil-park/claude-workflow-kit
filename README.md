@@ -18,16 +18,18 @@
 | `github-workflow` | `/github-workflow:pr-workflow`   | GitHub 브랜치 + PR 워크플로 (`gh`)                             |
 | `gitlab-workflow` | `/gitlab-workflow:mr-workflow`   | GitLab 브랜치 + MR 워크플로 (`glab`)                           |
 
-### `workflow-core-max`
+### `-max` 계열
 
-`workflow-core`를 **대체하는** 별도 계열이다. 토큰 여유는 많고 작업 속도가 아쉬운 환경을
-위해, 리뷰를 전문 에이전트 여덟에게 병렬로 흩뿌리고 메인 에이전트가 검증해 확정한다.
-설계는 [docs/architecture/max-plugins.md](docs/architecture/max-plugins.md).
+`workflow-core`·`gitlab-workflow`를 **대체하는** 별도 계열이다. 토큰 여유는 많고 작업
+속도가 아쉬운 환경을 위해, 리뷰를 전문 에이전트 여덟에게 병렬로 흩뿌리고 메인 에이전트가
+검증해 확정한다. 설계는 [docs/architecture/max-plugins.md](docs/architecture/max-plugins.md).
 
-| 명령                                 | 설명                                      |
-| ------------------------------------ | ----------------------------------------- |
-| `/workflow-core-max:review-criteria` | 리뷰어 에이전트 병렬 팬아웃 + 메인의 검증 |
-| `/workflow-core-max:refs-scratch`    | `.refs/` 스크래치 디렉터리 규약           |
+| 명령                                 | 설명                                       |
+| ------------------------------------ | ------------------------------------------ |
+| `/workflow-core-max:work-cycle`      | 작성-리뷰 사이클을 완주해 완성본으로 제시  |
+| `/workflow-core-max:review-criteria` | 리뷰어 에이전트 병렬 팬아웃 + 메인의 검증  |
+| `/workflow-core-max:refs-scratch`    | `.refs/` 스크래치 디렉터리 규약            |
+| `/gitlab-workflow-max:mr-workflow`   | GitLab 브랜치 + MR 전달 (구현·리뷰는 위임) |
 
 `workflow-core`와 **같이 켜지 않는다** — `review-criteria`가 둘이 된다. 같은 이유로
 `github-workflow`·`gitlab-workflow`도 함께 끈다. 둘 다 `workflow-core`에 의존해서 켜는
@@ -85,15 +87,18 @@ GitHub 환경 예시:
 GitLab 환경이면 `github-workflow` 대신 `gitlab-workflow`를 켠다. 플랫폼 플러그인은
 `workflow-core`에 의존하므로 그것만 켜도 `workflow-core`는 자동으로 함께 활성화된다.
 
-병렬 리뷰 계열을 쓰려면 다른 것을 전부 끄고 `workflow-core-max` 하나만 켠다:
+`-max` 계열을 쓰려면 다른 것을 전부 끄고 이쪽만 켠다. GitLab 환경 예시:
 
 ```json
 {
   "enabledPlugins": {
-    "workflow-core-max@claude-workflow-kit": true
+    "gitlab-workflow-max@claude-workflow-kit": true
   }
 }
 ```
+
+`gitlab-workflow-max`는 `workflow-core-max`에 의존하므로 그것만 켜도 함께 활성화된다.
+리뷰만 쓰려면 `workflow-core-max` 하나만 켠다.
 
 설정만으로 플러그인 설치가 안 됐을 경우 다음 명령을 실행한다(의존성 `workflow-core`는 자동 설치):
 
