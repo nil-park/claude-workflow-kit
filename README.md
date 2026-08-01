@@ -31,10 +31,10 @@
 | `/workflow-core-max:refs-scratch`    | `.refs/` 스크래치 디렉터리 규약            |
 | `/gitlab-workflow-max:mr-workflow`   | GitLab 브랜치 + MR 전달 (구현·리뷰는 위임) |
 
-`workflow-core`와 **같이 켜지 않는다** — `review-criteria`가 둘이 된다. 같은 이유로
-`github-workflow`·`gitlab-workflow`도 함께 끈다. 둘 다 `workflow-core`에 의존해서 켜는
-순간 그것을 끌고 들어온다. 스킬과 에이전트 본문은 한국어다
-([ADR 0001](docs/decisions/0001-max-plugins-in-korean.md)).
+`workflow-core`와 **같이 켜지 않는다** — `review-criteria`가 둘이 된다.
+`github-workflow`·`gitlab-workflow`도 함께 끈다. 둘 다 `workflow-core`에 의존해서 켜는 순간
+그것을 끌고 들어오고, `gitlab-workflow`는 `mr-workflow`까지 겹친다. 스킬과 에이전트 본문은
+한국어다 ([ADR 0001](docs/decisions/0001-max-plugins-in-korean.md)).
 
 ## 다른 환경에서 쓸 때 (충돌 가능 요소)
 
