@@ -1,0 +1,2 @@
+# LF everywhere, so Git for Windows' core.autocrlf and Prettier stop fighting.
+* text=auto eol=lf
