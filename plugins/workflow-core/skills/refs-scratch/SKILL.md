@@ -18,7 +18,10 @@ PR/MR/issue description, saved reviews, and "revisit this later" jottings.
 
 - **Never commit these files.** `.refs/` must be gitignored before you write into
   it. If it isn't yet, **ask me before adding it to `.gitignore`** — editing that
-  file changes shared repo config, and this may not be a repo I control.
+  file changes shared repo config, and this may not be a repo I control. Before
+  asking, look for **a directory the repo already gitignores** that would serve;
+  if one exists, offer it as the option that leaves `.gitignore` untouched. Rule
+  out build output and dependency directories — one clean or reinstall wipes them.
 - **Unique, descriptive kebab-case names** — never a fixed name, or a parallel
   session clobbers it. Tie the name to its branch or subject, e.g.
   `pr-body-<branch-slug>.md`, `mr-body-<branch-slug>.md`, `review-<number>.md`.
