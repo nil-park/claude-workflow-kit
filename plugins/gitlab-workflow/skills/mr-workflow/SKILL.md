@@ -26,8 +26,9 @@ is ready for me to merge.
 3. Implement, commit, and push.
 4. When you judge the implementation complete, self-review it per the
    `review-criteria` skill's instructions.
-   - Repeat the implement → push → self-review cycle until a clean self-review
-     pass. Leave each cycle's review as its own markdown doc (don't commit it).
+   - Repeat the implement → push → self-review cycle until **three consecutive
+     clean self-review passes**. Save each cycle's review to
+     `.refs/mr-review-<mr>-<cycle>.md` (local scratch — don't commit it).
 5. Only when it's truly ready, flip the draft MR to ready
    (`glab mr update --ready`) and tell me it's done. I merge it myself.
 
@@ -50,8 +51,11 @@ ask for it.
   ```
 - Include the Jira issue key only in the **MR title** (not in individual commit
   messages). When committing directly to main, put the key in the commit message.
-- Write the description to a `.refs/mr-body-<branch-slug>.md` temp file and pass
-  via `-d "$(cat ...)"`; never inline `-d "..."`.
+- Write the description to a temp file (literal backticks, no escaping) and pass
+  via `-d "$(cat ...)"`; never inline `-d "..."`. Give the file a unique-per-branch
+  name, e.g. `mr-body-<branch-slug>.md` — a fixed name gets clobbered by a parallel
+  session. Put it in `<repo-root>/.refs/` — if `.refs` isn't gitignored yet, add
+  it to `.gitignore` first.
 - MR descriptions: concise, aim for ≤25 lines. Frame it as the **delta between
   the current state and the desired state** the spec doc lays out — what this MR
   changes to close that gap — not a re-explanation of the spec. No checkboxes
@@ -94,11 +98,20 @@ ask for it.
 
 - **Self-review is a loop, not a one-shot** — the common failure is calling it
   done after one pass. Review the whole MR against the `review-criteria` skill's
-  criteria, revise, then **re-review from scratch**, repeating until a full pass
-  (taken after your last edit) surfaces nothing worth changing.
+  criteria, revise, then **re-review from scratch**, repeating.
+- **Exit condition: three consecutive clean passes.** A pass is clean only if it
+  surfaces nothing worth changing. The counter **resets to zero on any edit** —
+  including a trivial one-line fix, and including edits made in response to the
+  pass itself. So the last three passes must run back-to-back over an untouched
+  tree.
+- Each pass must be a genuine fresh review, not a rubber stamp of the previous
+  one — re-read the full diff and actively hunt for a reason it's wrong. Passes 2
+  and 3 exist to catch what pass 1 missed, so don't shortcut them just because
+  the tree didn't change.
 - Expect that to take a while: in practice fixes keep surfacing for ~5 rounds of
   revision, so an early "looks complete" is almost always premature. The number
-  is calibration, not a target or cap — the only exit is a genuinely empty pass.
+  is calibration, not a target or cap — the only exit is three genuinely empty
+  passes in a row.
 
 ## Marking ready (step 5 mechanics)
 
