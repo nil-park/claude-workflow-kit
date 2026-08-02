@@ -24,8 +24,9 @@ is ready for me to merge.
 3. Implement, commit, and push.
 4. When you judge the implementation complete, self-review it per the
    `review-criteria` skill's instructions.
-   - Repeat the implement → push → self-review cycle until a clean self-review
-     pass. Leave each cycle's review as its own markdown doc (don't commit it).
+   - Repeat the implement → push → self-review cycle until **three consecutive
+     clean self-review passes**. Leave each cycle's review as its own markdown
+     doc (don't commit it).
 5. Only when it's truly ready, flip the draft PR to **ready for review**
    (`gh pr ready`) and tell me it's done.
 
@@ -83,11 +84,20 @@ On its own, "open the PR" / "PR 작성" means everything up to the draft PR
 
 - **Self-review is a loop, not a one-shot** — the common failure is calling it
   done after one pass. Review the whole PR against the `review-criteria` skill's
-  criteria, revise, then **re-review from scratch**, repeating until a full pass
-  (taken after your last edit) surfaces nothing worth changing.
+  criteria, revise, then **re-review from scratch**, repeating.
+- **Exit condition: three consecutive clean passes.** A pass is clean only if it
+  surfaces nothing worth changing. The counter **resets to zero on any edit** —
+  including a trivial one-line fix, and including edits made in response to the
+  pass itself. So the last three passes must run back-to-back over an untouched
+  tree.
+- Each pass must be a genuine fresh review, not a rubber stamp of the previous
+  one — re-read the full diff and actively hunt for a reason it's wrong. Passes 2
+  and 3 exist to catch what pass 1 missed, so don't shortcut them just because
+  the tree didn't change.
 - Expect that to take a while: in practice fixes keep surfacing for ~5 rounds of
   revision, so an early "looks complete" is almost always premature. The number
-  is calibration, not a target or cap — the only exit is a genuinely empty pass.
+  is calibration, not a target or cap — the only exit is three genuinely empty
+  passes in a row.
 
 ## Marking ready
 
