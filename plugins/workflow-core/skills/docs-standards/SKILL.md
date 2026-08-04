@@ -6,7 +6,8 @@ description: >-
   compression, what belongs in a comment, and reference direction. Use when
   creating or editing a doc, deciding which directory it belongs in, or judging
   whether docs/comments are bloated or bound to go stale — e.g. "문서 작성",
-  "문서 구조 정리", "이 문서 어디에 둬야 해?", "ADR 추가".
+  "문서 구조 정리", "이 문서 어디에 둬야 해?", "ADR 추가". Also the review criteria
+  for prose of any kind, including an issue or PR/MR title and description.
 ---
 
 # Docs & comment standards
@@ -96,3 +97,17 @@ anything here — everywhere else is live docs, with no prefix.
   the doc's own content, not a copy.
 - Keep docs loosely coupled. Two docs referencing each other is fine; three or
   more shouldn't close a ring.
+
+## Reviewing
+
+These standards are also the review criteria for anything written in prose —
+docs, code comments, and the title and description of an issue or PR/MR. The
+`coding-standards` catalog covers code and deliberately leaves all of this here.
+
+- Scope a review to what the diff touches. Never ask for a repo-wide
+  reorganization or a change to the repo's existing convention.
+- This axis produces filler easily, so flag only what's genuinely hard to read or
+  bound to go stale.
+- For a PR/MR, read the description and any linked docs, and judge whether the
+  description is accurate and adequate for the changes it ships. Call out missing
+  pieces and anything the diff contradicts.
