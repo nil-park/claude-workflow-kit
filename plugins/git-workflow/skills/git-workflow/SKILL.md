@@ -49,7 +49,7 @@ description: >-
 - `git remote get-url origin`으로 GitHub인지 GitLab인지 정한 뒤 해당 절만 따른다.
 - **origin의 기본 브랜치(main/master)를 먼저 확인한다.** 그것이 대상 브랜치다.
 - 브랜치 이름은 `<타입>/<슬러그>` — 예: `chore/add-user-ssh-key`. 이슈 번호를 넣을지는 플랫폼 절에서 정한다.
-- 설명은 `workflow-core:refs-scratch` 스킬에서 정한 규약에 따른 임시 디렉토리에 `pr-body-<브랜치-슬러그>.md`같은 형태로 작성한 뒤 경로로 넘긴다. **명령줄에 직접 붙이지 마라.**
+- 설명은 `workflow-core:refs-scratch` 스킬에서 정한 규약에 따라 파일로 쓰고 경로로 넘긴다. 아래 예시의 `<본문 파일>`이 그것이다. **명령줄에 직접 붙이지 마라.**
 
 ## GitHub
 
@@ -59,7 +59,7 @@ description: >-
 
 ```
 gh pr create --base "<origin 기본 브랜치>" --draft -a @me \
-  -t "[#47] 제목" --body-file .refs/pr-body-<브랜치-슬러그>.md
+  -t "[#47] 제목" --body-file <본문 파일>
 ```
 
 - 설명 수정은 `gh pr edit --body-file <경로>`, Ready 전환은 `gh pr ready`.
@@ -73,7 +73,7 @@ gh pr create --base "<origin 기본 브랜치>" --draft -a @me \
 ```
 glab mr create --remove-source-branch --squash-before-merge \
   --target-branch "<origin 기본 브랜치>" --draft -a @me \
-  -t "GAI-123 제목" -d "$(cat .refs/mr-body-<브랜치-슬러그>.md)"
+  -t "GAI-123 제목" -d "$(cat <본문 파일>)"
 ```
 
 - 설명 수정은 `glab mr edit`이 아니라 `glab mr update`, Ready 전환은 `glab mr update --ready`.
