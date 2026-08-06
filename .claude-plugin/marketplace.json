@@ -8,27 +8,12 @@
     {
       "name": "workflow-core",
       "source": "./plugins/workflow-core",
-      "description": "Standalone, dev-environment-neutral skills: docs standards, code review, and a pre-push guard."
+      "description": "Standalone, dev-environment-neutral skills: coding and docs standards, a write-review work cycle, a scratch-dir convention, and a pre-push guard."
     },
     {
-      "name": "workflow-core-max",
-      "source": "./plugins/workflow-core-max",
-      "description": "A write-review work cycle backed by parallel fan-out review across specialized reviewer agents. Replaces workflow-core; don't enable both."
-    },
-    {
-      "name": "github-workflow",
-      "source": "./plugins/github-workflow",
-      "description": "GitHub branch + PR workflow driven by the gh CLI. Depends on workflow-core."
-    },
-    {
-      "name": "gitlab-workflow",
-      "source": "./plugins/gitlab-workflow",
-      "description": "GitLab branch + MR workflow driven by the glab CLI. Depends on workflow-core."
-    },
-    {
-      "name": "gitlab-workflow-max",
-      "source": "./plugins/gitlab-workflow-max",
-      "description": "GitLab branch + MR delivery on top of workflow-core-max. Design, implementation and review go to the work-cycle skill."
+      "name": "git-workflow",
+      "source": "./plugins/git-workflow",
+      "description": "Branch + PR/MR delivery driven by the gh or glab CLI. Depends on workflow-core."
     }
   ]
 }
