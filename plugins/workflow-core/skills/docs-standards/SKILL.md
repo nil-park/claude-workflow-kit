@@ -1,113 +1,90 @@
 ---
 name: docs-standards
 description: >-
-  Standards for writing, placing, and restructuring project docs and code
-  comments — the `docs/` directory split, decision-record filenames, prose
-  compression, what belongs in a comment, and reference direction. Use when
-  creating or editing a doc, deciding which directory it belongs in, or judging
-  whether docs/comments are bloated or bound to go stale — e.g. "문서 작성",
-  "문서 구조 정리", "이 문서 어디에 둬야 해?", "ADR 추가". Also the review criteria
-  for prose of any kind, including an issue or PR/MR title and description.
+  프로젝트 문서와 코드 주석을 쓰고, 어디에 둘지 정하고, 구조를 고치는 기준 — `docs/`
+  디렉터리 분류, 결정 기록 파일명, 산문 압축, 주석에 남길 것, 참조 방향. 문서를 만들거나
+  고칠 때, 어느 디렉터리에 둘지 정할 때, 문서나 주석이 부풀었거나 낡을 것 같은지 판단할 때
+  부른다 — "문서 작성", "문서 구조 정리", "이 문서 어디에 둬야 해?", "ADR 추가". 이슈와
+  PR/MR 제목·설명을 포함해 산문 전반의 리뷰 기준이기도 하다.
 ---
 
-# Docs & comment standards
+# 문서와 주석 기준
 
-## Placement
+## 배치
 
-Follow the repo's own convention wherever it has one. The layout below is the
-fallback, for a kind of doc the repo doesn't have yet. Don't propose changing an
-existing convention unless I ask for a docs refactor.
+리포지토리에 이미 규약이 있으면 그것을 따른다. 아래 표는 아직 그런 문서가 없을 때의
+기본값이다. 문서 구조 개편을 시키지 않는 한 기존 규약을 바꾸자고 제안하지 않는다.
 
-| Path                 | Holds                                                                                         |
-| -------------------- | --------------------------------------------------------------------------------------------- |
-| `docs/architecture/` | How the system is built today — whatever you'd have to update when the implementation changes |
-| `docs/decisions/`    | Decision records, fixed to the moment they were made — see the filename rule below            |
-| `docs/runbook/`      | Deploy and incident-response procedures                                                       |
-| `docs/setup/`        | Environment setup                                                                             |
-| `docs/development/`  | How to develop and verify — smoke tests and the like                                          |
-| `docs/monitoring/`   | Monitoring setup, how the infra is laid out, Grafana and alert-channel links                  |
+| 경로                 | 담는 것                                                          |
+| -------------------- | ---------------------------------------------------------------- |
+| `docs/architecture/` | 시스템이 지금 어떻게 만들어져 있는가. 구현이 바뀌면 같이 고칠 것 |
+| `docs/decisions/`    | 결정 기록. 쓰인 시점에 고정된다                                  |
+| `docs/runbook/`      | 배포와 장애 대응 절차                                            |
+| `docs/setup/`        | 환경 구축                                                        |
+| `docs/development/`  | 개발과 검증 방법. 스모크 테스트 등                               |
+| `docs/monitoring/`   | 모니터링 구성, 인프라 배치, Grafana와 알림 채널 링크             |
 
-- Architecture or decision? Ask whether a change to the implementation would
-  force you to edit the sentence. If it would, it's architecture. If the answer
-  is "no, I'd write a new decision instead", it's a decision.
-- A why that still constrains the code belongs in architecture, dissolved into
-  the what — "the gateway validates the token so downstream can trust the
-  header", not a rationale section bolted on. Strip it out and the next reader
-  undoes the choice. `decisions/` takes the why that constrains nothing anymore:
-  alternatives you rejected, the constraints that applied at the time.
-- runbook vs monitoring: **where** the dashboards and alert channels live is
-  monitoring; **what to do** when an alert fires is runbook.
-- Keep one doc to one role. If something fits none of the six, the right move is
-  a seventh directory, not squeezing it into the closest match.
+- 아키텍처인지 결정인지는 이렇게 가른다. 구현이 바뀌면 그 문장을 고쳐야 하면 아키텍처다.
+  "고치는 게 아니라 새 결정을 쓰겠다"면 결정이다.
+- 지금도 코드를 구속하는 why는 아키텍처에 what과 섞어서 녹인다 — `게이트웨이가 토큰을
+검증하므로 하위는 헤더를 신뢰해도 된다`처럼. 별도의 근거 절로 떼어놓지 않는다. 빼버리면
+  다음 사람이 그 선택을 되돌린다. `decisions/`가 받는 것은 더는 아무것도 구속하지 않는
+  why다. 버린 대안, 그때만 유효했던 제약 같은 것.
+- 대시보드와 알림 채널이 어디 있는지는 monitoring, 알림이 울렸을 때 무엇을 할지는 runbook이다.
+- 문서 하나에 역할 하나. 여섯 곳 어디에도 안 맞으면 가장 가까운 곳에 끼워 넣지 말고 일곱
+  번째 디렉터리를 만든다.
 
-## Decision records (`docs/decisions/`)
+## 결정 기록 (`docs/decisions/`)
 
-The filename says whether a doc is frozen or live. The prefix only means
-anything here — everywhere else is live docs, with no prefix.
+파일명이 그 문서가 얼어 있는지 살아 있는지를 말한다. 접두사가 뜻을 갖는 곳은 여기뿐이고,
+나머지는 전부 접두사 없는 살아 있는 문서다.
 
-| Filename                  | Kind                         | How to change it                 |
-| ------------------------- | ---------------------------- | -------------------------------- |
-| `0001-<slug>.md`          | Fixed to when it was written | Never edit the body; append only |
-| `<slug>.md` (non-numeric) | Live                         | Edit freely                      |
+| 파일명                    | 성격             | 고치는 법                          |
+| ------------------------- | ---------------- | ---------------------------------- |
+| `0001-<슬러그>.md`        | 쓰인 시점에 고정 | 본문을 고치지 않고 덧붙이기만 한다 |
+| `<슬러그>.md` (숫자 없음) | 살아 있음        | 자유롭게 고친다                    |
 
-- Leave a numbered file's body alone apart from typos. Two things can drift:
-  - **The decision gets overturned** → write a new numbered file, and append one
-    line to the old one pointing at it (`→ superseded by 0007-<slug>.md`).
-  - **The decision still holds, you've just learned more since** → append that
-    under a date at the bottom of the same file.
-- Numbers are 4-digit and sequential. If two branches grab the same one,
-  whichever merges second bumps its number.
-- Live docs **link** to numbered files, nothing more. Copy a decision's content,
-  reasoning, or numbers into one and you have two originals that drift apart.
+- 번호 붙은 파일의 본문은 오타 말고는 건드리지 않는다. 어긋나는 경우는 둘이다.
+  - 결정이 뒤집혔다 → 새 번호 파일을 쓰고, 옛 파일에 한 줄만 덧붙여 가리킨다
+    (`→ 0007-<슬러그>.md로 대체됨`).
+  - 결정은 유효한데 그 뒤로 더 알게 됐다 → 같은 파일 맨 아래에 날짜를 달고 덧붙인다.
+- 번호는 네 자리 순번이다. 두 브랜치가 같은 번호를 잡으면 나중에 머지되는 쪽이 번호를 올린다.
+- 살아 있는 문서는 번호 파일을 링크만 한다. 내용이나 근거, 숫자를 옮겨 적으면 원본이 둘이
+  되어 갈라진다.
 
-## Prose
+## 산문
 
-- Reach for a diagram, a table, or an example wherever it beats writing it out.
-- If a short line covers it, don't stretch it into paragraphs.
-- A sentence that keeps piling on conditions and parentheticals for the sake of
-  precision buries the point it was making. Split it.
-- Never use checkboxes (`- [ ]`). They record progress, and progress is stale by
-  the next commit. Use plain bullets.
-- None of this applies to decision docs. Trade-offs, alternatives you rejected,
-  and why a workaround exists all stay, however long they run — compress the
-  writing, never the substance.
+- 다이어그램, 표, 예시가 글보다 나은 자리에서는 그것을 쓴다.
+- 짧은 한 줄로 되는 것을 문단으로 늘리지 않는다.
+- 체크박스(`- [ ]`)를 쓰지 않는다. 진행 상황을 기록하는 물건인데 다음 커밋이면 낡는다.
+- 결정 문서에는 이 절이 적용되지 않는다. 트레이드오프, 버린 대안, 우회책이 있는 이유는
+  길어져도 그대로 둔다. 글을 압축하되 내용은 압축하지 않는다.
 
-## Comments
+## 주석
 
-- Skip comments that restate the code, and assumptions the types, names, and
-  asserts already carry. Keep the why — that's the part code can't show.
-- Never restate a doc in a comment. Whatever you write twice, someone will
-  update on one side only.
-- The doc is the original. A comment can link to a doc, but a doc shouldn't point
-  back at a code location — that's what makes the reference bidirectional.
-  Naming a symbol is fine.
+- 문서를 주석에 옮겨 적지 않는다. 두 번 쓴 것은 한쪽만 고쳐진다.
+- 원본은 문서다. 주석이 문서를 링크하는 것은 되지만, 문서가 코드 위치를 되가리키면 참조가
+  양방향이 된다. 심볼 이름을 부르는 것은 괜찮다.
 
-## References
+## 참조
 
-- Spell out something that goes stale when the implementation changes — exact
-  numbers, signatures, the order of internal steps — only where you have to, and
-  link to it otherwise. Symbol names and file paths make fine link targets; a
-  link pinned to a line number goes stale itself, so don't write one.
-- Never paste code that has an original in this repo. The copy drifts from the
-  source with nothing to catch it, and a stale snippet misleads harder than no
-  snippet at all — describe the shape, or link to the source.
-- Code with no original here is the opposite, and often the shortest way to say
-  it: a client calling the API you're building, a sample request, a config the
-  consumer writes, the commands in `setup`, `development`, and `runbook`. That's
-  the doc's own content, not a copy.
-- Keep docs loosely coupled. Two docs referencing each other is fine; three or
-  more shouldn't close a ring.
+- 구현이 바뀌면 낡는 것 — 정확한 숫자, 시그니처, 내부 단계의 순서 — 은 꼭 필요한 자리에만
+  적고 나머지는 링크한다. 심볼 이름과 파일 경로는 링크 대상으로 괜찮지만, 줄 번호에 박은
+  링크는 그 자체가 낡는다.
+- 이 리포지토리에 원본이 있는 코드는 붙여넣지 않는다. 사본은 아무 제동 없이 원본과 갈라지고,
+  낡은 조각은 아예 없느니만 못하다. 형태를 말로 쓰거나 원본을 링크한다.
+- 원본이 여기 없는 코드는 반대다. 이쪽이 대개 가장 짧은 설명이다 — 내가 만드는 API를 부르는
+  클라이언트, 예시 요청, 사용자가 쓰는 설정, `setup`·`development`·`runbook`의 명령들. 이건
+  사본이 아니라 그 문서의 내용이다.
+- 문서끼리는 느슨하게 묶는다. 둘이 서로 참조하는 것은 괜찮지만 셋 이상이 고리를 닫지 않는다.
 
-## Reviewing
+## 리뷰
 
-These standards are also the review criteria for anything written in prose —
-docs, code comments, and the title and description of an issue or PR/MR. The
-`coding-standards` catalog covers code and deliberately leaves all of this here.
+이 기준은 산문으로 쓰인 모든 것의 리뷰 기준이기도 하다 — 문서, 코드 주석, 이슈와 PR/MR의
+제목과 설명.
 
-- Scope a review to what the diff touches. Never ask for a repo-wide
-  reorganization or a change to the repo's existing convention.
-- This axis produces filler easily, so flag only what's genuinely hard to read or
-  bound to go stale.
-- For a PR/MR, read the description and any linked docs, and judge whether the
-  description is accurate and adequate for the changes it ships. Call out missing
-  pieces and anything the diff contradicts.
+- 리뷰 범위는 diff가 건드린 곳까지다. 리포지토리 전체 재편이나 기존 규약 변경을 요구하지
+  않는다.
+- 이 축은 군더더기를 만들기 쉬우니 정말 읽기 어렵거나 낡을 것이 확실한 것만 지적한다.
+- PR/MR은 설명과 링크된 문서를 읽고, 설명이 실제 변경에 대해 정확하고 충분한지 판단한다.
+  빠진 것과 diff가 뒤집는 내용을 지적한다.
