@@ -1,120 +1,73 @@
 ---
 name: mr-workflow
 description: >-
-  Create a branch and open/edit a GitLab MR following my step-by-step workflow.
-  Use when I ask to create a branch and open an MR — e.g. "브랜치 만들고 MR
-  작성하자", "MR 작성", "MR 만들자", "브랜치 만들고 MR 작성", "create the branch
-  and open the MR", "open the MR", "create a draft MR".
+  브랜치를 만들고 GitLab MR을 열거나 고친다. 이렇게 부를 때 쓴다: "MR 작성하자", "MR 이어서 작업하자", "open the MR", "resume the MR".
 ---
 
-# GitLab branch + MR workflow
+# 작업 단계
 
-Steps 1–2 are **interactive** — work through them with me. Once I OK starting
-implementation, run steps 3–5 **autonomously** and report back only when the MR
-is ready for me to merge.
+네 단계로 이루어져 있다.
 
-1. Create the branch and push it, then open the **draft** MR with only a title
-   and description. Write no implementation code in this step — "opening the MR"
-   means the title and description, nothing else.
-2. Write or update a spec doc under the repo's docs dir (e.g. `docs/architecture/`
-   or `docs/spec/` — match whatever the repo already uses) capturing the desired
-   state, based on the prompt I gave you.
-   - Commit and push the spec-doc draft.
-   - Iterate on the design with me until it's solid — before any implementation.
-   - Escape hatch: if the change is only a few lines, get my confirmation, skip
-     the spec doc, and go straight to step 3.
-3. Implement, commit, and push.
-4. When you judge the implementation complete, self-review it per the
-   `review-criteria` skill's instructions.
-   - Repeat the implement → push → self-review cycle until **three consecutive
-     clean self-review passes**. Leave each cycle's review as its own markdown
-     doc (don't commit it).
-5. Only when it's truly ready, flip the draft MR to ready
-   (`glab mr update --ready`) and tell me it's done. I merge it myself.
+1. 작업 단위 확정
+2. 설계
+3. 구현
+4. 보고
 
-On its own, "open the MR" / "MR 작성" means everything up to the draft MR
-(steps 1–2), not implementation. Never start implementation unless I explicitly
-ask for it.
+**"MR 작성"이라고만 하면 1단계까지다.** 내가 명시적으로 시키기 전에는 구현을 시작하지마라.
 
-## Creating the branch + MR (step 1 mechanics)
+## 1. 작업 단위 확정
 
-- **Always check origin's default branch (main/master) first** — it's the
-  `--target-branch`.
-- Branch names: `<type>/<slug>`, e.g. `chore/add-user-ssh-key`. Keep this form
-  consistently — don't embed issue numbers or Jira keys in the branch name; the
-  MR title carries the Jira key and the MR body carries any issue link.
-- Create via `glab`:
-  ```
-  glab mr create --remove-source-branch --squash-before-merge \
-    --target-branch "<origin default branch: main or master>" --draft -a @me \
-    -t "GAI-123 Title goes here" -d "$(cat .refs/mr-body-<branch-slug>.md)"
-  ```
-- Include the Jira issue key only in the **MR title** (not in individual commit
-  messages). When committing directly to main, put the key in the commit message.
-- Write the description to a `.refs/mr-body-<branch-slug>.md` temp file and pass
-  via `-d "$(cat ...)"`; never inline `-d "..."`.
-- MR descriptions: concise, aim for ≤25 lines. Frame it as the **delta between
-  the current state and the desired state** the spec doc lays out — what this MR
-  changes to close that gap — not a re-explanation of the spec. No checkboxes
-  (`- [ ]`) anywhere in GitLab — use plain bullet lists.
-- Leave out anything that goes stale as the MR evolves — exact test counts, line
-  numbers, "N of M done", "아직 미구현(not yet implemented)" — it'll be wrong by the
-  next push. Describe what the MR does, not where it is in its lifecycle.
+- 내가 GitHub/GitLab 이슈 번호나 Jira 이슈 키를 주면 그것이 작업 단위다.
+- 이슈 번호나 키가 없이 직접 지시를 내리면 무엇을 바꾸는 작업인지 한 문장으로 되짚어 나에게 확인받는다.
+- 제목과 설명만 있는 draft MR을 연다. **이 단계에서 구현 코드를 한 줄도 쓰지 않는다.** 브랜치와 MR 생성 방법 절을 참고한다.
+- 규모를 보고 스펙 문서를 쓸지 한 문단짜리 의도 진술로 갈음할지 제안한 뒤 확인받는다.
 
-## Spec doc (step 2 mechanics)
+## 2. 설계
 
-- Lives under the repo's docs dir (`docs/architecture/`, `docs/spec/`, or
-  whatever the repo already uses); captures the **desired state**, not a
-  walkthrough of the implementation.
-- Keep it **abstract: key decisions, their implications, and the purpose/intent.**
-  Use a code snippet only when it's more concise and clear than prose; otherwise
-  stay in prose and don't drift into line-by-line detail.
-- When it helps, **lead with a ` ```mermaid ` diagram at the very top**, before
-  the prose.
+- 스펙 문서는 리포지토리의 문서 디렉터리에 쓴다. `workflow-core:docs-standards` 스킬에서 정한 규칙에 따라 작성한다.
+- GitHub, GitLab, 또는 Jira 이슈 등 레퍼런스로 삼을 문서가 이미 모든 맥락을 빠짐없이 설명하고 있으면 설계 문서 수정과 구현 단계를 동시에 진행할 수도 있다. 단, 나에게 먼저 확인받는다.
+- from scratch로 시작할 경우 설계가 확정되기 전에는 구현을 시작하지 않는다. 나와의 대화를 통해 큰 줄기를 잡고, 세부 내용은 네가 초안을 작성한다.
+- 구현 단계로 들어가면 명시적인 지시 없이 설계 문서를 고치지 않는다. 불가피한 경우 마크다운 문서로 써서 나에게 보고하되, 세줄 요약이 불가능하면 설계 자체에 문제가 있는 것이므로 설계 단계로 돌아가야 한다.
 
-## Implementing (step 3 mechanics)
+## 3. 구현
 
-- **Once implementation has started, don't edit the spec doc** unless there's a
-  serious bug in the design itself. If you notice something that might need
-  changing, don't touch the doc — jot it down in an md file under `.refs/` (e.g.
-  `.refs/spec-followup-<branch-slug>.md`, "this may need revising..") and surface
-  it to me instead.
-- **Before each commit, self-review that commit's diff on its own:**
-  - Re-read the staged diff and confirm it does exactly what the commit intends —
-    nothing more, nothing less. Flag any unrelated/accidental change that belongs
-    in a different commit.
-  - Actively look for a reason it's _wrong_ (off-by-one, null/empty input, error
-    paths, wrong variable, missed edge case) rather than confirming it's right —
-    assume a bug until you've checked.
-  - Strip leftover debug output, dead/commented-out code, and stray TODOs.
-  - Match the surrounding code's style and naming.
-  - Fix trivial issues in place; surface anything uncertain or a judgment call to
-    me instead of silently deciding.
+- 작업 단위를 잘게 쪼개서 커밋한다.
+- `workflow-core:coding-standards` 스킬에서 정한 규칙에 따라 코드를 작성한다.
+- diff에 대한 셀프 리뷰 없이 커밋하지 않는다. 빈 입력, 에러 경로, 잘못된 변수, 놓친 엣지 케이스 등 틀릴 수 있는 이유를 적극적으로 찾아본다. 맞다고 확인하는 것이 아니라 버그가 있다고 가정하고 확인한다.
+- 커밋 전에 리포지토리내 가이드에 따라 Linter와 Formatter, 유닛테스트 등을 실행한다. 타입 체커가 잡아내는 문제를 함부로 억제하지 않는다. 의존하는 라이브러리의 구조적인 제약으로 근본적인 해결이 불가능할 때만 ignore를 넣고, 이유를 주석으로 남긴다.
 
-## Reviewing and revising (step 4 mechanics)
+## 4. 보고
 
-- **Self-review is a loop, not a one-shot** — the common failure is calling it
-  done after one pass. Review the whole MR against the `review-criteria` skill's
-  criteria, revise, then **re-review from scratch**, repeating.
-- **Exit condition: three consecutive clean passes.** A pass is clean only if it
-  surfaces nothing worth changing. The counter **resets to zero on any edit** —
-  including a trivial one-line fix, and including edits made in response to the
-  pass itself. So the last three passes must run back-to-back over an untouched
-  tree.
-- Each pass must be a genuine fresh review, not a rubber stamp of the previous
-  one — re-read the full diff and actively hunt for a reason it's wrong. Passes 2
-  and 3 exist to catch what pass 1 missed, so don't shortcut them just because
-  the tree didn't change.
-- Expect that to take a while: in practice fixes keep surfacing for ~5 rounds of
-  revision, so an early "looks complete" is almost always premature. The number
-  is calibration, not a target or cap — the only exit is three genuinely empty
-  passes in a row.
+- MR 제목과 본문에 드리프트가 없는지 여부를 체크해서 개정 후에 완성본을 제시한다.
+- 내가 명시적으로 지시하거나 설계에 기록하지 않은 내용 중 임의로 가정한 것이 있으면 보고한다.
+- 설계 단계에서 예상하지 못한 부분으로 인해 실제 구현이 설계와 차이가 있으면 보고한다.
+- 보고할 항목이 3개 이상이면 `workflow-core:refs-scratch` 스킬에서 정한 규약에 따른 임시 디렉토리에 마크다운 문서로 써서 보고하되 두괄식으로 내용을 요약한다.
+- MR을 Ready로 전환하되, **머지는 검토 후 내가 한다.**
 
-## Marking ready (step 5 mechanics)
+# 브랜치와 MR 생성 방법
 
-- Flip the draft to ready with `glab mr update --ready`, then tell me. I merge it
-  myself.
+- **origin의 기본 브랜치(main/master)를 먼저 확인한다.** 그것이 `--target-branch`다.
+- 브랜치 이름은 `<타입>/<슬러그>` — 예: `chore/add-user-ssh-key`. 이슈 번호나 Jira 키를 브랜치 이름에 넣지 않는다. Jira 키는 MR 제목에, 이슈 링크는 MR 본문에 넣는다.
+- **브랜치를 만들고 push한 뒤에** MR을 연다. 이 단계에는 MR에 담을 변경이 없으므로 빈 커밋으로 연다.
+- 설명은 `workflow-core:refs-scratch` 스킬에서 정한 규약에 따른 임시 디렉토리에 `mr-body-<브랜치-슬러그>.md`같은 형태로 작성한 뒤 glab CLI에 아래 예시와 같이 경로로 넘긴다. **명령줄에 직접 붙이지 마라.**
 
-## Editing an MR description
+```
+glab mr create --remove-source-branch --squash-before-merge \
+  --target-branch "<origin 기본 브랜치>" --draft -a @me \
+  -t "GAI-123 제목" -d "$(cat .refs/mr-body-<브랜치-슬러그>.md)"
+```
 
-- Use `glab mr update` (NOT `glab mr edit`), same temp-file `-d "$(cat ...)"` rule.
+## MR 설명 규약
+
+- **MR이 무엇을 바꿨는지 쓴다**. 아직 완료되지 않은 MR도 완성될 시점을 기준으로 작성한다.
+- how를 전부 뺀다. how는 구현체가 이미 말해준다.
+- why도 전부 뺀다. why를 꼭 써야겠다면 설명 맨 아래 별도 섹션에 모으고, what과 절대 섞지 않는다.
+- 25줄 안쪽을 목표로 한다.
+- 체크박스(`- [ ]`)를 절대 쓰지 않는다. 평범한 불릿을 쓴다.
+- MR이 진행되면 낡을 것을 빼라: 테스트 개수, 줄 번호, "N개 중 M개 완료", "아직 미구현" 등.
+- 후속 작업을 MR 설명에 쓰지 마라.
+- **Jira 키는 MR 제목에만 넣는다**. 개별 커밋 메시지에는 넣지 않는다. 기본 브랜치에 직접 커밋할 때만 커밋 메시지에 넣는다.
+
+## MR 설명 수정
+
+`glab mr edit`이 아니라 `glab mr update`를 쓴다. 인자로 넘겨줄 본문은 MR을 생성할 때처럼 임시 디렉토리에 마크다운 파일을 작성해서 활용한다.
