@@ -1,26 +1,14 @@
 ---
 name: pre-push
 description: >-
-  Install a git pre-push hook that blocks direct pushes to protected
-  branches (main/master), forcing changes through a PR. Use when I ask to
-  set up a pre-push guard, block direct pushes to main/master, or add the
-  pre-push hook to a repo — e.g. "pre-push 훅 깔아줘", "main 직접 push 막아줘".
+  보호 브랜치(main/master)로 직접 push하는 것을 막아 PR을 거치게 하는 git pre-push 훅을
+  설치한다. 이렇게 부를 때 쓴다: "pre-push 훅 깔아줘", "main 직접 push 막아줘".
 ---
 
-# Pre-push guard
+# Pre-push 가드
 
-Install the hook below so direct pushes to `main`/`master` are rejected —
-changes have to go through a PR.
-
-## Install
-
-- If `git config core.hooksPath` is set (e.g. Husky), install into that
-  directory instead of `.git/hooks/`.
-- If a `pre-push` hook already exists there, show it to me and merge rather
-  than overwrite — don't clobber it.
-- Otherwise write the script to `.git/hooks/pre-push` and make it executable
-  (`chmod +x .git/hooks/pre-push`).
-- `git push --no-verify` bypasses this (standard git behavior).
+- `git config core.hooksPath`가 설정돼 있으면(Husky 등) 어디에 설치할지 나에게 되묻는다.
+- 그 자리에 `pre-push` 훅이 이미 있으면 덮어쓰지 말고 나에게 보여준 뒤 병합한다.
 
 ```bash
 #!/bin/bash
