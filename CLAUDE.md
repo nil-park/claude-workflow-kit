@@ -15,14 +15,11 @@
 
 - CLAUDE.md, commit messages, and PR titles/descriptions: English.
 - Issues and everything under `docs/`: Korean.
-- Skill and agent bodies: English, except the `-max` plugins, which are Korean —
-  see [ADR 0001](docs/decisions/0001-max-plugins-in-korean.md). Plugin and
-  marketplace manifests stay English either way.
+- Skill bodies: Korean. Plugin and marketplace manifests stay English.
 
 ## Git Convention
 
-- Branch naming: `docs/development/branch-naming.md`
-- If a PR is linked to an issue, prefix the PR title with the issue number, e.g. `[#40] Add TTS cache management feature`.
+- Branch naming and PR conventions follow the `git-workflow` skill in this repo.
 
 ## Development Convention
 
