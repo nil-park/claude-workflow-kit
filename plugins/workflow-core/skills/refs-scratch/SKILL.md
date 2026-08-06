@@ -1,30 +1,34 @@
 ---
 name: refs-scratch
 description: >-
-  Convention for `.refs/`, the local scratch directory for files that support a
-  task but must never be committed. Use whenever you need to feed multi-line text
-  to a CLI flag or stdin — creating or editing a `gh`/`glab` PR/MR/issue body
-  (`gh pr create`/`gh pr edit`/`gh issue create` with `--body-file <f>`,
-  `glab mr create`/`glab mr update` with `-d "$(cat <f>)"`) — or to save a working
-  artifact like a code review or a follow-up note. Covers where such files go, how
-  to name them, and keeping them out of git.
+  작업을 뒷받침하지만 커밋하면 안 되는 파일을 두는 로컬 스크래치 디렉터리 `.refs/`의
+  규약. 여러 줄 텍스트를 CLI 플래그나 stdin으로 넘겨야 할 때 부른다 — `gh`/`glab`으로
+  PR/MR/이슈 본문을 쓰거나 고칠 때(`gh pr create`/`gh pr edit`/`gh issue create`는
+  `--body-file <f>`, `glab mr create`/`glab mr update`는 `-d "$(cat <f>)"`), 코드 리뷰나
+  후속 메모 같은 작업 산출물을 남길 때. 어디에 두고, 어떻게 이름 짓고, git에서 어떻게
+  배제할지를 다룬다.
 ---
 
-# .refs scratch directory
+# .refs 스크래치 디렉터리
 
-`<repo-root>/.refs/` is local scratch — files that support the work but never get
-committed. Use it for `gh`/`glab` body inputs when creating or editing a
-PR/MR/issue description, saved reviews, and "revisit this later" jottings.
+`<repo-root>/.refs/`는 로컬 스크래치다. 작업을 뒷받침하지만 커밋하지 않는 파일을 둔다.
+PR/MR/이슈 설명을 만들거나 고칠 때 `gh`/`glab`에 넘길 본문, 저장해둔 리뷰, "나중에 다시
+보자"는 메모가 여기 들어간다.
 
-- **Never commit these files.** `.refs/` must be gitignored before you write into
-  it. If it isn't yet, **ask me before adding it to `.gitignore`** — editing that
-  file changes shared repo config, and this may not be a repo I control. Before
-  asking, look for **a directory the repo already gitignores** that would serve;
-  if one exists, offer it as the option that leaves `.gitignore` untouched. Rule
-  out build output and dependency directories — one clean or reinstall wipes them.
-- **Unique, descriptive kebab-case names** — never a fixed name, or a parallel
-  session clobbers it. Tie the name to its branch or subject, e.g.
-  `pr-body-<branch-slug>.md`, `mr-body-<branch-slug>.md`, `review-<number>.md`.
-- For a file passed to a CLI (a PR/MR body), write the content with **literal
-  backticks, no escaping**, and pass the path (`--body-file <path>` /
-  `-d "$(cat <path>)"`) — never inline the body on the command line.
+- **쓰기 전에 `.refs/`가 gitignore되어 있어야 한다. 아직 아니라면 `.gitignore`에 추가하기 전에 나에게 물어본다.**
+  그 파일을 고치는 것은 공유 리포지토리 설정을 바꾸는 일이고, 내가 통제하는 리포지토리가
+  아닐 수도 있다. 물어보기 전에 이미 gitignore된 디렉터리 중 쓸 만한 곳을 찾아보고, 있으면
+  `.gitignore`를 건드리지 않는 선택지로 함께 제시한다. 빌드 산출물과 의존성 디렉터리는
+  제외한다. clean이나 재설치 한 번에 통째로 사라진다.
+- 고유하고 뜻이 드러나는 kebab-case 이름을 쓴다. 고정된 이름은 병렬 세션이 덮어쓰므로 쓰지
+  않는다. 브랜치나 주제에 이름을 묶는다 — 예: `pr-body-<브랜치-슬러그>.md`,
+  `mr-body-<브랜치-슬러그>.md`, `review-<번호>.md`, `followup-<주제>.md`.
+- 한 작업이 파일을 여럿 만들면 그 작업 이름의 하위 디렉터리로 묶는다.
+- **리포지토리 밖의 파일을 고치는 작업에는 `.refs/`가 없다.** 원본을 그 자리에서 고치고
+  롤백용 사본을 옆에 둔다. 사본을 다른 곳에 두면 도구가 실제로 읽는 파일이 아니라서 고친
+  것이 먹히는지 확인할 수 없다. 확장자는 `<원본이름>.bak` 순서로 붙인다. `foo.bak.md`처럼
+  두면 `~/.claude/agents/`같이 `*.md`를 전부 긁는 자리에서 사본까지 설정으로 읽힌다.
+- PR/MR 본문처럼 여러 줄 텍스트는 파일에 쓰고 경로로 넘긴다(`--body-file <경로>` /
+  `-d "$(cat <경로>)"`). 명령줄에 직접 붙이면 Bash와 PowerShell 문법이 섞여 `@` 줄이
+  남거나 백틱이 두 배로 늘어난 채 올라간다. 둘 다 실패하지 않고 통과해서 게시된 뒤에야
+  보인다.

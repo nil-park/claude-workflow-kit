@@ -1,98 +1,55 @@
 ---
 name: docs-standards
 description: >-
-  Standards for writing, placing, and restructuring project docs and code
-  comments — the `docs/` directory split, decision-record filenames, prose
-  compression, what belongs in a comment, and reference direction. Use when
-  creating or editing a doc, deciding which directory it belongs in, or judging
-  whether docs/comments are bloated or bound to go stale — e.g. "문서 작성",
-  "문서 구조 정리", "이 문서 어디에 둬야 해?", "ADR 추가".
+  프로젝트 문서를 어떻게 쓸지, 어디에 둘지 정하고, 구조를 고치는 기준. `docs/`
+  디렉터리 분류가 제시되어 있다. 문서를 만들거나 고칠 때, 어느 디렉터리에 둘지 정할 때 부른다.
+  대상은 이슈와 PR/MR 제목·설명, 코드 주석도 포함한다.
 ---
 
-# Docs & comment standards
+# 문서와 주석 기준
 
-## Placement
+## 배치
 
-Follow the repo's own convention wherever it has one. The layout below is the
-fallback, for a kind of doc the repo doesn't have yet. Don't propose changing an
-existing convention unless I ask for a docs refactor.
+- **리포지토리에 디렉터리 이름 규약이 있으면 그것을 따른다.** 아래 표는 문서를 놓을 자리가 없을 때의 기본값이다.
+  - 명시적이지 않아도 이미 디렉터리가 있으면 규약이 있는 것으로 간주한다.
+  - 내가 문서 구조 개편을 지시하지 않는 한 기존 이름 규약을 바꾸자고 제안하지 않는다.
+- 이미 있는 디렉터리 이름이 표와 다르면 표의 내용과 규칙을 결이 맞는 디렉터리에 적용한다.
+  - 예를 들어 `docs/architecture/` 대신 `docs/spec`이 있다면 `docs/spec`에서 why에 해당하는
+    서술을 모두 뺀다.
 
-| Path                 | Holds                                                                                         |
-| -------------------- | --------------------------------------------------------------------------------------------- |
-| `docs/architecture/` | How the system is built today — whatever you'd have to update when the implementation changes |
-| `docs/decisions/`    | Decision records, fixed to the moment they were made — see the filename rule below            |
-| `docs/runbook/`      | Deploy and incident-response procedures                                                       |
-| `docs/setup/`        | Environment setup                                                                             |
-| `docs/development/`  | How to develop and verify — smoke tests and the like                                          |
-| `docs/monitoring/`   | Monitoring setup, how the infra is laid out, Grafana and alert-channel links                  |
+| 위치                 | 내용                                                                      | 넣을 것                | 뺄 것     |
+| -------------------- | ------------------------------------------------------------------------- | ---------------------- | --------- |
+| `docs/requirements/` | SRS. 유스케이스 및 사용자 시나리오. 요구사항 항목당 한 줄 설명            | who, what, when, where | how, why  |
+| `docs/architecture/` | **애플리케이션 및 시스템의 이상적인 형상.** 구현에 대한 추상. 인프라 구성 | **what**, how          | **why**   |
+| `docs/decisions/`    | 결정 기록. 너는 명시적으로 요청할 때만 쓴다.                              | why, analysis          |           |
+| `docs/runbook/`      | 배포 절차, 수작업이 필요한 처리, 장애 대응 절차                           | how                    | **why**   |
+| `docs/setup/`        | 개발 환경 구축                                                            | how, what              | why       |
+| `docs/development/`  | **전제와 가정**, 개발과 검증 방법. 스모크 테스트, FMEA                    | how, what              | why       |
+| `docs/monitoring/`   | 알람과 모니터링. 어떤 지표를 어떻게 보는지                                | how, what, why         |           |
+| 이슈 설명            | 이슈 카테고리에 따라 자율적으로 쓴다                                      | 5W1H                   |           |
+| PR/MR 설명           | 무엇이 달라지는지, 어떻게 적용하는지, what, how, why 순서로               | what, how, why         | 구현 상세 |
+| 소스 코드 주석       | 자명하지 않은 짧은 why                                                    | why                    | what      |
 
-- Architecture or decision? Ask whether a change to the implementation would
-  force you to edit the sentence. If it would, it's architecture. If the answer
-  is "no, I'd write a new decision instead", it's a decision.
-- A why that still constrains the code belongs in architecture, dissolved into
-  the what — "the gateway validates the token so downstream can trust the
-  header", not a rationale section bolted on. Strip it out and the next reader
-  undoes the choice. `decisions/` takes the why that constrains nothing anymore:
-  alternatives you rejected, the constraints that applied at the time.
-- runbook vs monitoring: **where** the dashboards and alert channels live is
-  monitoring; **what to do** when an alert fires is runbook.
-- Keep one doc to one role. If something fits none of the six, the right move is
-  a seventh directory, not squeezing it into the closest match.
+## 상세 규칙
 
-## Decision records (`docs/decisions/`)
-
-The filename says whether a doc is frozen or live. The prefix only means
-anything here — everywhere else is live docs, with no prefix.
-
-| Filename                  | Kind                         | How to change it                 |
-| ------------------------- | ---------------------------- | -------------------------------- |
-| `0001-<slug>.md`          | Fixed to when it was written | Never edit the body; append only |
-| `<slug>.md` (non-numeric) | Live                         | Edit freely                      |
-
-- Leave a numbered file's body alone apart from typos. Two things can drift:
-  - **The decision gets overturned** → write a new numbered file, and append one
-    line to the old one pointing at it (`→ superseded by 0007-<slug>.md`).
-  - **The decision still holds, you've just learned more since** → append that
-    under a date at the bottom of the same file.
-- Numbers are 4-digit and sequential. If two branches grab the same one,
-  whichever merges second bumps its number.
-- Live docs **link** to numbered files, nothing more. Copy a decision's content,
-  reasoning, or numbers into one and you have two originals that drift apart.
-
-## Prose
-
-- Reach for a diagram, a table, or an example wherever it beats writing it out.
-- If a short line covers it, don't stretch it into paragraphs.
-- A sentence that keeps piling on conditions and parentheticals for the sake of
-  precision buries the point it was making. Split it.
-- Never use checkboxes (`- [ ]`). They record progress, and progress is stale by
-  the next commit. Use plain bullets.
-- None of this applies to decision docs. Trade-offs, alternatives you rejected,
-  and why a workaround exists all stay, however long they run — compress the
-  writing, never the substance.
-
-## Comments
-
-- Skip comments that restate the code, and assumptions the types, names, and
-  asserts already carry. Keep the why — that's the part code can't show.
-- Never restate a doc in a comment. Whatever you write twice, someone will
-  update on one side only.
-- The doc is the original. A comment can link to a doc, but a doc shouldn't point
-  back at a code location — that's what makes the reference bidirectional.
-  Naming a symbol is fine.
-
-## References
-
-- Spell out something that goes stale when the implementation changes — exact
-  numbers, signatures, the order of internal steps — only where you have to, and
-  link to it otherwise. Symbol names and file paths make fine link targets; a
-  link pinned to a line number goes stale itself, so don't write one.
-- Never paste code that has an original in this repo. The copy drifts from the
-  source with nothing to catch it, and a stale snippet misleads harder than no
-  snippet at all — describe the shape, or link to the source.
-- Code with no original here is the opposite, and often the shortest way to say
-  it: a client calling the API you're building, a sample request, a config the
-  consumer writes, the commands in `setup`, `development`, and `runbook`. That's
-  the doc's own content, not a copy.
-- Keep docs loosely coupled. Two docs referencing each other is fine; three or
-  more shouldn't close a ring.
+- ⚠️**architecture에 절대 why를 넣지 않는다**⚠️ 이것이 제일 중요한 원칙이다.
+  - 한 절이 통째로 근거이면 문장을 다듬지 말고 절째로 들어낸다.
+- **development 문서의 가장 중요한 기능은 "전제"를 넣는 것**이다. 전제가 막아주지 못하는 엣지 케이스를 막는 방어 로직이 설계와 구현 복잡도의 주범이다.
+- 긴 호흡의 문장으로 이루어지는 why는 PR/MR의 설명 마지막 별도 섹션에 모으고 what과 섞지 않는다. 문서나 코드에서 근거가 필요하면 PR/MR, 이슈, 또는 decisions 문서 링크를 붙인다.
+  - monitoring의 경우 특정 지표를 봐야 하는 이유가 가까이 있어야 하므로 예외다.
+- decisions에는 시점이 고정된 실측 데이터를 위주로 작성을 하고, 이에 기반한 결정 사항은 간결하게 쓴다.
+- 대시보드와 알림 채널이 어디 있는지는 monitoring, 알림이 울렸을 때 어떻게 문제를 해결할지는 runbook을 본다.
+- PR/MR에서 **시점 고정값(특히 테스트 수량), 체크박스, 후속 작업 전부 제거한다.**
+  - 아직 완료되지 않았어도 완성될 시점을 기준으로 쓴다.
+- PR/MR 설명의 how는 읽는 사람이 이 변경 때문에 해야 할 일이다 — `terraform apply`, 마이그레이션 명령, 바꿔야 할 설정. 구현을 어떻게 했는지는 diff가 이미 말해주고, 그것을 적으면 기능 변경이 묻힌다.
+- PR/MR 설명의 what은 5줄을 목표로 한다. 맨 아래 why 절은 이 계산에 넣지 않는다.
+- 디렉터리와 파일명은 이름만 보고 원하는 문서를 찾을 수 있도록 한다.
+- **다이어그램, 표, 예시**가 글보다 나은 자리에서는 그것을 쓴다.
+- 한국어 문장이 성립하는지 본다. 서술어 없이 끝나는 문장(표의 셀과 목록의 명사구는 제외), 주어와 서술어의 호응, 행위 주체 누락, 한국어 화자가 쓰지 않는 번역투.
+- 원본이 이 리포에 있는 코드는 문서에 붙여넣지 않는다. 넣을 수 있는 것은 원본이 여기 없는 코드뿐이고, 그중에서도 **코드를 제시하는 것이 기능에 대해 장문의 설명을 붙이는 것보다 효과적일 때**만 넣는다.
+  - 예를 들어 내가 만드는 API를 부르는 클라이언트, 예시 요청, 사용자가 쓰는 설정, 커맨드라인 명령 같은 것들.
+- 중복된 내용이 여러 문서에 퍼져 있으면 안 된다. SoT의 위치를 정하고, 아닌 곳에서는 링크를 건다.
+  - 같은 규약이 두 곳에 있으면 설계 문서가 SoT다. 실행하는 파일이 어긋나면 그쪽이 틀린 것이니 설계에 맞춘다.
+  - 설계 문서로 옮겨 적을 수 없는 것 — 스키마, 락파일, 문법이 고정된 설정 — 은 그 파일이 SoT고 설계는 링크만 한다.
+  - 문서끼리는 느슨하게 묶는다. 둘이 서로 참조하는 것은 괜찮지만 셋 이상이 연결된 순환 참조는 만들지 않는다.
+- 문서는 덧붙이는 것보다 빼는 방향을 먼저 탐색한다. 내용을 지웠을 때도 구현체의 의도를 읽을 수 있다면 지운다.

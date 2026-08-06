@@ -1,12 +1,12 @@
 {
-  "name": "github-workflow",
-  "description": "GitHub branch + PR workflow driven by the gh CLI.",
+  "name": "git-workflow",
+  "description": "Branch + PR/MR delivery driven by the gh or glab CLI. Depends on workflow-core.",
   "author": {
     "name": "nil-park"
   },
   "homepage": "https://github.com/nil-park/claude-workflow-kit",
   "repository": "https://github.com/nil-park/claude-workflow-kit",
   "license": "MIT",
-  "keywords": ["workflow", "github", "pr", "gh"],
+  "keywords": ["workflow", "github", "gitlab", "pr", "mr", "gh", "glab"],
   "dependencies": ["workflow-core"]
 }
