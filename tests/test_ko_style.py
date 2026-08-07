@@ -262,13 +262,33 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("그렇게 되어졌다", "되어졌"),
         ("그렇게 되어진다", "되어진"),
         ("되어지다", "되어지"),
+        ("실패 경로를 덮는 테스트", "덮는"),
+        ("경계 조건을 덮지 못한다", "덮지"),
+        ("이 앱은 Cloud Run에 산다", "산다"),
+        ("Cloud Run에 사는 앱", "사는"),
+        ("이슈 링크는 MR 본문이 진다", "진다"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
     assert scan_text(tmp_path, text) == [matched]
 
 
-@pytest.mark.parametrize("text", ["건축이 무너진다", "압축이 풀린다", "그렇게 되어서 그렇다", "되어야 한다"])
+@pytest.mark.parametrize(
+    "text",
+    [
+        "건축이 무너진다",
+        "압축이 풀린다",
+        "그렇게 되어서 그렇다",
+        "되어야 한다",
+        "회사는 이렇게 한다",
+        "조사는 끝났다",
+        "응답이 느려진다",
+        "테스트가 만들어진다",
+        "눈이 뒤덮인 산",
+        "기존 파일을 덮어쓰지 않는다",
+        "병렬 세션이 덮어쓰므로 이름을 나눈다",
+    ],
+)
 def test_shipped_dictionary_leaves_these_alone(tmp_path: Path, text: str) -> None:
     assert scan_text(tmp_path, text) == []
 
