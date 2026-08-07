@@ -7,9 +7,7 @@
 ## Required Reading
 
 - [README.md](README.md) — big-picture overview; read first. Describes major features only, so don't assume a feature is missing just because a newly added one isn't listed there.
-- https://code.claude.com/docs/en/skills.md — `SKILL.md` authoring: frontmatter, structure, supporting files. Read when editing or adding a skill under `plugins/*/skills/`.
-- https://code.claude.com/docs/en/plugin-marketplaces.md — `marketplace.json`, plugin sources, hosting, and the install/update flow. Read when changing the catalog, adding a plugin, or touching how plugins are distributed.
-- https://code.claude.com/docs/en/plugins-reference.md — authoritative schema for `plugin.json` and `marketplace.json`. Read when unsure about a manifest field, component path, or version resolution.
+- [docs/setup/claude-docs.md](docs/setup/claude-docs.md) — the Claude Code spec docs this repo is built on, which one covers what, and how to fetch an original instead of a summary. Fetch and read the matching one before editing a skill, a manifest, the catalog, or a hook.
 
 ## Language
 
