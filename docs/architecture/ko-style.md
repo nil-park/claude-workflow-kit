@@ -18,7 +18,7 @@ flowchart TD
   lines --> match{"사전에 있나"}
   match -->|없음| pass
   match -->|있음| report["additionalContext로 알린다"]
-  report --> again["Claude가 고치고 다시 종료를 시도한다"]
+  report --> again["Claude가 탐지 결과를 인지한다"]
 ```
 
 - 판정은 사전의 키워드 매칭이다. 에이전트를 띄우지 않는다.
