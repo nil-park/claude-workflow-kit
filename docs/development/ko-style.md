@@ -61,7 +61,7 @@
 훅 입력에 무엇이 실제로 오는지는 stdin을 그대로 파일에 쓰는 Stop 훅을 임시로 걸고 한 턴을
 돌리면 나온다. 프로젝트 `.claude/settings.local.json`에 걸면 그 리포에서만 돈다.
 
-transcript 지연은 같은 덤프에서 확인한다. 덤프한 `transcript_path`를 열어 그 턴의 마지막
-`tool_use` 블록이 들어 있는지 본다.
+transcript 지연은 [0001](../decisions/ko-style/0001-transcript-lag.md)에서 쟀다. 다시 재려면
+덤프한 `transcript_path`를 1초 간격으로 두 번 읽어 편집 목록과 파일 크기를 비교한다.
 
 훅 호출 비용은 스크립트 시작과 끝의 시각을 덤프에 남겨 잰다.
