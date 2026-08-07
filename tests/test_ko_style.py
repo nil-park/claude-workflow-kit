@@ -267,6 +267,7 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("이 앱은 Cloud Run에 산다", "산다"),
         ("Cloud Run에 사는 앱", "사는"),
         ("이슈 링크는 MR 본문이 진다", "진다"),
+        ("아무것도 끌고 오지 않는다", "끌고 오"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
@@ -287,6 +288,8 @@ def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, te
         "눈이 뒤덮인 산",
         "기존 파일을 덮어쓰지 않는다",
         "병렬 세션이 덮어쓰므로 이름을 나눈다",
+        "데이터를 끌어온다",
+        "아무것도 딸려 오지 않는다",
     ],
 )
 def test_shipped_dictionary_leaves_these_alone(tmp_path: Path, text: str) -> None:
