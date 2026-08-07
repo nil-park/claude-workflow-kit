@@ -14,8 +14,8 @@ flowchart TD
   active -->|false| collect["이번 턴의 Write/Edit 경로 수집"]
   collect --> empty{"대상이 있나"}
   empty -->|없음| pass
-  empty -->|있음| lines["한국어가 든 줄 추출"]
-  lines --> match{"사전에 있나"}
+  empty -->|있음| scan["사전으로 훑는다"]
+  scan --> match{"탐지됐나"}
   match -->|없음| pass
   match -->|있음| report["additionalContext로 알린다"]
   report --> again["Claude가 탐지 결과를 인지한다"]
@@ -26,12 +26,13 @@ flowchart TD
 
 ## 판정 대상
 
-- 이번 턴에 `Write`·`Edit`·`MultiEdit`·`NotebookEdit`으로 고친 파일 중 한국어가 든 줄이다.
+- 이번 턴에 `Write`·`Edit`·`MultiEdit`·`NotebookEdit`으로 고친 파일이다. 파일 전체를 훑는다.
 - 사용자가 끊은 턴의 편집은 판정하지 않고 다음 턴으로 넘기지도 않는다.
 - 경로는 `transcript_path`의 JSONL에서 마지막 사용자 입력 이후의 `tool_use` 블록으로 모은다.
 - 확장자는 가리지 않는다. 사전 파일 셋과 텍스트로 읽히지 않는 파일만 뺀다.
   - 사전을 빼지 않으면 등재한 `term`이 사전 자신에게 걸린다.
   - UTF-8로 읽고 안 되면 CP949로 다시 읽는다. 둘 다 실패하면 건너뛴다.
+- 1MB를 넘는 파일은 읽지 않는다. 크기는 열기 전에 본다.
 
 ## 사전
 
@@ -66,7 +67,13 @@ flowchart TD
 
 - 1번 외에는 없어도 그대로 넘어간다.
 - 프로젝트 경로는 Stop 입력의 `cwd`를 쓴다.
-- 2번과 3번에 같은 `term`을 `as: "ok"`로 두면 그 항목만 꺼진다.
+
+`as`가 `ok`인 항목은 탐지에 쓰지 않고, 탐지 결과를 거르는 데 쓴다. 원문이 아니라 탐지된
+문자열에 그 정규식을 돌려 걸리면 결과에서 뺀다.
+
+- 끄려는 항목의 `term`을 그대로 옮겨 적지 않아도 된다. `(?<![가-힣])축이`가 잡아낸 결과는
+  `축이`이므로 `축`만 적어도 걸러진다.
+- 하나로 여럿을 끌 수 있다. `소비자`는 `소비자`와 `소비자가`를 함께 거른다.
 
 ## 신호
 
