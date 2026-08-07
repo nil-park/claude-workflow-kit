@@ -92,10 +92,8 @@ def project_root() -> Path | None:
 def dictionary_paths() -> list[Path]:
     """읽는 순서대로 돌려준다. 뒤에 읽은 것이 같은 `term`을 이긴다."""
     plugin_root = os.environ.get("CLAUDE_PLUGIN_ROOT")
-    bundled = (
-        Path(plugin_root) / "hooks" / "dictionary.json" if plugin_root else Path(__file__).with_name("dictionary.json")
-    )
-    paths = [bundled, Path.home() / ".claude" / DICTIONARY_NAME]
+    hooks_dir = Path(plugin_root) / "hooks" if plugin_root else Path(__file__).parent
+    paths = [hooks_dir / DICTIONARY_NAME, Path.home() / ".claude" / DICTIONARY_NAME]
     root = project_root()
     if root is not None:
         paths.append(root / ".claude" / DICTIONARY_NAME)

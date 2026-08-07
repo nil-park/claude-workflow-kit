@@ -242,7 +242,7 @@ def test_describe_falls_back_to_the_absolute_path_without_a_project_root() -> No
     assert ko_style.describe(finding, None).startswith(f"{DOC}:12")
 
 
-SHIPPED = Path(ko_style.__file__).with_name("dictionary.json")
+SHIPPED = Path(ko_style.__file__).with_name(ko_style.DICTIONARY_NAME)
 
 
 def scan_text(tmp_path: Path, text: str) -> list[str]:
@@ -277,7 +277,7 @@ def test_shipped_dictionary_leaves_these_alone(tmp_path: Path, text: str) -> Non
 def hook_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """플러그인 사전과 프로젝트 루트를 tmp에 세운다. 홈 사전은 없다."""
     plugin_root = tmp_path / "plugin"
-    write_dictionary(plugin_root / "hooks" / "dictionary.json", [CONSUMER])
+    write_dictionary(plugin_root / "hooks" / ko_style.DICTIONARY_NAME, [CONSUMER])
     project = tmp_path / "repo"
     (project / "docs").mkdir(parents=True)
     home = tmp_path / "home"
@@ -294,11 +294,12 @@ def run_hook(payload: dict[str, object], monkeypatch: pytest.MonkeyPatch, capsys
     return capsys.readouterr().out
 
 
-def test_dictionary_paths_are_read_plugin_home_project(hook_env: Path) -> None:
-    paths = ko_style.dictionary_paths()
-    assert paths[0].name == "dictionary.json"
-    assert [path.parent.name for path in paths] == ["hooks", ".claude", ".claude"]
-    assert paths[2] == hook_env.resolve() / ".claude" / ko_style.DICTIONARY_NAME
+def test_dictionary_paths_are_read_plugin_home_project(hook_env: Path, tmp_path: Path) -> None:
+    assert ko_style.dictionary_paths() == [
+        tmp_path / "plugin" / "hooks" / "ko-style-dictionary.json",
+        tmp_path / "home" / ".claude" / "ko-style-dictionary.json",
+        hook_env.resolve() / ".claude" / "ko-style-dictionary.json",
+    ]
 
 
 def test_main_reports_the_findings_as_additional_context(

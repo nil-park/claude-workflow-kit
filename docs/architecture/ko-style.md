@@ -60,7 +60,7 @@ flowchart TD
 
 | 순서 | 파일                                                     | 범위                     |
 | ---- | -------------------------------------------------------- | ------------------------ |
-| 1    | `${CLAUDE_PLUGIN_ROOT}/hooks/dictionary.json`            | 플러그인과 함께 배포된다 |
+| 1    | `${CLAUDE_PLUGIN_ROOT}/hooks/ko-style-dictionary.json`   | 플러그인과 함께 배포된다 |
 | 2    | `~/.claude/ko-style-dictionary.json`                     | 이 사용자의 모든 작업    |
 | 3    | `${CLAUDE_PROJECT_DIR}/.claude/ko-style-dictionary.json` | 이 프로젝트              |
 
