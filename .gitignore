@@ -1,7 +1,7 @@
 # scratch dir for gh --body-file payloads
 /.refs/
 
-# Git Bash가 죽으면서 남기는 크래시 덤프
+# crash dumps a dying Git Bash leaves behind
 *.stackdump
 
 # python dev tooling
