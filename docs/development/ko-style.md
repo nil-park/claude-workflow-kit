@@ -22,6 +22,9 @@
 
 ## 그 밖의 제약
 
+- 훅은 `python3`라는 이름으로 실행된다. Linux와 macOS에는 대개 있지만, python.org
+  인스톨러로 설치한 Windows에는 `python3.exe`가 없다. `hooks.json`에는 커맨드를 한 줄로만
+  적을 수 있어 OS별로 이름을 갈라 쓸 자리가 없다.
 - API 에러로 끝난 턴에서는 `StopFailure`가 대신 발동하고 그 출력과 종료 코드는 무시된다.
 - 훅이 내보내는 문자열은 `additionalContext`를 포함해 10,000자에서 잘린다. 넘으면 파일로
   저장되고 미리보기와 경로로 대체된다.

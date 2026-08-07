@@ -52,5 +52,5 @@ stdout에 `hookSpecificOutput.additionalContext`를 실어 알린다. 종료 코
 ## 배포
 
 `workflow-core`와 별개인 `ko-style` 플러그인으로 배포하고, `hooks/hooks.json`이 `Stop`에
-스크립트를 건다. 스크립트는 Node로 쓰고 `node "${CLAUDE_PLUGIN_ROOT}/hooks/ko-style.mjs"`로
-부른다.
+스크립트를 건다. 스크립트는 Python으로 쓰고
+`python3 "${CLAUDE_PLUGIN_ROOT}/hooks/ko-style.py"`로 부른다.
