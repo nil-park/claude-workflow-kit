@@ -1,0 +1,8 @@
+{
+  "include": ["plugins", "tests"],
+  "extraPaths": ["plugins/ko-style/hooks"],
+  "exclude": ["**/node_modules", "**/__pycache__", "**/.*"],
+  "pythonVersion": "3.11",
+  "typeCheckingMode": "strict",
+  "reportMissingImports": true
+}

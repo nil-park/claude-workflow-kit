@@ -1,2 +1,11 @@
 # scratch dir for gh --body-file payloads
 /.refs/
+
+# crash dumps a dying Git Bash leaves behind
+*.stackdump
+
+# python dev tooling
+/.venv/
+__pycache__/
+/.pytest_cache/
+/.ruff_cache/

@@ -1,0 +1,8 @@
+{
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  "python.testing.pytestArgs": ["-s", "tests", "--log-cli-level=INFO", "-vv"],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true
+}
