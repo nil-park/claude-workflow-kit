@@ -1,2 +1,8 @@
 # scratch dir for gh --body-file payloads
 /.refs/
+
+# python dev tooling
+/.venv/
+__pycache__/
+/.pytest_cache/
+/.ruff_cache/

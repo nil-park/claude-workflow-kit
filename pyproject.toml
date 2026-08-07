@@ -1,0 +1,19 @@
+[project]
+name = "claude-workflow-kit"
+version = "0.0.0"
+description = "Dev tooling for the hook scripts shipped in plugins/"
+requires-python = ">=3.11"
+
+# 배포되는 것은 훅 스크립트 하나이고 남의 시스템 python3로 직접 실행된다.
+# 런타임 의존성은 표준 라이브러리뿐이고, 아래는 이 리포에서만 쓴다.
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = ["pyright[nodejs]>=1.1.407", "pytest>=9.0.1", "ruff>=0.14.7"]
+
+[tool.ruff]
+line-length = 119
+
+[tool.ruff.lint]
+extend-select = ["I", "RUF", "UP"]

@@ -1,0 +1,7 @@
+{
+  "include": ["plugins", "tests"],
+  "exclude": ["**/node_modules", "**/__pycache__", "**/.*"],
+  "pythonVersion": "3.11",
+  "typeCheckingMode": "strict",
+  "reportMissingImports": true
+}
