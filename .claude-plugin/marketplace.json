@@ -14,6 +14,11 @@
       "name": "git-workflow",
       "source": "./plugins/git-workflow",
       "description": "Branch + PR/MR delivery driven by the gh or glab CLI. Depends on workflow-core."
+    },
+    {
+      "name": "ko-style",
+      "source": "./plugins/ko-style",
+      "description": "A Stop hook that flags English-calqued Korean in files the turn just edited. Independent of the other plugins."
     }
   ]
 }

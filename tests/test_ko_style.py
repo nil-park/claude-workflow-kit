@@ -1,0 +1,344 @@
+import io
+import json
+import re
+from pathlib import Path
+
+import ko_style
+import pytest
+
+
+def write_transcript(tmp_path: Path, records: list[dict[str, object]]) -> Path:
+    path = tmp_path / "transcript.jsonl"
+    path.write_text("\n".join(json.dumps(record) for record in records) + "\n", encoding="utf-8")
+    return path
+
+
+def user_input(text: str = "고쳐줘") -> dict[str, object]:
+    return {"type": "user", "message": {"role": "user", "content": text}}
+
+
+def tool_use(name: str, args: dict[str, object]) -> dict[str, object]:
+    block = {"type": "tool_use", "name": name, "input": args}
+    return {"type": "assistant", "message": {"role": "assistant", "content": [block]}}
+
+
+def edit(path: str) -> dict[str, object]:
+    return tool_use("Edit", {"file_path": path, "old_string": "a", "new_string": "b"})
+
+
+def write_dictionary(path: Path, items: list[dict[str, str]]) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(items, ensure_ascii=False), encoding="utf-8")
+    return path
+
+
+CONSUMER = {"term": "소비자", "as": "컴퓨터 용어에서 consumer의 직역", "use": "컨슈머"}
+
+
+def test_edited_files_starts_over_at_each_user_input(tmp_path: Path) -> None:
+    transcript = write_transcript(
+        tmp_path,
+        [user_input(), edit("/repo/before.md"), user_input(), edit("/repo/after.md")],
+    )
+    assert ko_style.edited_files(transcript) == [Path("/repo/after.md")]
+
+
+def test_edited_files_keeps_going_past_injected_and_sidechain_records(tmp_path: Path) -> None:
+    injected: dict[str, object] = {
+        "type": "user",
+        "isMeta": True,
+        "message": {"content": [{"type": "text", "text": "스킬 본문"}]},
+    }
+    subagent_prompt: dict[str, object] = {"type": "user", "isSidechain": True, "message": {"content": "조사해줘"}}
+    transcript = write_transcript(
+        tmp_path,
+        [user_input(), edit("/repo/a.md"), injected, subagent_prompt, edit("/repo/b.md")],
+    )
+    assert ko_style.edited_files(transcript) == [Path("/repo/a.md"), Path("/repo/b.md")]
+
+
+def test_edited_files_drops_what_an_interrupted_turn_wrote(tmp_path: Path) -> None:
+    interrupted: dict[str, object] = {
+        "type": "user",
+        "message": {"content": [{"type": "text", "text": "[Request interrupted by user]"}]},
+    }
+    transcript = write_transcript(tmp_path, [user_input(), edit("/repo/half-written.md"), interrupted])
+    assert ko_style.edited_files(transcript) == []
+
+
+def test_edited_files_takes_only_edit_tools_and_dedupes(tmp_path: Path) -> None:
+    transcript = write_transcript(
+        tmp_path,
+        [
+            user_input(),
+            tool_use("Bash", {"command": "sed -i s/a/b/ /repo/shell.md"}),
+            edit("/repo/a.md"),
+            tool_use("NotebookEdit", {"notebook_path": "/repo/nb.ipynb", "new_source": "x"}),
+            edit("/repo/a.md"),
+        ],
+    )
+    assert ko_style.edited_files(transcript) == [Path("/repo/a.md"), Path("/repo/nb.ipynb")]
+
+
+def test_edited_files_survives_a_broken_line(tmp_path: Path) -> None:
+    transcript = tmp_path / "transcript.jsonl"
+    transcript.write_text(
+        json.dumps(user_input()) + "\n{ this is not json\n" + json.dumps(edit("/repo/a.md")) + "\n",
+        encoding="utf-8",
+    )
+    assert ko_style.edited_files(transcript) == [Path("/repo/a.md")]
+
+
+def test_edited_files_returns_empty_when_transcript_is_gone(tmp_path: Path) -> None:
+    assert ko_style.edited_files(tmp_path / "nowhere.jsonl") == []
+
+
+def test_later_dictionary_wins_the_same_term(tmp_path: Path) -> None:
+    first = write_dictionary(tmp_path / "first.json", [CONSUMER])
+    second = write_dictionary(tmp_path / "second.json", [{"term": "소비자", "as": "다시 정한 것", "use": ""}])
+    entries, _ = ko_style.load_dictionary([first, second])
+    assert [(entry.term, entry.judged_as, entry.use) for entry in entries] == [("소비자", "다시 정한 것", "")]
+
+
+def test_missing_dictionary_is_skipped(tmp_path: Path) -> None:
+    first = write_dictionary(tmp_path / "first.json", [CONSUMER])
+    entries, _ = ko_style.load_dictionary([first, tmp_path / "nowhere.json"])
+    assert [entry.term for entry in entries] == ["소비자"]
+
+
+def test_dictionary_saved_as_cp949_is_read(tmp_path: Path) -> None:
+    path = tmp_path / "cp949.json"
+    path.write_bytes(json.dumps([CONSUMER], ensure_ascii=False).encode("cp949"))
+    entries, _ = ko_style.load_dictionary([path])
+    assert [entry.judged_as for entry in entries] == ["컴퓨터 용어에서 consumer의 직역"]
+
+
+def test_broken_dictionary_is_skipped(tmp_path: Path) -> None:
+    broken = tmp_path / "broken.json"
+    broken.write_text("[{ not json", encoding="utf-8")
+    good = write_dictionary(tmp_path / "d.json", [CONSUMER])
+    entries, _ = ko_style.load_dictionary([broken, good])
+    assert [entry.term for entry in entries] == ["소비자"]
+
+
+def test_dictionary_that_is_not_an_array_is_skipped_with_a_warning(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    wrong = tmp_path / "wrong.json"
+    wrong.write_text(json.dumps({"entries": [CONSUMER]}, ensure_ascii=False), encoding="utf-8")
+    entries, _ = ko_style.load_dictionary([wrong])
+    assert entries == []
+    assert "배열이 아니다" in capsys.readouterr().err
+
+
+def test_uncompilable_term_is_skipped(tmp_path: Path) -> None:
+    path = write_dictionary(tmp_path / "d.json", [{"term": "(", "as": "깨진 정규식", "use": ""}, CONSUMER])
+    entries, _ = ko_style.load_dictionary([path])
+    assert [entry.term for entry in entries] == ["소비자"]
+
+
+def test_ok_entry_is_kept_out_of_detection(tmp_path: Path) -> None:
+    path = write_dictionary(tmp_path / "d.json", [CONSUMER, {"term": "소비", "as": "ok", "use": ""}])
+    entries, ok = ko_style.load_dictionary([path])
+    assert [entry.term for entry in entries] == ["소비자"]
+    assert [pattern.pattern for pattern in ok] == ["소비"]
+
+
+def test_ok_entry_filters_a_match_by_the_detected_string(tmp_path: Path) -> None:
+    target = tmp_path / "doc.md"
+    target.write_text("축이라는 기준\n건축이 무너진다\n", encoding="utf-8")
+    path = write_dictionary(
+        tmp_path / "d.json",
+        [{"term": "(?<![가-힣])축이", "as": "axis의 직역", "use": ""}, {"term": "축", "as": "ok", "use": ""}],
+    )
+    entries, ok = ko_style.load_dictionary([path])
+    assert ko_style.scan(target, entries, ok) == []
+    assert [finding.line for finding in ko_style.scan(target, entries, [])] == [1]
+
+
+def test_scan_reports_every_position_in_order(tmp_path: Path) -> None:
+    target = tmp_path / "doc.md"
+    target.write_text("첫 줄\n소비자가 온다\n\n소비자 큐\n", encoding="utf-8")
+    entries, ok = ko_style.load_dictionary([write_dictionary(tmp_path / "d.json", [CONSUMER])])
+    assert [(finding.line, finding.matched) for finding in ko_style.scan(target, entries, ok)] == [
+        (2, "소비자"),
+        (4, "소비자"),
+    ]
+
+
+def test_scan_reads_cp949(tmp_path: Path) -> None:
+    target = tmp_path / "doc.md"
+    target.write_bytes("소비자 큐\n".encode("cp949"))
+    entries, ok = ko_style.load_dictionary([write_dictionary(tmp_path / "d.json", [CONSUMER])])
+    assert [finding.matched for finding in ko_style.scan(target, entries, ok)] == ["소비자"]
+
+
+def test_scan_skips_a_file_that_is_not_text(tmp_path: Path) -> None:
+    target = tmp_path / "blob.bin"
+    target.write_bytes(b"\xff\xfe\x00\x80\x81\x82")
+    entries, ok = ko_style.load_dictionary([write_dictionary(tmp_path / "d.json", [CONSUMER])])
+    assert ko_style.scan(target, entries, ok) == []
+
+
+def test_scan_skips_a_file_over_the_size_cap(tmp_path: Path) -> None:
+    target = tmp_path / "big.md"
+    target.write_text("소비자\n" + "가" * ko_style.MAX_FILE_BYTES, encoding="utf-8")
+    entries, ok = ko_style.load_dictionary([write_dictionary(tmp_path / "d.json", [CONSUMER])])
+    assert ko_style.scan(target, entries, ok) == []
+
+
+def test_scan_skips_a_file_that_is_gone(tmp_path: Path) -> None:
+    entries, ok = ko_style.load_dictionary([write_dictionary(tmp_path / "d.json", [CONSUMER])])
+    assert ko_style.scan(tmp_path / "nowhere.md", entries, ok) == []
+
+
+ROOT = Path("/repo").resolve()
+DOC = ROOT / "docs" / "queue.md"
+
+
+def finding_of(term: str, judged_as: str, use: str, matched: str) -> ko_style.Finding:
+    entry = ko_style.Entry(term, judged_as, use, re.compile(term))
+    return ko_style.Finding(DOC, 12, matched, entry)
+
+
+def test_describe_matches_the_designed_wording() -> None:
+    finding = finding_of("소비자", "컴퓨터 용어에서 consumer의 직역", "컨슈머", "소비자")
+    assert ko_style.describe(finding, ROOT) == (
+        'docs/queue.md:12  "소비자"가 컴퓨터 용어에서 consumer의 직역으로 쓰였다면 "컨슈머"로 수정한다.'
+    )
+
+
+def test_describe_drops_the_replacement_when_use_is_empty() -> None:
+    finding = finding_of("재수출", "re-export의 직역", "", "재수출")
+    assert ko_style.describe(finding, ROOT) == 'docs/queue.md:12  "재수출"이 re-export의 직역으로 쓰였다면 수정한다.'
+
+
+def test_describe_picks_the_josa_from_the_detected_string() -> None:
+    finding = finding_of("되어지", "이중 피동", "", "되어졌")
+    assert '"되어졌"이 이중 피동으로 쓰였다면 수정한다.' in ko_style.describe(finding, ROOT)
+
+
+@pytest.mark.parametrize(
+    ("judged_as", "expected"),
+    [("파이프라인의 축", "축으로"), ("표준어", "표준어로"), ("직렬", "직렬로"), ("queue", "queue로")],
+)
+def test_describe_puts_euro_only_after_a_closed_syllable(judged_as: str, expected: str) -> None:
+    finding = finding_of("소비자", judged_as, "", "소비자")
+    assert f"{expected} 쓰였다면" in ko_style.describe(finding, ROOT)
+
+
+def test_describe_picks_the_josa_after_the_replacement_too() -> None:
+    finding = finding_of("소비자", "consumer의 직역", "출력", "소비자")
+    assert ko_style.describe(finding, ROOT).endswith('쓰였다면 "출력"으로 수정한다.')
+
+
+def test_describe_falls_back_to_the_absolute_path_outside_the_project() -> None:
+    finding = finding_of("소비자", "consumer의 직역", "", "소비자")
+    assert ko_style.describe(finding, Path("/elsewhere").resolve()).startswith(f"{DOC}:12")
+
+
+def test_describe_falls_back_to_the_absolute_path_without_a_project_root() -> None:
+    finding = finding_of("소비자", "consumer의 직역", "", "소비자")
+    assert ko_style.describe(finding, None).startswith(f"{DOC}:12")
+
+
+SHIPPED = Path(ko_style.__file__).with_name("dictionary.json")
+
+
+def scan_text(tmp_path: Path, text: str) -> list[str]:
+    target = tmp_path / "doc.md"
+    target.write_text(text, encoding="utf-8")
+    entries, ok = ko_style.load_dictionary([SHIPPED])
+    return [finding.matched for finding in ko_style.scan(target, entries, ok)]
+
+
+@pytest.mark.parametrize(
+    ("text", "matched"),
+    [
+        ("소비자 큐를 만든다", "소비자"),
+        ("배압이 걸린다", "배압"),
+        ("모듈을 재수출한다", "재수출"),
+        ("축이라는 기준", "축이"),
+        ("그렇게 되어졌다", "되어졌"),
+        ("그렇게 되어진다", "되어진"),
+        ("되어지다", "되어지"),
+    ],
+)
+def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
+    assert scan_text(tmp_path, text) == [matched]
+
+
+@pytest.mark.parametrize("text", ["건축이 무너진다", "압축이 풀린다", "그렇게 되어서 그렇다", "되어야 한다"])
+def test_shipped_dictionary_leaves_these_alone(tmp_path: Path, text: str) -> None:
+    assert scan_text(tmp_path, text) == []
+
+
+@pytest.fixture
+def hook_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """플러그인 사전과 프로젝트 루트를 tmp에 세운다. 홈 사전은 없다."""
+    plugin_root = tmp_path / "plugin"
+    write_dictionary(plugin_root / "hooks" / "dictionary.json", [CONSUMER])
+    project = tmp_path / "repo"
+    (project / "docs").mkdir(parents=True)
+    home = tmp_path / "home"
+    home.mkdir()
+    monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(plugin_root))
+    monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(project))
+    monkeypatch.setattr(ko_style.Path, "home", staticmethod(lambda: home))
+    return project
+
+
+def run_hook(payload: dict[str, object], monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> str:
+    monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(payload)))
+    ko_style.main()
+    return capsys.readouterr().out
+
+
+def test_dictionary_paths_are_read_plugin_home_project(hook_env: Path) -> None:
+    paths = ko_style.dictionary_paths()
+    assert paths[0].name == "dictionary.json"
+    assert [path.parent.name for path in paths] == ["hooks", ".claude", ".claude"]
+    assert paths[2] == hook_env.resolve() / ".claude" / ko_style.DICTIONARY_NAME
+
+
+def test_main_reports_the_findings_as_additional_context(
+    hook_env: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    target = hook_env / "docs" / "queue.md"
+    target.write_text("소비자 큐를 만든다\n", encoding="utf-8")
+    transcript = write_transcript(tmp_path, [user_input(), edit(str(target))])
+
+    out = run_hook({"transcript_path": str(transcript), "stop_hook_active": False}, monkeypatch, capsys)
+
+    payload = json.loads(out)
+    assert payload["hookSpecificOutput"]["hookEventName"] == "Stop"
+    assert payload["hookSpecificOutput"]["additionalContext"] == (
+        'docs/queue.md:1  "소비자"가 컴퓨터 용어에서 consumer의 직역으로 쓰였다면 "컨슈머"로 수정한다.'
+    )
+
+
+def test_main_says_nothing_on_the_second_stop(
+    hook_env: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    target = hook_env / "docs" / "queue.md"
+    target.write_text("소비자 큐를 만든다\n", encoding="utf-8")
+    transcript = write_transcript(tmp_path, [user_input(), edit(str(target))])
+
+    assert run_hook({"transcript_path": str(transcript), "stop_hook_active": True}, monkeypatch, capsys) == ""
+
+
+def test_main_says_nothing_when_the_turn_edited_nothing(
+    hook_env: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    transcript = write_transcript(tmp_path, [user_input(), tool_use("Bash", {"command": "ls"})])
+
+    assert run_hook({"transcript_path": str(transcript)}, monkeypatch, capsys) == ""
+
+
+def test_main_does_not_judge_the_dictionary_itself(
+    hook_env: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    project_dictionary = write_dictionary(hook_env / ".claude" / ko_style.DICTIONARY_NAME, [CONSUMER])
+    transcript = write_transcript(tmp_path, [user_input(), edit(str(project_dictionary))])
+
+    assert run_hook({"transcript_path": str(transcript)}, monkeypatch, capsys) == ""

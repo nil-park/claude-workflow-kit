@@ -1,0 +1,15 @@
+{
+  "description": "Flags English-calqued Korean before a turn ends",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/ko_style.py\""
+          }
+        ]
+      }
+    ]
+  }
+}
