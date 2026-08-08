@@ -283,7 +283,8 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("아무것도 막지 않는 라벨", "막지"),
         ("push를 막아 PR을 거치게 한다", "막아"),
         ("쿠키는 host-only로 굽는다", "굽는"),
-        ("방어선이 아니라 구멍이 된다", "구멍"),
+        ("검증에 구멍이 생긴다", "구멍"),
+        ("폴백을 두면 방어선이 무너진다", "방어선"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
