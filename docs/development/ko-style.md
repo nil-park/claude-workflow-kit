@@ -1,6 +1,6 @@
 # ko-style 훅의 전제와 검증
 
-[설계](../architecture/ko-style.md)가 딛고 선 사실과, 그것을 확인하는 방법이다.
+[설계](../architecture/ko-style.md)의 바탕이 되는 사실과, 그것을 확인하는 방법이다.
 
 ## Stop 훅이 받는 것
 

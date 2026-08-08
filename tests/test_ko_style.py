@@ -270,7 +270,10 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("Cloud Run에 사는 앱", "사는"),
         ("이슈 링크는 MR 본문이 진다", "진다"),
         ("아무것도 끌고 오지 않는다", "끌고 오"),
-        ("그 계약 위에 세운 가정", "세운"),
+        ("그 위에 세운 가정", "세운"),
+        ("훅의 입출력 계약을 조사했다", "계약"),
+        ("설계가 딛고 선 사실", "딛고"),
+        ("둘을 가르는 것은 갱신 주체다", "가르는 것"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
@@ -295,6 +298,8 @@ def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, te
         "아무것도 딸려 오지 않는다",
         "논거로 내세운 기준",
         "조건을 앞세운 질의",
+        "첫발을 내딛고 나아간다",
+        "무엇을 볼지 먼저 가른다",
     ],
 )
 def test_shipped_dictionary_leaves_these_alone(tmp_path: Path, text: str) -> None:
