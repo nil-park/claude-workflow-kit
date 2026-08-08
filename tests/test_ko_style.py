@@ -283,6 +283,7 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("아무것도 막지 않는 라벨", "막지"),
         ("push를 막아 PR을 거치게 한다", "막아"),
         ("쿠키는 host-only로 굽는다", "굽는"),
+        ("방어선이 아니라 구멍이 된다", "구멍"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
@@ -321,6 +322,7 @@ def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, te
         "폭이 좁아진다",
         "가로막는 벽이 없다",
         "앞을 가로막아 선다",
+        "숨구멍이 트인다",
     ],
 )
 def test_shipped_dictionary_leaves_these_alone(tmp_path: Path, text: str) -> None:
