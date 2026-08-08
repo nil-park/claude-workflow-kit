@@ -57,7 +57,7 @@ def _string(value: object) -> str:
 
 
 def _warn(message: str) -> None:
-    """훅은 턴을 막지 않으므로 진단은 stderr로만 남긴다. `claude --debug`에서 보인다."""
+    """훅은 턴을 차단하지 않으므로 진단은 stderr로만 남긴다. `claude --debug`에서 보인다."""
     print(f"ko-style: {message}", file=sys.stderr)
 
 
@@ -288,7 +288,7 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
-    # 훅의 실패가 턴을 막지 않는다. 무엇이 터졌든 stderr로만 알리고 0으로 끝낸다.
+    # 훅의 실패가 턴을 차단하지 않는다. 무엇이 터졌든 stderr로만 알리고 0으로 끝낸다.
     except Exception:  # noqa: BLE001
         _warn(traceback.format_exc())
     sys.exit(0)

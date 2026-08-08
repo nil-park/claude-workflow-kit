@@ -1,7 +1,7 @@
 ---
 name: pre-push
 description: >-
-  보호 브랜치(main/master)로 직접 push하는 것을 막아 PR을 거치게 하는 git pre-push 훅을
+  보호 브랜치(main/master)로 직접 push하는 것을 차단해 PR을 거치게 하는 git pre-push 훅을
   설치한다. 이렇게 부를 때 쓴다: "pre-push 훅 깔아줘", "main 직접 push 막아줘".
 ---
 
