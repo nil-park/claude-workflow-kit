@@ -279,6 +279,7 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("성능 부분을 개선한다", "부분"),
         ("ingester에는 닿지 않는다", "닿지"),
         ("상한이 듣는지 재는 수단", "재는"),
+        ("경로별로 무엇이 좁히나", "이 좁히"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
@@ -313,6 +314,8 @@ def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, te
         "두 면이 맞닿지 않는다",
         "존재는 확인했다",
         "현재는 그렇지 않다",
+        "간격이 좁다",
+        "폭이 좁아진다",
     ],
 )
 def test_shipped_dictionary_leaves_these_alone(tmp_path: Path, text: str) -> None:
