@@ -17,19 +17,19 @@ description: >-
   - 예를 들어 `docs/architecture/` 대신 `docs/spec`이 있다면 `docs/spec`에서 why에 해당하는
     서술을 모두 뺀다.
 
-| 위치                 | 내용                                                                      | 넣을 것                | 뺄 것          |
-| -------------------- | ------------------------------------------------------------------------- | ---------------------- | -------------- |
-| `docs/requirements/` | SRS. 유스케이스 및 사용자 시나리오. 요구사항 항목당 한 줄 설명            | who, what, when, where | how, why       |
-| `docs/architecture/` | **애플리케이션 및 시스템의 이상적인 형상.** 구현에 대한 추상. 인프라 구성 | **what**, how          | **why**        |
-| `docs/decisions/`    | 결정 기록. 너는 명시적으로 요청할 때만 쓴다.                              | why, analysis          |                |
-| `docs/runbook/`      | 배포 절차, 수작업이 필요한 처리, 장애 대응 절차                           | how                    | **why**        |
-| `docs/setup/`        | 개발 환경 구축                                                            | how, what              | why            |
-| `docs/development/`  | **전제와 가정**, 개발과 검증 방법. 스모크 테스트, FMEA                    | how, what              | why            |
-| `docs/monitoring/`   | 알람과 모니터링. 어떤 지표를 어떻게 보는지                                | how, what, why         |                |
-| `docs/reference/`    | 외부 플랫폼·라이브러리를 조사해 남긴 참고 자료                            | what                   | why, 우리 판단 |
-| 이슈 설명            | 이슈 카테고리에 따라 자율적으로 쓴다                                      | 5W1H                   |                |
-| PR/MR 설명           | 무엇이 달라지는지, 어떻게 적용하는지, what, how, why 순서로               | what, how, why         | 구현 상세      |
-| 소스 코드 주석       | 자명하지 않은 짧은 why                                                    | why                    | what           |
+| 위치                 | 내용                                                                      | 넣을 것                | 뺄 것     |
+| -------------------- | ------------------------------------------------------------------------- | ---------------------- | --------- |
+| `docs/requirements/` | SRS. 유스케이스 및 사용자 시나리오. 요구사항 항목당 한 줄 설명            | who, what, when, where | how, why  |
+| `docs/architecture/` | **애플리케이션 및 시스템의 이상적인 형상.** 구현에 대한 추상. 인프라 구성 | **what**, how          | **why**   |
+| `docs/decisions/`    | 결정 기록. 너는 명시적으로 요청할 때만 쓴다.                              | why, analysis          |           |
+| `docs/runbook/`      | 배포 절차, 수작업이 필요한 처리, 장애 대응 절차                           | how                    | **why**   |
+| `docs/setup/`        | 개발 환경 구축                                                            | how, what              | why       |
+| `docs/development/`  | **전제와 가정**, 개발과 검증 방법. 스모크 테스트, FMEA                    | how, what              | why       |
+| `docs/monitoring/`   | 알람과 모니터링. 어떤 지표를 어떻게 보는지                                | how, what, why         |           |
+| `docs/reference/`    | 외부 플랫폼·라이브러리를 조사해 남긴 참고 자료                            | what                   | why       |
+| 이슈 설명            | 이슈 카테고리에 따라 자율적으로 쓴다                                      | 5W1H                   |           |
+| PR/MR 설명           | 무엇이 달라지는지, 어떻게 적용하는지, what, how, why 순서로               | what, how, why         | 구현 상세 |
+| 소스 코드 주석       | 자명하지 않은 짧은 why                                                    | why                    | what      |
 
 ## 상세 규칙
 
