@@ -26,7 +26,7 @@ description: >-
 | `docs/setup/`        | 개발 환경 구축                                                            | how, what              | why            |
 | `docs/development/`  | **전제와 가정**, 개발과 검증 방법. 스모크 테스트, FMEA                    | how, what              | why            |
 | `docs/monitoring/`   | 알람과 모니터링. 어떤 지표를 어떻게 보는지                                | how, what, why         |                |
-| `docs/reference/`    | 외부 플랫폼·라이브러리가 정한 규약. 우리가 바꿀 수 없는 사실              | what                   | why, 우리 판단 |
+| `docs/reference/`    | 외부 플랫폼·라이브러리를 조사해 남긴 참고 자료. 우리가 바꿀 수 없는 사실  | what                   | why, 우리 판단 |
 | 이슈 설명            | 이슈 카테고리에 따라 자율적으로 쓴다                                      | 5W1H                   |                |
 | PR/MR 설명           | 무엇이 달라지는지, 어떻게 적용하는지, what, how, why 순서로               | what, how, why         | 구현 상세      |
 | 소스 코드 주석       | 자명하지 않은 짧은 why                                                    | why                    | what           |
