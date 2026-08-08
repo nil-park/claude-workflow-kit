@@ -23,7 +23,7 @@ stdin으로 오는 JSON은 이게 전부다.
 이번 턴에 고친 파일의 목록은 없다.
 
 환경변수로는 `CLAUDE_PROJECT_DIR`이 온다. 프로젝트 루트를 가리키지만 구분자가 입력의 `cwd`와
-다르다 — Windows에서 `CLAUDE_PROJECT_DIR`은 `C:/Git/...`, `cwd`는 `C:\Git\...`이었다. 두 값을
+다르다. Windows에서 `CLAUDE_PROJECT_DIR`은 `C:/Git/...`, `cwd`는 `C:\Git\...`이었다. 두 값을
 비교하거나 상대경로를 만들 때는 정규화해야 한다.
 
 `CLAUDE_PLUGIN_ROOT`와 `CLAUDE_PLUGIN_DATA`는 플러그인으로 배포된 훅에만 온다.
@@ -93,7 +93,7 @@ stdin으로 오는 JSON은 이게 전부다.
 
 훅을 건 뒤에는 `/hooks`로 등록됐는지 먼저 본다. `0 hooks configured`로 나오면 그 세션은
 훅을 모르는 것이므로 `claude --resume`으로 다시 켠다. 세션 도중에 `.claude/settings.local.json`을
-새로 만든 경우가 여기 해당한다 — 훅 문서는 설정 파일의 훅을 고치면 파일 워처가 집는다고
+새로 만든 경우가 여기 해당한다. 훅 문서는 설정 파일의 훅을 고치면 파일 워처가 집는다고
 하지만, 없던 파일을 만드는 것은 집히지 않았다. 훅이 안 도는 것은 겉으로 드러나지 않으므로
 등록을 확인하기 전에는 측정 결과를 믿지 않는다.
 
