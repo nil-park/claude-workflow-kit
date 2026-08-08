@@ -295,6 +295,8 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("값에 stage를 함께 싣는다", "싣는"),
         ("한 문자열에 나란히 실어 보낸다", "실어"),
         ("조회가 이 둘에 어떻게 기대는지", "기대는"),
+        ("이 설정을 타는 스크립트", "타는"),
+        ("설정을 타지 않고 직접 접속한다", "타지"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
@@ -344,6 +346,8 @@ def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, te
         "실측으로 확인했다",
         "구현을 베낀 기대값",
         "빠르기를 기대한다",
+        "불타는 장작을 본다",
+        "애타는 마음이 있다",
     ],
 )
 def test_shipped_dictionary_leaves_these_alone(tmp_path: Path, text: str) -> None:
