@@ -368,3 +368,29 @@ def test_main_does_not_judge_the_dictionary_itself(
     transcript = write_transcript(tmp_path, [user_input(), edit(str(project_dictionary))])
 
     assert run_hook({"transcript_path": str(transcript)}, monkeypatch, capsys) == ""
+
+
+def test_main_does_not_judge_a_dictionary_off_the_read_paths(
+    hook_env: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """배포용 사전의 원본은 리포 안에 있고 읽는 경로 셋 어디에도 없다. 이름으로 걸러야 한다."""
+    source = write_dictionary(hook_env / "plugins" / "ko-style" / "hooks" / ko_style.DICTIONARY_NAME, [CONSUMER])
+    assert source not in ko_style.dictionary_paths()
+    transcript = write_transcript(tmp_path, [user_input(), edit(str(source))])
+
+    assert run_hook({"transcript_path": str(transcript)}, monkeypatch, capsys) == ""
+
+
+def test_main_still_judges_the_other_files_of_the_turn(
+    hook_env: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    dictionary = write_dictionary(hook_env / ".claude" / ko_style.DICTIONARY_NAME, [CONSUMER])
+    target = hook_env / "docs" / "queue.md"
+    target.write_text("소비자 큐를 만든다\n", encoding="utf-8")
+    transcript = write_transcript(tmp_path, [user_input(), edit(str(dictionary)), edit(str(target))])
+
+    out = run_hook({"transcript_path": str(transcript)}, monkeypatch, capsys)
+
+    assert json.loads(out)["hookSpecificOutput"]["additionalContext"] == (
+        'docs/queue.md:1  "소비자"가 컴퓨터 용어에서 consumer의 직역으로 쓰였다면 "컨슈머"로 수정한다.'
+    )

@@ -270,13 +270,12 @@ def main() -> None:
     if not transcript:
         return
 
-    dictionaries = dictionary_paths()
-    skipped = {_resolved(path) for path in dictionaries}
-    targets = [path for path in edited_files(Path(transcript)) if _resolved(path) not in skipped]
+    # 사전은 경로가 아니라 이름으로 뺀다. 읽는 경로 밖에 둔 원본도 자기 항목에 걸리지 않는다.
+    targets = [path for path in edited_files(Path(transcript)) if path.name != DICTIONARY_NAME]
     if not targets:
         return
 
-    entries, ok = load_dictionary(dictionaries)
+    entries, ok = load_dictionary(dictionary_paths())
     if not entries:
         return
 
