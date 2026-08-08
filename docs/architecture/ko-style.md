@@ -85,8 +85,8 @@ flowchart TD
 
 ## 신호
 
-- stdout에 `hookSpecificOutput.additionalContext`를 실어 알린다. stdout에는 UTF-8 바이트를
-  쓴다.
+- 탐지 결과는 `hookSpecificOutput.additionalContext`에 담아 stdout으로 알린다. stdout에는
+  UTF-8 바이트를 쓴다.
 - 종료 코드는 탐지 여부와 무관하게 언제나 0이고, 2는 쓰지 않는다.
 - `stop_hook_active`가 `true`인 Stop은 아무것도 하지 않고 통과시킨다. 한 턴에 한 번만
   알린다.
