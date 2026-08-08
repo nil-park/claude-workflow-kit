@@ -274,6 +274,7 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("훅의 입출력 계약을 조사했다", "계약"),
         ("설계가 딛고 선 사실", "딛고"),
         ("둘을 가르는 것은 갱신 주체다", "가르는 것"),
+        ("그 제약이 우리를 묶는다", "묶는"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
@@ -300,6 +301,7 @@ def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, te
         "조건을 앞세운 질의",
         "첫발을 내딛고 나아간다",
         "무엇을 볼지 먼저 가른다",
+        "짐을 묶어 둔다",
     ],
 )
 def test_shipped_dictionary_leaves_these_alone(tmp_path: Path, text: str) -> None:
