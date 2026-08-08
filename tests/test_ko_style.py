@@ -291,6 +291,7 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("새는 방향으로 조용히 틀린다", "새는"),
         ("게이트가 조용히 열린다", "게이트"),
         ("쿼리가 통째로 떨어져 나간다", "떨어져 나"),
+        ("프루닝이 걸렸는지는 이 지표가 답한다", "답한"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
@@ -334,6 +335,8 @@ def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, te
         "숨구멍이 트인다",
         "철새는 돌아온다",
         "API 게이트웨이를 둔다",
+        "대답하지 않는다",
+        "응답하는 시간을 본다",
     ],
 )
 def test_shipped_dictionary_leaves_these_alone(tmp_path: Path, text: str) -> None:
