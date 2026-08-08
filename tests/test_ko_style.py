@@ -270,6 +270,7 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("Cloud Run에 사는 앱", "사는"),
         ("이슈 링크는 MR 본문이 진다", "진다"),
         ("아무것도 끌고 오지 않는다", "끌고 오"),
+        ("그 계약 위에 세운 가정", "세운"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
@@ -292,6 +293,8 @@ def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, te
         "병렬 세션이 덮어쓰므로 이름을 나눈다",
         "데이터를 끌어온다",
         "아무것도 딸려 오지 않는다",
+        "논거로 내세운 기준",
+        "조건을 앞세운 질의",
     ],
 )
 def test_shipped_dictionary_leaves_these_alone(tmp_path: Path, text: str) -> None:
@@ -300,7 +303,7 @@ def test_shipped_dictionary_leaves_these_alone(tmp_path: Path, text: str) -> Non
 
 @pytest.fixture
 def hook_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    """플러그인 사전과 프로젝트 루트를 tmp에 세운다. 홈 사전은 없다."""
+    """플러그인 사전과 프로젝트 루트를 tmp에 만든다. 홈 사전은 없다."""
     plugin_root = tmp_path / "plugin"
     write_dictionary(plugin_root / "hooks" / ko_style.DICTIONARY_NAME, [CONSUMER])
     project = tmp_path / "repo"
