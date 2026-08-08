@@ -297,6 +297,7 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("조회가 이 둘에 어떻게 기대는지", "기대는"),
         ("이 설정을 타는 스크립트", "타는"),
         ("설정을 타지 않고 직접 접속한다", "타지"),
+        ("필요해지면 그때 얹으면 된다", "얹으"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
