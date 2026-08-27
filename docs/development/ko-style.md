@@ -68,7 +68,7 @@ stdin으로 오는 JSON은 이게 전부다.
     구별되지 않는다.
 - auto mode는 시스템 프롬프트로 "make file changes with sed, heredocs, or short scripts,
   rather than using the dedicated Read, Edit, or Write tools"를 주입한다. 그 모드에서는 편집이
-  Bash로 가므로 이 훅이 사실상 돌지 않는다.
+  Bash로 가므로 이 훅이 사실상 실행되지 않는다.
   - 읽기와 검색에 쓰는 `cat`, `grep`, `find`는 훅이 보는 도구가 아니어서 아무 영향이 없다.
 
 ## 판정의 한계
