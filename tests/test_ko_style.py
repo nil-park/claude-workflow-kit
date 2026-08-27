@@ -403,7 +403,7 @@ def test_main_reports_the_findings_as_additional_context(
     payload = json.loads(out)
     assert payload["hookSpecificOutput"]["hookEventName"] == "Stop"
     assert payload["hookSpecificOutput"]["additionalContext"] == (
-        'docs/queue.md:1  "소비자"가 컴퓨터 용어에서 consumer의 직역으로 쓰였다면 "컨슈머"로 수정한다.'
+        f'{ko_style.PREAMBLE}\n\ndocs/queue.md:1  "소비자"가 컴퓨터 용어에서 consumer의 직역으로 쓰였다면 "컨슈머"로 수정한다.'
     )
 
 
@@ -456,5 +456,5 @@ def test_main_still_judges_the_other_files_of_the_turn(
     out = run_hook({"transcript_path": str(transcript)}, monkeypatch, capsys)
 
     assert json.loads(out)["hookSpecificOutput"]["additionalContext"] == (
-        'docs/queue.md:1  "소비자"가 컴퓨터 용어에서 consumer의 직역으로 쓰였다면 "컨슈머"로 수정한다.'
+        f'{ko_style.PREAMBLE}\n\ndocs/queue.md:1  "소비자"가 컴퓨터 용어에서 consumer의 직역으로 쓰였다면 "컨슈머"로 수정한다.'
     )
