@@ -64,6 +64,12 @@ stdin으로 오는 JSON은 이게 전부다.
 - Bash로 고친 파일은 탐지되지 않는다. `tool_use` 입력에 경로가 없고 명령 문자열만 있다.
   - `sed -i`, `cat > f <<EOF`, 스크립트가 안에서 쓰는 파일이 모두 여기 해당한다. 그 파일을
     나중에 `Write`나 `Edit`으로 건드리면 그때 검사된다.
+  - 검사를 건너뛴 것을 알리는 신호는 없다. 오류도 경고도 나지 않아 탐지 결과가 없는 턴과
+    구별되지 않는다.
+- auto mode는 시스템 프롬프트로 "make file changes with sed, heredocs, or short scripts,
+  rather than using the dedicated Read, Edit, or Write tools"를 주입한다. 그 모드에서는 편집이
+  Bash로 가므로 이 훅이 사실상 돌지 않는다.
+  - 읽기와 검색에 쓰는 `cat`, `grep`, `find`는 훅이 보는 도구가 아니어서 아무 영향이 없다.
 
 ## 판정의 한계
 
