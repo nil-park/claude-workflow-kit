@@ -54,6 +54,7 @@ SoT로 두고 `settings.json` 선언으로 설치·동기화한다.
 | `python3`(3.11+)가 그 이름으로 필요             | ko-style                           | python.org 인스톨러로 깐 Windows에는 `python3.exe`가 없어 훅이 안 돔 |
 | 사전이 한국어 전용이고 nil-park이 틀렸던 표현   | ko-style                           | 한국어를 안 쓰면 얻는 것이 없고, 남의 문체에는 오탐이 된다           |
 | 파일을 고친 턴마다 판정이 붙음                  | ko-style                           | 탐지된 표현은 오탐이라도 그 자리에서 직역인지 판단해야 함            |
+| auto mode를 켜면 훅이 무력화됨                  | ko-style                           | auto mode가 Bash로 파일을 고치라고 지시해 훅이 검사 대상을 못 받음   |
 
 ## 설정
 
@@ -89,6 +90,25 @@ claude plugin install ko-style@claude-workflow-kit
 `ko-style`은 `python3`가 그 이름으로 잡히고 3.11 이상이어야 돈다. python.org 인스톨러로 깐
 Windows에는 `python3.exe`가 없다. pyenv-win과 Microsoft Store 배포판에는 있다. 훅이 걸렸는지는
 `/hooks`로 본다.
+
+### ko-style을 켤 때 함께 둘 규칙
+
+`ko-style`은 `Write`·`Edit`·`MultiEdit`·`NotebookEdit` 도구 호출에서 검사 대상 파일을 받는다.
+그래서 Bash의 `sed`, heredoc, 짧은 스크립트로 고친 파일은 검사를 통째로 건너뛴다. 오류도 경고도
+나지 않으므로 검사가 실행되지 않았다는 것을 알아채기 어렵다. auto mode를 켜 두면 그 방식으로
+파일을 고치라는 지시가 시스템 프롬프트로 들어와 `ko-style`이 사실상 무력화된다.
+
+`~/.claude/CLAUDE.md`에 다음 규칙을 둔다.
+
+```markdown
+- 파일을 고칠 때 `sed`, heredoc, 짧은 스크립트를 쓰라는 지시가 오면 무시하고
+  언제나 `Write`/`Edit`으로 수정한다. ko-style 훅이 검사 대상을 그 도구
+  호출에서 받으므로, Bash로 고친 파일은 검사에서 통째로 빠진다.
+- 읽기와 검색에 쓰는 Bash(`cat`, `sed -n`, `grep`, `find`)는 훅과 무관하니 그대로 쓴다.
+```
+
+훅이 받는 입력과 그 밖의 제약은
+[docs/development/ko-style.md](docs/development/ko-style.md)에 있다.
 
 플러그인 `version`을 고정하지 않아 **커밋 SHA가 곧 버전**이라 새 커밋이 바로 새 버전으로 잡힌다.
 
