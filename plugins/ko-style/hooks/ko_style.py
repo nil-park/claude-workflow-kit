@@ -20,6 +20,7 @@ EDIT_TOOLS = frozenset({"Write", "Edit", "MultiEdit", "NotebookEdit"})
 PATH_KEYS = ("file_path", "notebook_path")
 ENCODINGS = ("utf-8", "cp949")
 DICTIONARY_NAME = "ko-style-dictionary.json"
+PREAMBLE = "아래는 치환 지시가 아니라 판정 근거다. 왜 걸렸는지 읽고 그 자리에 맞는 한국어 문장으로 다시 쓴다."
 HANGUL_FIRST = 0xAC00
 HANGUL_LAST = 0xD7A3
 JONGSEONG_COUNT = 28
@@ -120,7 +121,7 @@ def _compile(term: str) -> re.Pattern[str] | None:
 
 
 def load_dictionary(paths: Iterable[Path]) -> tuple[list[Entry], list[re.Pattern[str]]]:
-    """사전 파일들을 합쳐 탐지 항목과 `ok` 필터로 가른다."""
+    """사전 파일들을 합쳐 탐지 항목과 `ok` 필터로 나눈다."""
     merged: dict[str, tuple[str, str]] = {}
     for path in paths:
         data = _read_json(path)
@@ -255,7 +256,8 @@ def describe(finding: Finding, root: Path | None) -> str:
 
 def report(lines: list[str]) -> None:
     """stdout은 UTF-8로 직접 쓴다. Windows의 기본 stdout 인코딩은 cp949라 그대로 두면 깨진다."""
-    payload = {"hookSpecificOutput": {"hookEventName": "Stop", "additionalContext": "\n".join(lines)}}
+    context = "\n".join([PREAMBLE, "", *lines])
+    payload = {"hookSpecificOutput": {"hookEventName": "Stop", "additionalContext": context}}
     sys.stdout.flush()
     sys.stdout.buffer.write(json.dumps(payload, ensure_ascii=False).encode("utf-8") + b"\n")
     sys.stdout.buffer.flush()
