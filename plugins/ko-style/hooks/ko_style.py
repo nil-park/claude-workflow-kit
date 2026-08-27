@@ -121,7 +121,7 @@ def _compile(term: str) -> re.Pattern[str] | None:
 
 
 def load_dictionary(paths: Iterable[Path]) -> tuple[list[Entry], list[re.Pattern[str]]]:
-    """사전 파일들을 합쳐 탐지 항목과 `ok` 필터로 가른다."""
+    """사전 파일들을 합쳐 탐지 항목과 `ok` 필터로 나눈다."""
     merged: dict[str, tuple[str, str]] = {}
     for path in paths:
         data = _read_json(path)
