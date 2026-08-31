@@ -1,11 +1,16 @@
-# 번역투 탐지 훅
+# ko-style
 
-`ko-style`은 한국어 문서에 영문 직역체가 들어가면 턴이 끝나기 전에 알리는 Stop 훅이다.
+`ko-style`은 한국어 텍스트의 문체를 다루는 플러그인이다. 구성요소는 둘이다.
 
-낱말과 표기는 이 훅이 맡고, 문장이 성립하는지는 `workflow-core:docs-standards`의 리뷰 기준이
-맡는다.
+| 구성요소          | 종류    | 실행 시점                | 판정 방식          |
+| ----------------- | ------- | ------------------------ | ------------------ |
+| `ko_style`        | Stop 훅 | 파일을 고친 턴이 끝날 때 | 사전의 정규식 매칭 |
+| `anti-claude-ism` | 스킬    | 부를 때                  | 목록에 대조한 판정 |
 
-## 동작
+낱말과 표기는 훅이 맡고, 문형과 문장 구조는 스킬이 맡는다. 문서의 what·how·why 배분은 어느
+쪽도 다루지 않고 `workflow-core:docs-standards`가 맡는다.
+
+## 훅의 동작
 
 ```mermaid
 flowchart TD
@@ -111,11 +116,27 @@ docs/queue.md:31  "재수출"이 re-export의 직역으로 쓰였다면 수정�
 - `as`와 `use` 뒤의 조사도 그 마지막 글자로 고른다. 받침이 없거나 `ㄹ`이면 `로`, 그 밖에는
   `으로`다.
 
+## 스킬
+
+`anti-claude-ism`은 대상 텍스트를 읽고 Claude 문체에 해당하는 자리를 찾아 그 문맥에 맞는
+한국어로 다시 쓴다.
+
+- 발동 이름은 `anti-claude-ism`, `안티클로디즘`, `클로디즘`이다. Claude가 스스로 부르기도 하고
+  `/ko-style:anti-claude-ism`으로 직접 부르기도 한다.
+- 대상은 지정받은 범위이고, 지정이 없으면 이번 작업에서 새로 쓰거나 고친 한국어 텍스트다.
+  문서, 주석, 독스트링, 커밋 메시지, 이슈와 PR/MR 설명이 여기 들어간다.
+- 판정 근거는 목록 파일 둘이다. 낱말 단위는 `references/word-level.md`, 문장 단위는
+  `references/sentence-level.md`다. 어느 갈래가 어느 파일에 있는지는 `SKILL.md`가 안내한다.
+- `SKILL.md`에는 대상·절차·판정 기준만 두고 예시는 목록 파일에 둔다.
+- 목록에는 실제로 틀렸던 예시를 원문 그대로 등재하고, 고친 문장은 남기지 않는다.
+- 갈래마다 무엇이 잘못됐는지를 절 머리에 적는다. 예시는 그 판정의 근거다.
+
 ## 배포
 
 - `workflow-core`와 별개인 `ko-style` 플러그인으로 배포한다. 어느 쪽도 상대에 의존하지
   않는다.
 - `.claude-plugin/plugin.json`을 두고 마켓플레이스 카탈로그에 등록한다.
+- 스킬은 `skills/anti-claude-ism/` 아래에 두고, 목록 파일은 그 안의 `references/`에 둔다.
 - `hooks/hooks.json`이 `Stop`에 스크립트를 건다. matcher는 없고, `timeout`은 10초, 스피너
   문구는 `한국어 문체 검수 중`이다.
 - 스크립트는 Python으로 쓰고 `python3 "${CLAUDE_PLUGIN_ROOT}/hooks/ko_style.py"`로 부른다.
