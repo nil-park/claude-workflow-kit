@@ -37,14 +37,6 @@ description: '"anti-claude-ism", "안티클로디즘", "클로디즘"이라고 �
   "본다"로 몰리기 쉽다.
 - **무엇으로 바꿀지는 문맥에서 정한다.** 목록에는 대체 표현이 없다.
 
-## 목록을 늘릴 때
-
-- 새로 발견한 결함은 해당 파일에 예시 원문 그대로 추가한다. **고친 문장은 남기지 않는다.**
-  무엇이 잘못됐는지만 적어 다음에 같은 실수를 알아보는 데 쓴다.
-- 활용형이 고정된 낱말 단위 표현이면 `ko-style` 사전에 등재하는 편이 낫다. 사전 규약은
-  [ko-style 설계](https://github.com/nil-park/claude-workflow-kit/blob/main/docs/architecture/ko-style.md)에
-  있다.
-
 ## 참고 파일
 
 | 파일                           | 담긴 것                                                                    |
