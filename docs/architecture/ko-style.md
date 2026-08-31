@@ -118,7 +118,7 @@ docs/queue.md:31  "재수출"이 re-export의 직역으로 쓰였다면 수정�
 
 ## 스킬
 
-`anti-claude-ism`은 대상 텍스트를 읽고 Claude 문체에 해당하는 자리를 찾아 문맥에 맞는
+`anti-claude-ism`은 대상 텍스트를 읽고 Claude 문체에 해당하는 낱말과 문장을 찾아 문맥에 맞는
 한국어로 다시 쓴다.
 
 - 발동 이름은 `anti-claude-ism`, `안티클로디즘`, `클로디즘`이다. Claude가 스스로 부르거나
