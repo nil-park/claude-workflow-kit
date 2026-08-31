@@ -7,8 +7,8 @@
 | `ko_style`        | Stop 훅 | 파일을 고친 턴이 끝날 때 | 사전의 정규식 매칭 |
 | `anti-claude-ism` | 스킬    | 부를 때                  | 목록에 대조한 판정 |
 
-낱말과 표기는 훅이, 문형과 문장 구조는 스킬이 맡는다. 문서의 what·how·why 배분은 어느 쪽도
-다루지 않는다. 그것은 `workflow-core:docs-standards`의 기준이다.
+낱말과 표기는 훅이, 문형과 문장 구조는 스킬이 맡는다. 문서의 what·how·why 배분은
+`workflow-core:docs-standards`의 기준을 따르고 여기서 다루지 않는다.
 
 ## 훅의 동작
 
