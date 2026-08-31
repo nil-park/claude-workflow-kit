@@ -16,6 +16,7 @@ flowchart LR
   end
   subgraph ks["ko-style"]
     hook{{"ko_style"}}
+    aci["anti-claude-ism"]
   end
 
   gwf --> cs
@@ -36,6 +37,6 @@ flowchart LR
 - **점선은 약결합이다.** A는 B의 이름을 부르지 않고, B가 자기 트리거로 발동해 붙는다.
   `git-workflow`의 구현 단계는 파일을 고치는 작업이므로 `work-cycle`이 스스로 뜬다. B를
   개명해도 A는 안 깨지지만, **설치돼 있어야 뜬다는 점에서 실제 의존은 그대로다.**
-- **육각형은 훅이고 사각형은 스킬이다.** `ko_style`이 무엇을 맡는지는
+- **육각형은 훅이고 사각형은 스킬이다.** `ko_style`과 `anti-claude-ism`이 각각 무엇을 맡는지는
   [ko-style 설계](ko-style.md)에 있다.
 - **화살표가 없는 노드는 어느 쪽으로도 의존이 없다.**

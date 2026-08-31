@@ -8,7 +8,7 @@ SoT로 두고 `settings.json` 선언으로 설치·동기화한다.
 
 설치 후 스킬은 플러그인 이름으로 네임스페이스된다. `git-workflow`는 `workflow-core`의 스킬을
 부르므로 그것에 의존한다(설치 시 자동으로 함께 설치·활성화됨). `ko-style`은 어느 쪽에도
-의존하지 않고, 스킬이 아니라 훅이라 부르는 명령이 없다. 켜 두면 턴이 끝날 때마다 스스로 돈다.
+의존하지 않는다. 훅은 켜 두면 턴이 끝날 때마다 자동으로 실행된다. 스킬은 부를 때만 쓴다.
 
 | 플러그인        | 명령                              | 설명                                                           |
 | --------------- | --------------------------------- | -------------------------------------------------------------- |
@@ -19,10 +19,12 @@ SoT로 두고 `settings.json` 선언으로 설치·동기화한다.
 | `workflow-core` | `/workflow-core:pre-push`         | 보호 브랜치(main/master) 직접 push 차단 훅 설치                |
 | `git-workflow`  | `/git-workflow:git-workflow`      | 브랜치 + PR/MR 워크플로 (`gh`·`glab`)                          |
 | `ko-style`      | 없음 (Stop 훅)                    | 이번 턴에 고친 파일의 번역투를 턴이 끝나기 전에 알린다         |
+| `ko-style`      | `/ko-style:anti-claude-ism`       | Claude가 한국어에서 되풀이하는 문형을 찾아 다시 쓴다           |
 
 스킬과 훅 사이의 의존은
 [docs/architecture/component-dependency.md](docs/architecture/component-dependency.md)에 있다.
-`ko-style`의 동작과 사전은 [docs/architecture/ko-style.md](docs/architecture/ko-style.md)에 있다.
+`ko-style`의 훅과 스킬이 각각 무엇을 하는지는
+[docs/architecture/ko-style.md](docs/architecture/ko-style.md)에 있다.
 
 ## 다른 환경에서 쓸 때 (충돌 가능 요소)
 
@@ -54,6 +56,7 @@ SoT로 두고 `settings.json` 선언으로 설치·동기화한다.
 | `python3`(3.11+)가 그 이름으로 필요             | ko-style                           | python.org 인스톨러로 깐 Windows에는 `python3.exe`가 없어 훅이 안 돔 |
 | 사전이 한국어 전용이고 nil-park이 틀렸던 표현   | ko-style                           | 한국어를 안 쓰면 얻는 것이 없고, 남의 문체에는 오탐이 된다           |
 | 파일을 고친 턴마다 판정이 붙음                  | ko-style                           | 탐지된 표현은 오탐이라도 그 자리에서 직역인지 판단해야 함            |
+| 문체 목록이 한 리포에서 모은 실제 사례          | ko-style의 anti-claude-ism         | 예시의 도메인이 낯설고, 다른 문체에는 판정 구분이 안 맞을 수 있음    |
 | auto mode를 켜면 훅이 무력화됨                  | ko-style                           | auto mode가 Bash로 파일을 고치라고 지시해 훅이 검사 대상을 못 받음   |
 
 ## 설정
