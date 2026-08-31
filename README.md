@@ -56,7 +56,7 @@ SoT로 두고 `settings.json` 선언으로 설치·동기화한다.
 | `python3`(3.11+)가 그 이름으로 필요             | ko-style                           | python.org 인스톨러로 깐 Windows에는 `python3.exe`가 없어 훅이 안 돔 |
 | 사전이 한국어 전용이고 nil-park이 틀렸던 표현   | ko-style                           | 한국어를 안 쓰면 얻는 것이 없고, 남의 문체에는 오탐이 된다           |
 | 파일을 고친 턴마다 판정이 붙음                  | ko-style                           | 탐지된 표현은 오탐이라도 그 자리에서 직역인지 판단해야 함            |
-| 문체 목록이 한 리포에서 모은 실제 사례          | ko-style의 anti-claude-ism         | 예시의 도메인이 낯설고, 다른 문체에는 갈래 구분이 안 맞을 수 있음    |
+| 문체 목록이 한 리포에서 모은 실제 사례          | ko-style의 anti-claude-ism         | 예시의 도메인이 낯설고, 다른 문체에는 판정 구분이 안 맞을 수 있음    |
 | auto mode를 켜면 훅이 무력화됨                  | ko-style                           | auto mode가 Bash로 파일을 고치라고 지시해 훅이 검사 대상을 못 받음   |
 
 ## 설정
