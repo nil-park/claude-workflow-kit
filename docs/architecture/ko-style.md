@@ -93,39 +93,19 @@ docs/queue.md:31  "재수출"이 re-export의 직역으로 쓰였다면 수정�
 | 2    | `~/.claude/ko-style-dictionary.json`                     | 이 사용자의 모든 작업    |
 | 3    | `${CLAUDE_PROJECT_DIR}/.claude/ko-style-dictionary.json` | 이 프로젝트              |
 
-- 1번 외에는 없어도 그대로 넘어간다.
-- 프로젝트 루트는 `CLAUDE_PROJECT_DIR` 환경변수로 지정한다.
-
-`as`가 `ok`인 항목은 탐지에 쓰지 않고, 탐지 결과를 거르는 데 쓴다. 원문이 아니라 탐지된
-문자열에 그 정규식을 적용해 일치하면 결과에서 뺀다.
-
-- 끄려는 항목의 `term`을 그대로 옮겨 적지 않아도 된다. `(?<![가-힣])축이`의 탐지 결과는
-  `축이`이므로 `축`만 적어도 걸러진다.
-- 하나로 여럿을 끌 수 있다. `소비자`는 `소비자`와 `소비자가`를 함께 거른다.
+- 2번과 3번은 파일이 없어도 오류 없이 진행한다.
+- 프로젝트 루트는 `CLAUDE_PROJECT_DIR`이 가리키는 경로다.
 
 ## Skill
 
 `anti-claude-ism`은 대상 텍스트에서 Claude 문체의 낱말과 문장을 찾아 문맥에 맞는 한국어로
 다시 쓰는 skill이다.
 
-- 호출 이름은 `anti-claude-ism`, `안티클로디즘`, `클로디즘`이다. Claude가 자동으로 호출하거나
-  사용자가 `/ko-style:anti-claude-ism`으로 호출한다.
+- 호출 이름은 `anti-claude-ism`, `안티클로디즘`, `클로디즘`이다.
+  - Claude는 이 이름으로 호출받았을 때만 실행한다.
 - 대상은 지정받은 범위이고, 지정이 없으면 이번 작업에서 새로 쓰거나 고친 한국어 텍스트다.
-  문서, 주석, 독스트링, 커밋 메시지, 이슈와 PR/MR 설명을 포함한다.
-- 판정 근거는 목록 파일 둘이다. 낱말 단위는 `references/word-level.md`, 문장 단위는
-  `references/sentence-level.md`다. 판정과 파일의 대응은 `SKILL.md`에 정리돼 있다.
-- `SKILL.md`에는 대상·절차·판정 기준만 적고 예시는 목록 파일에 둔다.
-- 목록에는 실제로 틀렸던 예시를 원문 그대로 등재하고, 고친 문장은 남기지 않는다.
-- 판정 이름은 목록의 절 제목이다. 무엇이 잘못됐는지를 절 머리에 적고, 그 아래에 근거가 되는
-  예시를 열거한다.
 
 ## 배포
 
-- `workflow-core`와 별개인 `ko-style` 플러그인으로 배포한다. 상호 의존은 없다.
-- `.claude-plugin/plugin.json`을 두고 마켓플레이스 카탈로그에 등록한다.
-- skill 파일은 `skills/anti-claude-ism/`에, 목록 파일은 그 아래 `references/`에 있다.
-- `hooks/hooks.json`에서 `Stop` 이벤트에 스크립트를 등록한다. matcher는 없고, `timeout`은
-  10초, 스피너 문구는 `한국어 문체 검수 중`이다.
-- 스크립트는 Python으로 작성하고 `python3 "${CLAUDE_PLUGIN_ROOT}/hooks/ko_style.py"`로
-  실행한다.
-- 스크립트는 파일 하나다. 길이와 무관하게 나누지 않는다.
+- `workflow-core`와 상호 의존 없이 `ko-style` 플러그인으로 배포한다.
+- Hook 스크립트는 `${CLAUDE_PLUGIN_ROOT}/hooks/ko_style.py` 하나다. 길이와 무관하게 나누지 않는다.
