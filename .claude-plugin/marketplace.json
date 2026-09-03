@@ -23,7 +23,7 @@
     {
       "name": "project-skills-bootstrap",
       "source": "./plugins/project-skills-bootstrap",
-      "description": "Installs work-cycle, coding-standards, and docs-standards as project-level skills under .agents/skills/, with .claude/skills/ symlinks."
+      "description": "Scaffolds project-level workflow skills (work-cycle, coding-standards, docs-standards) under .agents/skills/ with .claude/skills/ symlinks. A separate bootstrap-fluent-korean skill writes the fluent-korean output style into .claude/settings.json."
     }
   ]
 }

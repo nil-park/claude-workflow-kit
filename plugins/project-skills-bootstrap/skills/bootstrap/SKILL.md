@@ -10,3 +10,5 @@ description: >-
 - `project-skills-bootstrap:bootstrap-work-cycle`
 - `project-skills-bootstrap:bootstrap-coding-standards`
 - `project-skills-bootstrap:bootstrap-docs-standards`
+
+`project-skills-bootstrap:bootstrap-fluent-korean`은 fluent-korean 출력 스타일을 별도로 설치한다.
