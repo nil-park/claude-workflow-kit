@@ -324,6 +324,12 @@ def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, te
         "눈이 뒤덮인 산",
         "기존 파일을 덮어쓰지 않는다",
         "병렬 세션이 덮어쓰므로 이름을 나눈다",
+        "다음 주기의 검출이 이전 기록을 덮어쓴다",
+        "이 테스트는 새 값이 옛 값을 덮어쓴 결과를 확인한다",
+        "두 세션이 같은 파일을 덮어써서 한쪽 수정이 사라진다",
+        "나중에 읽은 사전이 앞선 항목을 덮어쓸 수도 있다",
+        "프로젝트 설정이 기본값을 덮어씀으로써 훅의 동작이 달라진다",
+        "이 스크립트는 원본 사진에 라벨을 덮어씌운 이미지를 만든다",
         "데이터를 끌어온다",
         "아무것도 딸려 오지 않는다",
         "논거로 내세운 기준",
@@ -336,6 +342,13 @@ def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, te
         "서버 측면의 비용",
         "대부분은 그렇다",
         "일부분만 고친다",
+        "이 함수는 두 집합이 부분집합 관계인지 판정한다",
+        "정규식이 부분일치를 허용한다",
+        '"부분"은 없어도 되는 군더더기다',
+        "'부분'은 없어도 되는 군더더기다",
+        "“부분”은 없어도 되는 군더더기다",
+        "‘부분’은 없어도 되는 군더더기다",  # noqa: RUF001 — 곡선 작은따옴표가 제외되는지 보는 케이스라 그 문자여야 한다
+        "사전은 `부분`을 군더더기로 등재했다",
         "두 면이 맞닿지 않는다",
         "존재는 확인했다",
         "현재는 그렇지 않다",
@@ -441,6 +454,18 @@ def test_main_does_not_judge_a_dictionary_off_the_read_paths(
     source = write_dictionary(hook_env / "plugins" / "ko-style" / "hooks" / ko_style.DICTIONARY_NAME, [CONSUMER])
     assert source not in ko_style.dictionary_paths()
     transcript = write_transcript(tmp_path, [user_input(), edit(str(source))])
+
+    assert run_hook({"transcript_path": str(transcript)}, monkeypatch, capsys) == ""
+
+
+def test_main_does_not_judge_its_own_test_file(
+    hook_env: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """이 파일은 등재된 표현을 케이스로 담고 있어 줄마다 탐지된다. 이름으로 제외해야 한다."""
+    target = hook_env / "tests" / ko_style.SELF_TEST_NAME
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text('("소비자 큐를 만든다", "소비자"),\n', encoding="utf-8")
+    transcript = write_transcript(tmp_path, [user_input(), edit(str(target))])
 
     assert run_hook({"transcript_path": str(transcript)}, monkeypatch, capsys) == ""
 

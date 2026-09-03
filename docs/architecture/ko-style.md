@@ -34,7 +34,7 @@ flowchart TD
 - 이번 턴에 `Write`·`Edit`·`MultiEdit`·`NotebookEdit`으로 고친 파일 전체를 검사한다.
 - 파일의 경로는 `transcript_path`의 JSONL에서 마지막 사용자 입력 이후의 `tool_use` 블록으로 수집한다.
 - 파일의 확장자는 가리지 않는다.
-  - 파일명이 `ko-style-dictionary.json`인 파일과 텍스트로 읽히지 않는 파일만 제외한다.
+  - 파일명이 `ko-style-dictionary.json`이거나 `test_ko_style.py`인 파일과 텍스트로 읽히지 않는 파일만 제외한다.
 - 파일을 UTF-8로 읽고 안 되면 CP949로 다시 읽는다. 둘 다 실패하면 건너뛴다.
 - 1MB를 넘는 파일은 읽지 않는다. 파일의 크기는 열기 전에 확인한다.
 

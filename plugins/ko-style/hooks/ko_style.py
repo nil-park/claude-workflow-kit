@@ -20,6 +20,8 @@ EDIT_TOOLS = frozenset({"Write", "Edit", "MultiEdit", "NotebookEdit"})
 PATH_KEYS = ("file_path", "notebook_path")
 ENCODINGS = ("utf-8", "cp949")
 DICTIONARY_NAME = "ko-style-dictionary.json"
+SELF_TEST_NAME = "test_ko_style.py"
+EXEMPT_NAMES = frozenset({DICTIONARY_NAME, SELF_TEST_NAME})
 PREAMBLE = "지적된 이유를 확인한 뒤, 해당 낱말을 다른 낱말로 단순 치환하지 말고 문장을 완전히 새로 쓴다."
 HANGUL_FIRST = 0xAC00
 HANGUL_LAST = 0xD7A3
@@ -272,8 +274,7 @@ def main() -> None:
     if not transcript:
         return
 
-    # 사전은 경로가 아니라 이름으로 뺀다. 읽는 경로 밖에 둔 원본도 자기 항목에 걸리지 않는다.
-    targets = [path for path in edited_files(Path(transcript)) if path.name != DICTIONARY_NAME]
+    targets = [path for path in edited_files(Path(transcript)) if path.name not in EXEMPT_NAMES]
     if not targets:
         return
 
