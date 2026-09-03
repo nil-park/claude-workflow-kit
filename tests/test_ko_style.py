@@ -452,6 +452,18 @@ def test_main_does_not_judge_a_dictionary_off_the_read_paths(
     assert run_hook({"transcript_path": str(transcript)}, monkeypatch, capsys) == ""
 
 
+def test_main_does_not_judge_its_own_test_file(
+    hook_env: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """이 파일은 등재된 표현을 케이스로 담고 있어 줄마다 탐지된다. 이름으로 제외해야 한다."""
+    target = hook_env / "tests" / ko_style.SELF_TEST_NAME
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text('("소비자 큐를 만든다", "소비자"),\n', encoding="utf-8")
+    transcript = write_transcript(tmp_path, [user_input(), edit(str(target))])
+
+    assert run_hook({"transcript_path": str(transcript)}, monkeypatch, capsys) == ""
+
+
 def test_main_still_judges_the_other_files_of_the_turn(
     hook_env: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
