@@ -19,6 +19,11 @@
       "name": "ko-style",
       "source": "./plugins/ko-style",
       "description": "A Stop hook that flags English-calqued Korean in files the turn just edited. Independent of the other plugins."
+    },
+    {
+      "name": "project-skills-bootstrap",
+      "source": "./plugins/project-skills-bootstrap",
+      "description": "Installs work-cycle, coding-standards, and docs-standards as project-level skills under .agents/skills/, with .claude/skills/ symlinks."
     }
   ]
 }
