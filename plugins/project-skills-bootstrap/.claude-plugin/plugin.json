@@ -1,0 +1,11 @@
+{
+  "name": "project-skills-bootstrap",
+  "description": "Scaffolds project-level skills so teams can share them via the repo without each member needing the marketplace plugin.",
+  "author": {
+    "name": "nil-park"
+  },
+  "homepage": "https://github.com/nil-park/claude-workflow-kit",
+  "repository": "https://github.com/nil-park/claude-workflow-kit",
+  "license": "MIT",
+  "keywords": ["workflow", "scaffold", "project-skills", "bootstrap"]
+}
