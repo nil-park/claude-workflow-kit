@@ -1,6 +1,6 @@
 ---
-name: anti-claude-ism
-description: '"anti-claude-ism", "안티클로디즘", "클로디즘"이라고 하면 한국어 텍스트에서 Claude 문체를 걷어낸다.'
+name: anti-claudeism
+description: '"anti-claudeism", "안티클로디즘", "클로디즘"이라고 하면 한국어 텍스트에서 Claude 문체를 걷어낸다.'
 ---
 
 # 클로디즘 걷어내기
