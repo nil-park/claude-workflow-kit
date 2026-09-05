@@ -17,9 +17,8 @@
 
 ## Git Convention
 
-- Branch naming and PR conventions follow the GitHub template this repo ships at
-  `plugins/project-skills-bootstrap/skills/bootstrap-git-workflow/git-workflow-github.md`.
-  The GitLab counterpart in the same directory is a template only; it does not apply here.
+- Branch naming and PR conventions follow the GitHub template this repo ships:
+  [git-workflow-github.md](plugins/project-skills-bootstrap/skills/bootstrap-git-workflow/git-workflow-github.md).
 
 ## Development Convention
 
