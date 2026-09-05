@@ -6,24 +6,14 @@
   "description": "nil-park's personal Claude Code workflow skills, managed via GitOps.",
   "plugins": [
     {
-      "name": "workflow-core",
-      "source": "./plugins/workflow-core",
-      "description": "Standalone, dev-environment-neutral skills: coding and docs standards, a write-review work cycle, a scratch-dir convention, and a pre-push guard."
-    },
-    {
-      "name": "git-workflow",
-      "source": "./plugins/git-workflow",
-      "description": "Branch + PR/MR delivery driven by the gh or glab CLI. Depends on workflow-core."
-    },
-    {
       "name": "ko-style",
       "source": "./plugins/ko-style",
-      "description": "A Stop hook that flags English-calqued Korean in files the turn just edited. Independent of the other plugins."
+      "description": "A Stop hook that flags English-calqued Korean in files the turn just edited."
     },
     {
       "name": "project-skills-bootstrap",
       "source": "./plugins/project-skills-bootstrap",
-      "description": "Scaffolds project-level workflow skills (work-cycle, coding-standards, docs-standards) under .agents/skills/ with .claude/skills/ symlinks. A separate bootstrap-fluent-korean skill writes the fluent-korean output style into .claude/settings.json."
+      "description": "Installs a set of shared working conventions into the project. Together they govern how a change is written, reviewed, documented, and delivered, where its working files live, and how idiomatic its Korean prose reads. Each convention is a separate bootstrap skill, so a project can adopt only the ones it needs. The skill files are written under .agents/skills/ and symlinked from .claude/skills/, so the repository carries them."
     }
   ]
 }

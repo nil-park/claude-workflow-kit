@@ -7,6 +7,16 @@ description: >-
 이 스킬이 로드될 때 시스템이 알려주는 베이스 디렉터리(`Base directory for this skill`) 아래
 `work-cycle.md`를 읽어 프로젝트에 설치하거나 업데이트한다.
 
+## 사전 설치 확인
+
+`work-cycle`은 리뷰 라운드에서 `docs-standards`와 `coding-standards`를 참조한다. 설치
+또는 업데이트를 시작하기 전에 두 스킬이 프로젝트에 설치되어 있는지 확인하고, 없으면 먼저
+설치한다.
+
+1. `.agents/skills/docs-standards/SKILL.md`가 없으면 `project-skills-bootstrap:bootstrap-docs-standards`를 실행한다.
+2. `.agents/skills/coding-standards/SKILL.md`가 없으면 `project-skills-bootstrap:bootstrap-coding-standards`를 실행한다.
+3. 두 스킬이 모두 설치된 것을 확인한 뒤 아래 절차를 진행한다.
+
 ## 설치
 
 `.agents/skills/work-cycle/SKILL.md`가 없을 때 실행한다.

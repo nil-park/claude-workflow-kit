@@ -7,7 +7,8 @@ description: >-
 
 아래 스킬들을 순서대로 실행한다.
 
-- `project-skills-bootstrap:bootstrap-work-cycle`
-- `project-skills-bootstrap:bootstrap-coding-standards`
 - `project-skills-bootstrap:bootstrap-docs-standards`
+- `project-skills-bootstrap:bootstrap-coding-standards`
+- `project-skills-bootstrap:bootstrap-work-cycle`
 - `project-skills-bootstrap:bootstrap-fluent-korean`
+- `project-skills-bootstrap:bootstrap-scratch-dir`

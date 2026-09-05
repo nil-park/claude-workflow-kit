@@ -1,18 +1,11 @@
 {
   "name": "ko-style",
-  "description": "A Stop hook that flags English-calqued Korean in files the turn just edited, plus a skill that rewrites the sentence patterns Claude repeats in Korean.",
+  "description": "A Stop hook that flags English-calqued Korean in files the turn just edited.",
   "author": {
     "name": "nil-park"
   },
   "homepage": "https://github.com/nil-park/claude-workflow-kit",
   "repository": "https://github.com/nil-park/claude-workflow-kit",
   "license": "MIT",
-  "keywords": [
-    "korean",
-    "style",
-    "translationese",
-    "hook",
-    "stop-hook",
-    "skill"
-  ]
+  "keywords": ["korean", "style", "translationese", "hook", "stop-hook"]
 }
