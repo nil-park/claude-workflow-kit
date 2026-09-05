@@ -11,3 +11,4 @@ description: >-
 - `project-skills-bootstrap:bootstrap-coding-standards`
 - `project-skills-bootstrap:bootstrap-work-cycle`
 - `project-skills-bootstrap:bootstrap-fluent-korean`
+- `project-skills-bootstrap:bootstrap-scratch-dir`
