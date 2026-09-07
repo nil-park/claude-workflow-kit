@@ -1,11 +1,11 @@
-# ko-style
+# anti-claudeism
 
-한국어 텍스트의 문체를 검사하는 플러그인이다.
+한국어 텍스트의 문체를 검사하는 Hook과 Skill의 묶음이다.
 
-| 구성요소          | 종류      | 실행 시점                | 검사 방식          |
-| ----------------- | --------- | ------------------------ | ------------------ |
-| `ko_style`        | Stop Hook | 파일을 고친 턴이 끝날 때 | 사전의 정규식 매칭 |
-| `anti-claude-ism` | Skill     | 호출 시                  | 목록에 대조한 판정 |
+| 구성요소            | 종류      | 실행 시점                | 검사 방식          |
+| ------------------- | --------- | ------------------------ | ------------------ |
+| `anti_claudeism.py` | Stop Hook | 파일을 고친 턴이 끝날 때 | 사전의 정규식 매칭 |
+| `anti-claudeism`    | Skill     | 호출 시                  | 목록에 대조한 판정 |
 
 낱말과 표기는 Hook이, 문형과 문장 구조는 Skill이 검사한다.
 
@@ -34,7 +34,7 @@ flowchart TD
 - 이번 턴에 `Write`·`Edit`·`MultiEdit`·`NotebookEdit`으로 고친 파일 전체를 검사한다.
 - 파일의 경로는 `transcript_path`의 JSONL에서 마지막 사용자 입력 이후의 `tool_use` 블록으로 수집한다.
 - 파일의 확장자는 가리지 않는다.
-  - 파일명이 `ko-style-dictionary.json`이거나 `test_ko_style.py`인 파일과 텍스트로 읽히지 않는 파일만 제외한다.
+  - 파일명이 `claudeism-dictionary.json`이거나 `test_anti_claudeism.py`인 파일과 텍스트로 읽히지 않는 파일만 제외한다.
 - 파일을 UTF-8로 읽고 안 되면 CP949로 다시 읽는다. 둘 다 실패하면 건너뛴다.
 - 1MB를 넘는 파일은 읽지 않는다. 파일의 크기는 열기 전에 확인한다.
 
@@ -87,11 +87,11 @@ docs/queue.md:31  "재수출"이 re-export의 직역으로 쓰였다면 수정�
 
 셋을 순서대로 읽어 합친다. 같은 `term`이 겹치면 뒤에 읽은 것이 우선한다.
 
-| 순서 | 파일                                                     | 범위                     |
-| ---- | -------------------------------------------------------- | ------------------------ |
-| 1    | `${CLAUDE_PLUGIN_ROOT}/hooks/ko-style-dictionary.json`   | 플러그인과 함께 배포된다 |
-| 2    | `~/.claude/ko-style-dictionary.json`                     | 이 사용자의 모든 작업    |
-| 3    | `${CLAUDE_PROJECT_DIR}/.claude/ko-style-dictionary.json` | 이 프로젝트              |
+| 순서 | 파일                                                      | 범위                  |
+| ---- | --------------------------------------------------------- | --------------------- |
+| 1    | 훅 스크립트와 같은 디렉터리의 `claudeism-dictionary.json` | 스킬과 함께 설치된다  |
+| 2    | `~/.claude/claudeism-dictionary.json`                     | 이 사용자의 모든 작업 |
+| 3    | `${CLAUDE_PROJECT_DIR}/.claude/claudeism-dictionary.json` | 이 프로젝트           |
 
 - 2번과 3번은 파일이 없어도 오류 없이 진행한다.
 - 프로젝트 루트는 `CLAUDE_PROJECT_DIR`이 가리키는 경로다.
@@ -102,11 +102,16 @@ Hook의 정규식으로는 잡히지 않는 문장 단위 결함을 다룬다. �
 근거로 Claude가 대상 텍스트를 읽고 의미 단위로 판정한다. Opus 이상의 모델에서만 제대로
 동작한다.
 
-- 호출 이름은 `anti-claude-ism`, `안티클로디즘`, `클로디즘`이다.
+- 호출 이름은 `anti-claudeism`, `안티클로디즘`, `클로디즘`이다.
   - Claude는 이 이름으로 호출받았을 때만 실행한다.
 - 대상은 지정받은 범위이고, 지정이 없으면 이번 작업에서 새로 쓰거나 고친 한국어 텍스트다.
 
-## 배포
+## 설치
 
-- `workflow-core`와 상호 의존 없이 `ko-style` 플러그인으로 배포한다.
-- Hook 스크립트는 `${CLAUDE_PLUGIN_ROOT}/hooks/ko_style.py` 하나다. 길이와 무관하게 나누지 않는다.
+- `project-skills-bootstrap` 플러그인의 `bootstrap-anti-claudeism` 스킬이 스킬 본문, 목록
+  파일, 훅 스크립트, 사전을 `.agents/skills/anti-claudeism/` 아래에 함께 쓴다.
+  `.claude/skills/anti-claudeism`은 그 디렉터리를 가리키는 심볼릭 링크다.
+- 훅은 프로젝트 `.claude/settings.json`의 `hooks.Stop`에 등록한다. 명령은
+  `python3 "${CLAUDE_PROJECT_DIR}/.agents/skills/anti-claudeism/anti_claudeism.py"`이고
+  타임아웃은 10초다.
+- Hook 스크립트는 `anti_claudeism.py` 하나다. 길이와 무관하게 나누지 않는다.

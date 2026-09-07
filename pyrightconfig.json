@@ -1,6 +1,8 @@
 {
   "include": ["plugins", "tests"],
-  "extraPaths": ["plugins/ko-style/hooks"],
+  "extraPaths": [
+    "plugins/project-skills-bootstrap/skills/bootstrap-anti-claudeism"
+  ],
   "exclude": ["**/node_modules", "**/__pycache__", "**/.*"],
   "pythonVersion": "3.11",
   "typeCheckingMode": "strict",

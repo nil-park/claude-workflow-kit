@@ -22,7 +22,7 @@
 > conversation, so it may not yet include the current turn's most recent
 > messages when a hook fires.
 
-[설계](../../architecture/ko-style.md)는 이번 턴에 고친 파일 경로를 그 파일에서 얻는다.
+[설계](../../architecture/anti-claudeism.md)는 이번 턴에 고친 파일 경로를 그 파일에서 얻는다.
 지연이 실재하면 마지막 편집이 목록에서 빠지고, 수집이 "마지막 사용자 입력 이후"만 보므로
 다음 턴에도 잡히지 않는다. 그 파일을 다시 고치지 않는 한 판정을 영영 건너뛴다.
 

@@ -2,16 +2,14 @@
 
 ```mermaid
 flowchart LR
-  subgraph inst["설치된 스킬"]
+  subgraph inst["설치된 스킬과 훅"]
     wc["work-cycle"]
     cs["coding-standards"]
     ds["docs-standards"]
     sd["scratch-dir"]
     gw["git-workflow"]
     ac["anti-claudeism"]
-  end
-  subgraph ks["ko-style"]
-    hook{{"ko_style"}}
+    hook{{"anti_claudeism.py"}}
   end
 
   wc --> cs
@@ -32,4 +30,5 @@ flowchart LR
   - `git-workflow`의 구현 단계는 파일 수정을 포함하므로 `work-cycle`의 발동 조건에 해당한다.
   - B의 이름을 변경해도 B에 대한 A의 참조는 유효하다.
 - 설치된 스킬의 이름은 그것을 설치하는 부트스트랩 스킬의 이름에서 `bootstrap-` 접두사를 뺀 것이다.
+  - `bootstrap-anti-claudeism`은 `anti-claudeism` 스킬과 `anti_claudeism.py` 훅을 함께 설치한다.
   - `bootstrap-fluent-korean`이 설치하는 것은 스킬이 아니라 출력 스타일이며, 이 다이어그램에 대응하는 노드가 없다.

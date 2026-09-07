@@ -5,7 +5,7 @@
 
 ## 1. 영어 낱말을 그대로 옮긴 번역투
 
-- `ko-style` 훅의 사전이 탐지한다.
+- `anti_claudeism.py` 훅의 사전이 탐지한다.
 
 ## Claude 문체
 

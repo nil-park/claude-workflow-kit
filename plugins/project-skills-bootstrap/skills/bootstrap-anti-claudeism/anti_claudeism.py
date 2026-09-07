@@ -1,7 +1,4 @@
-"""번역투를 탐지해 턴이 끝나기 전에 알리는 Stop 훅.
-
-설계는 docs/architecture/ko-style.md, 전제는 docs/development/ko-style.md에 있다.
-"""
+"""번역투를 탐지해 턴이 끝나기 전에 알리는 Stop 훅."""
 
 from __future__ import annotations
 
@@ -19,8 +16,8 @@ MAX_FILE_BYTES = 1024 * 1024
 EDIT_TOOLS = frozenset({"Write", "Edit", "MultiEdit", "NotebookEdit"})
 PATH_KEYS = ("file_path", "notebook_path")
 ENCODINGS = ("utf-8", "cp949")
-DICTIONARY_NAME = "ko-style-dictionary.json"
-SELF_TEST_NAME = "test_ko_style.py"
+DICTIONARY_NAME = "claudeism-dictionary.json"
+SELF_TEST_NAME = "test_anti_claudeism.py"
 EXEMPT_NAMES = frozenset({DICTIONARY_NAME, SELF_TEST_NAME})
 PREAMBLE = "지적된 이유를 확인한 뒤, 해당 낱말을 다른 낱말로 단순 치환하지 말고 문장을 완전히 새로 쓴다."
 HANGUL_FIRST = 0xAC00
@@ -61,7 +58,7 @@ def _string(value: object) -> str:
 
 def _warn(message: str) -> None:
     """훅은 턴을 차단하지 않으므로 진단은 stderr로만 남긴다. `claude --debug`에서 보인다."""
-    print(f"ko-style: {message}", file=sys.stderr)
+    print(f"anti-claudeism: {message}", file=sys.stderr)
 
 
 def _resolved(path: Path) -> Path:
@@ -94,9 +91,8 @@ def project_root() -> Path | None:
 
 def dictionary_paths() -> list[Path]:
     """읽는 순서대로 돌려준다. 뒤에 읽은 것이 같은 `term`을 이긴다."""
-    plugin_root = os.environ.get("CLAUDE_PLUGIN_ROOT")
-    hooks_dir = Path(plugin_root) / "hooks" if plugin_root else Path(__file__).parent
-    paths = [hooks_dir / DICTIONARY_NAME, Path.home() / ".claude" / DICTIONARY_NAME]
+    installed = Path(__file__).parent / DICTIONARY_NAME
+    paths = [installed, Path.home() / ".claude" / DICTIONARY_NAME]
     root = project_root()
     if root is not None:
         paths.append(root / ".claude" / DICTIONARY_NAME)
