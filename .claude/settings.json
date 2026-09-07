@@ -1,4 +1,18 @@
 {
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/plugins/project-skills-bootstrap/skills/bootstrap-anti-claudeism/anti_claudeism.py\"",
+            "timeout": 10,
+            "statusMessage": "한국어 문체 검수 중"
+          }
+        ]
+      }
+    ]
+  },
   "extraKnownMarketplaces": {
     "fluent-korean": {
       "source": { "source": "github", "repo": "snflkd/fluent-korean" },
