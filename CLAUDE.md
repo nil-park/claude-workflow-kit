@@ -17,8 +17,7 @@
 
 ## Git Convention
 
-- Branch naming and PR conventions follow the GitHub template this repo ships:
-  [git-workflow-github.md](plugins/project-skills-bootstrap/skills/bootstrap-git-workflow/git-workflow-github.md).
+- Use the `git-workflow` skill for branch naming and PR conventions.
 
 ## Development Convention
 
