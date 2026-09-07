@@ -23,7 +23,7 @@
 | `project-skills-bootstrap` | `/project-skills-bootstrap:bootstrap-git-workflow`     | 브랜치·PR/MR 워크플로 스킬을 프로젝트에 설치 (일괄 설치 미포함)   |
 | `project-skills-bootstrap` | `/project-skills-bootstrap:bootstrap-anti-claudeism`   | Claude 한국어 문형 교정 스킬을 프로젝트에 설치 (일괄 설치 미포함) |
 
-부트스트랩 스킬 사이의 의존은
+설치된 스킬 사이의 의존은
 [docs/architecture/component-dependency.md](docs/architecture/component-dependency.md)에 있다.
 `ko-style` 훅이 무엇을 하는지는
 [docs/architecture/ko-style.md](docs/architecture/ko-style.md)에 있다.
