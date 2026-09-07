@@ -1,0 +1,117 @@
+# anti-claudeism
+
+한국어 텍스트의 문체를 검사하는 Hook과 Skill의 묶음이다.
+
+| 구성요소            | 종류      | 실행 시점                | 검사 방식          |
+| ------------------- | --------- | ------------------------ | ------------------ |
+| `anti_claudeism.py` | Stop Hook | 파일을 고친 턴이 끝날 때 | 사전의 정규식 매칭 |
+| `anti-claudeism`    | Skill     | 호출 시                  | 목록에 대조한 판정 |
+
+낱말과 표기는 Hook이, 문형과 문장 구조는 Skill이 검사한다.
+
+## Hook 동작
+
+```mermaid
+flowchart TD
+  stop["Stop 이벤트"] --> active{"stop_hook_active"}
+  active -->|true| pass["턴 종료"]
+  active -->|false| collect["이번 턴의 Write/Edit 경로 수집"]
+  collect --> empty{"대상이 있나"}
+  empty -->|없음| pass
+  empty -->|있음| scan["사전 매칭"]
+  scan --> filter["ok 항목 필터링"]
+  filter --> match{"남았나"}
+  match -->|없음| pass
+  match -->|있음| report["additionalContext 출력"]
+  report --> again["Claude 수신"]
+```
+
+- 사전의 정규식으로 탐지한다. 에이전트를 띄우지 않는다.
+- Hook은 탐지 결과를 출력하고, 수정 여부는 Claude에 위임한다.
+
+## 탐지 대상
+
+- 이번 턴에 `Write`·`Edit`·`MultiEdit`·`NotebookEdit`으로 고친 파일 전체를 검사한다.
+- 파일의 경로는 `transcript_path`의 JSONL에서 마지막 사용자 입력 이후의 `tool_use` 블록으로 수집한다.
+- 파일의 확장자는 가리지 않는다.
+  - 파일명이 `claudeism-dictionary.json`이거나 `test_anti_claudeism.py`인 파일과 텍스트로 읽히지 않는 파일만 제외한다.
+- 파일을 UTF-8로 읽고 안 되면 CP949로 다시 읽는다. 둘 다 실패하면 건너뛴다.
+- 1MB를 넘는 파일은 읽지 않는다. 파일의 크기는 열기 전에 확인한다.
+
+## 신호
+
+- 탐지 결과를 `hookSpecificOutput.additionalContext`에 넣어 stdout으로 출력한다.
+  - stdout에는 UTF-8 바이트를 쓴다.
+- 종료 코드는 탐지 여부와 무관하게 언제나 0이고, 2는 쓰지 않는다.
+- `stop_hook_active`가 `true`이면 검사 없이 종료한다. 한 턴에 한 번만 출력한다.
+
+### 문구
+
+머리말 한 줄과 빈 줄이 앞에 오고, 그 뒤로 탐지 한 건이 한 줄씩 이어진다.
+
+```
+지적된 이유를 확인한 뒤, 해당 낱말을 다른 낱말로 단순 치환하지 말고 문장을 완전히 새로 쓴다.
+
+docs/queue.md:12  "소비자"가 컴퓨터 용어에서 consumer의 직역으로 쓰였다면 "컨슈머"로 수정한다.
+docs/queue.md:31  "재수출"이 re-export의 직역으로 쓰였다면 수정한다.
+```
+
+- `<path>:<line>  "<term>"이/가 <as>(으)로 쓰였다면 "<use>"로 수정한다.`
+  - `<path>`는 `CLAUDE_PROJECT_DIR` 기준 상대경로로 쓰고, 그 밖이면 절대경로를 그대로 쓴다.
+  - `<term>`은 사전의 `term` 대신 실제로 탐지된 문자열을 쓴다.
+  - `as`는 따옴표 없이 그대로 넣는다.
+  - `use`가 비어 있으면 `"<use>"로`를 생략하고 `수정한다`로 끝낸다.
+- 같은 표현이 여러 곳에 있으면 위치마다 한 줄씩 쓴다.
+- 조사는 탐지된 문자열의 마지막 글자에 따라 달라진다.
+  - 받침이 있으면 `이`, 없으면 `가`를 사용한다.
+- `as`와 `use` 뒤의 조사도 마지막 글자로 고른다.
+  - 받침이 없거나 `ㄹ`이면 `로`, 그 밖에는 `으로`다.
+
+## 사전
+
+- Claude가 실제로 잘못 사용한 표현만 사전에 넣는다.
+
+| 필드   | 내용                                               |
+| ------ | -------------------------------------------------- |
+| `term` | 매칭에 사용할 정규식                               |
+| `as`   | 피해야 할 용례                                     |
+| `use`  | 대신 쓸 표현. 비워 두면 대체 표현 없이 지적만 한다 |
+
+- `term`에 특수문자가 없으면 부분 문자열 검사와 동작이 같다.
+- 컴파일되지 않는 `term`은 건너뛴다.
+- `as`가 `ok`인 항목은 탐지된 항목을 제외하는 데 쓴다.
+  - 탐지된 문자열에 `term`을 적용해 일치하면 결과에서 제외한다.
+- 대체 표현이 문맥마다 달라지는 항목은 `use`를 비워 둔다.
+
+### 사전 파일
+
+셋을 순서대로 읽어 합친다. 같은 `term`이 겹치면 뒤에 읽은 것이 우선한다.
+
+| 순서 | 파일                                                      | 범위                  |
+| ---- | --------------------------------------------------------- | --------------------- |
+| 1    | 훅 스크립트와 같은 디렉터리의 `claudeism-dictionary.json` | 스킬과 함께 설치된다  |
+| 2    | `~/.claude/claudeism-dictionary.json`                     | 이 사용자의 모든 작업 |
+| 3    | `${CLAUDE_PROJECT_DIR}/.claude/claudeism-dictionary.json` | 이 프로젝트           |
+
+- 2번과 3번은 파일이 없어도 오류 없이 진행한다.
+- 프로젝트 루트는 `CLAUDE_PROJECT_DIR`이 가리키는 경로다.
+
+## Skill
+
+Hook의 정규식으로는 잡히지 않는 문장 단위 결함을 다룬다. 잘못된 예시를 모은 목록 파일을
+근거로 Claude가 대상 텍스트를 읽고 의미 단위로 판정한다. Opus 이상의 모델에서만 제대로
+동작한다.
+
+- 호출 이름은 `anti-claudeism`, `안티클로디즘`, `클로디즘`이다.
+  - Claude는 이 이름으로 호출받았을 때만 실행한다.
+- 대상은 지정받은 범위이고, 지정이 없으면 이번 작업에서 새로 쓰거나 고친 한국어 텍스트다.
+
+## 설치
+
+- `project-skills-bootstrap` 플러그인의 `bootstrap-anti-claudeism` 스킬이 스킬 본문, 목록
+  파일, 훅 스크립트, 사전을 `.agents/skills/anti-claudeism/` 아래에 함께 쓴다.
+  `.claude/skills/anti-claudeism`은 그 디렉터리를 가리키는 심볼릭 링크다.
+- 훅은 프로젝트 `.claude/settings.json`의 `hooks.Stop`에 등록한다. 명령은
+  `python3 "${CLAUDE_PROJECT_DIR}/.agents/skills/anti-claudeism/anti_claudeism.py"`이고
+  타임아웃은 10초다.
+- Hook 스크립트는 `anti_claudeism.py` 하나다. 길이와 무관하게 나누지 않는다.

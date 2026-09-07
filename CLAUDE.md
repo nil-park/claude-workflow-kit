@@ -17,7 +17,7 @@
 
 ## Git Convention
 
-- Branch naming and PR conventions follow the `git-workflow` skill in this repo.
+- Use the `git-workflow` skill for branch naming and PR conventions.
 
 ## Development Convention
 
