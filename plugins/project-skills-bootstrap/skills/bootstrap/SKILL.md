@@ -16,6 +16,36 @@ description: >-
 - `project-skills-bootstrap:bootstrap-fluent-korean`
 - `project-skills-bootstrap:bootstrap-scratch-dir`
 
+## UPDATE.md 기록
+
+위 스킬들을 모두 실행한 뒤에 `.agents/skills/UPDATE.md`를 확인한다. 각 부트스트랩 스킬이
+자기 항목을 기록하므로 대개 이미 채워져 있으니, 빠진 항목만 보태고 파일이 없으면 아래
+내용으로 만든다. `fluent-korean`은 `.agents/skills/` 아래에 사본을 두지 않는 외부
+플러그인이므로 이 목록에 넣지 않는다.
+
+```markdown
+# 설치된 스킬의 출처와 업데이트 방법
+
+이 파일이 있는 디렉터리의 스킬들은 아래 마켓플레이스가 제공하는
+`project-skills-bootstrap` 플러그인이 복사해 넣은 사본이다. 원본이 갱신되더라도 사본은
+저절로 따라가지 않으므로, 반영하려면 아래 절차를 직접 실행해야 한다.
+
+- 마켓플레이스: `claude-workflow-kit` (<https://github.com/nil-park/claude-workflow-kit>)
+- 플러그인: `project-skills-bootstrap`
+
+원본의 변경을 사본에 반영하려면, 반영하려는 스킬에 대응하는 부트스트랩 스킬을 다시
+부른다. 부트스트랩 스킬은 사본이 이미 있으면 업데이트 절차로 동작하여, 템플릿과 사본의
+차이를 보고하고 무엇을 반영할지 사용자와 상의한다. 따라서 사본을 프로젝트에 맞게
+고쳐 둔 부분이 있더라도 그대로 유지할 수 있다.
+
+| 설치된 스킬        | 설치 위치                          | 다시 부를 부트스트랩 스킬                             |
+| ------------------ | ---------------------------------- | ----------------------------------------------------- |
+| `docs-standards`   | `.agents/skills/docs-standards/`   | `project-skills-bootstrap:bootstrap-docs-standards`   |
+| `coding-standards` | `.agents/skills/coding-standards/` | `project-skills-bootstrap:bootstrap-coding-standards` |
+| `work-cycle`       | `.agents/skills/work-cycle/`       | `project-skills-bootstrap:bootstrap-work-cycle`       |
+| `scratch-dir`      | `.agents/skills/scratch-dir/`      | `project-skills-bootstrap:bootstrap-scratch-dir`      |
+```
+
 ## 이 묶음에서 제외한 스킬
 
 사용자의 명시적인 요청이 있을 때만 설치한다.
