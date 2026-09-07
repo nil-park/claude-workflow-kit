@@ -54,7 +54,7 @@ description: >-
 
 - **MR 제목과 본문은 구현까지 완료된 최종 결과를 기준으로 작성한다.**
   - 설계 단계에서 draft를 열더라도 "설계 문서 추가", "설계 단계" 따위로 범위를 설계에만 한정하지 않는다.
-- 브랜치만 push하면 MR이 열린다. draft MR은 1단계에서 연다.
+- 커밋 없이 브랜치만 push해도 MR을 열 수 있다. draft MR은 1단계에서 연다.
 
 ```
 glab mr create --remove-source-branch --squash-before-merge \
