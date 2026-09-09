@@ -305,6 +305,8 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("설정을 타지 않고 직접 접속한다", "타지"),
         ("필요해지면 그때 얹으면 된다", "얹으"),
         ("이 MR이 닫는 간극은 다음과 같다", "닫는"),
+        ("점수 0을 낸다", "낸다"),
+        ("판정 결과를 내어 준다", "내어"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
@@ -372,6 +374,9 @@ def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, te
         "애타는 마음이 있다",
         "닫지 않은 파일과 소켓",
         "여닫는 문을 본다",
+        "메시지를 보낸다",
+        "이 절로 문서를 끝낸다",
+        "차이를 드러내어 보여 준다",
     ],
 )
 def test_shipped_dictionary_leaves_these_alone(tmp_path: Path, text: str) -> None:
