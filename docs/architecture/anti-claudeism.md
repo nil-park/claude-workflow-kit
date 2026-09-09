@@ -2,10 +2,10 @@
 
 한국어 텍스트의 문체를 검사하는 Hook과 Skill의 묶음이다.
 
-| 구성요소            | 종류      | 실행 시점                | 검사 방식          |
-| ------------------- | --------- | ------------------------ | ------------------ |
-| `anti_claudeism.py` | Stop Hook | 파일을 고친 턴이 끝날 때 | 사전의 정규식 매칭 |
-| `anti-claudeism`    | Skill     | 호출 시                  | 목록에 대조한 판정 |
+| 구성요소            | 종류      | 실행 시점                | 검사 방식                    |
+| ------------------- | --------- | ------------------------ | ---------------------------- |
+| `anti_claudeism.py` | Stop Hook | 파일을 고친 턴이 끝날 때 | 사전의 정규식 매칭           |
+| `anti-claudeism`    | Skill     | 호출 시                  | 스킬 본문의 판정 기준과 대조 |
 
 낱말과 표기는 Hook이, 문형과 문장 구조는 Skill이 검사한다.
 
@@ -98,9 +98,9 @@ docs/queue.md:31  "재수출"이 re-export의 직역으로 쓰였다면 수정�
 
 ## Skill
 
-Hook의 정규식으로는 잡히지 않는 문장 단위 결함을 다룬다. 잘못된 예시를 모은 목록 파일을
-근거로 Claude가 대상 텍스트를 읽고 의미 단위로 판정한다. Opus 이상의 모델에서만 제대로
-동작한다.
+Hook의 정규식으로는 잡히지 않는 문장 단위 결함을 다룬다. Claude가 스킬 본문에 적힌 판정
+기준과 예시를 근거로 대상 텍스트를 의미 단위로 읽고 결함을 가려낸다. Opus 이상의 모델에서만
+제대로 동작한다.
 
 - 호출 이름은 `anti-claudeism`, `안티클로디즘`, `클로디즘`이다.
   - Claude는 이 이름으로 호출받았을 때만 실행한다.
@@ -108,8 +108,8 @@ Hook의 정규식으로는 잡히지 않는 문장 단위 결함을 다룬다. �
 
 ## 설치
 
-- `project-skills-bootstrap` 플러그인의 `bootstrap-anti-claudeism` 스킬이 스킬 본문, 목록
-  파일, 훅 스크립트, 사전을 `.agents/skills/anti-claudeism/` 아래에 함께 쓴다.
+- `project-skills-bootstrap` 플러그인의 `bootstrap-anti-claudeism` 스킬이 스킬 본문, 훅
+  스크립트, 사전을 `.agents/skills/anti-claudeism/` 아래에 함께 쓴다.
   `.claude/skills/anti-claudeism`은 그 디렉터리를 가리키는 심볼릭 링크다.
 - 훅은 프로젝트 `.claude/settings.json`의 `hooks.Stop`에 등록한다. 명령은
   `python3 "${CLAUDE_PROJECT_DIR}/.agents/skills/anti-claudeism/anti_claudeism.py"`이고
