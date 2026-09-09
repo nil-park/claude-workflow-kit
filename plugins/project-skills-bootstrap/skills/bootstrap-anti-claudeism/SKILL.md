@@ -5,16 +5,14 @@ description: >-
 ---
 
 이 스킬이 로드될 때 시스템이 알려주는 베이스 디렉터리(`Base directory for this skill`) 아래
-파일들을 읽어 프로젝트에 설치하거나 업데이트한다. 설치되는 것은 문장 단위를 판정하는 스킬과,
-낱말 단위를 사전으로 탐지하는 Stop 훅 둘이다.
+파일들을 읽어 프로젝트에 설치하거나 업데이트한다. 설치되는 것은 문장 단위의 결함을 다루는
+스킬과, 낱말 단위를 사전으로 탐지하는 Stop 훅 둘이다.
 
-| 템플릿                         | 설치 위치                                                    |
-| ------------------------------ | ------------------------------------------------------------ |
-| `anti-claudeism.md`            | `.agents/skills/anti-claudeism/SKILL.md`                     |
-| `references/word-level.md`     | `.agents/skills/anti-claudeism/references/word-level.md`     |
-| `references/sentence-level.md` | `.agents/skills/anti-claudeism/references/sentence-level.md` |
-| `anti_claudeism.py`            | `.agents/skills/anti-claudeism/anti_claudeism.py`            |
-| `claudeism-dictionary.json`    | `.agents/skills/anti-claudeism/claudeism-dictionary.json`    |
+| 템플릿                      | 설치 위치                                                 |
+| --------------------------- | --------------------------------------------------------- |
+| `anti-claudeism.md`         | `.agents/skills/anti-claudeism/SKILL.md`                  |
+| `anti_claudeism.py`         | `.agents/skills/anti-claudeism/anti_claudeism.py`         |
+| `claudeism-dictionary.json` | `.agents/skills/anti-claudeism/claudeism-dictionary.json` |
 
 ## 설치
 
@@ -62,8 +60,7 @@ description: >-
 
 1. `anti_claudeism.py`와 `claudeism-dictionary.json`은 템플릿으로 덮어쓴다. 이 둘은 설치본을
    고쳐 쓰는 파일이 아니다.
-2. 마크다운 템플릿 셋(`anti-claudeism.md`, `references/word-level.md`,
-   `references/sentence-level.md`)과 설치된 대응 파일을 각각 읽어 차이를 사용자에게 보고한다.
+2. 마크다운 템플릿 `anti-claudeism.md`와 설치된 대응 파일을 읽어 차이를 사용자에게 보고한다.
 3. 사용자와 상의해 반영할 변경과 유지할 내용을 정한 뒤 파일을 수정한다.
 4. `.claude/settings.json`에 위 Stop 훅 명령이 등록되어 있는지 확인하고, 없으면 설치 절차의
    3번과 4번을 실행한다.

@@ -47,7 +47,7 @@
 | architecture 문서에 why 금지                                 | `bootstrap-docs-standards` | arc42나 ISO 42010 관행을 따르는 팀은 아키텍처 문서에 rationale을 넣지 못한다               |
 | PR/MR 체크박스 금지                                          | `bootstrap-docs-standards` | 체크리스트를 PR 프로세스에 활용하는 팀은 다른 방식이 필요하다                              |
 | 사전이 한 리포에서 수집된 Claude 문체 결함 사례로만 구성됨   | `bootstrap-anti-claudeism` | 한국어를 안 쓰면 얻는 것이 없고, 남의 문체에는 오탐이 된다                                 |
-| 파일을 고친 턴마다 판정이 붙음                               | `bootstrap-anti-claudeism` | 탐지된 표현은 오탐이라도 그 자리에서 실제로 결함인지 판단해야 한다                         |
+| 파일을 고친 턴마다 탐지 결과가 붙음                          | `bootstrap-anti-claudeism` | 탐지된 표현은 오탐이라도 그 자리에서 실제로 결함인지 판단해야 한다                         |
 | `python3`(3.11+)가 그 이름으로 필요                          | `bootstrap-anti-claudeism` | 환경에 따라 `python3.exe`가 없어 훅이 돌지 않을 수 있다                                    |
 | auto mode를 켜면 훅이 무력화됨                               | `bootstrap-anti-claudeism` | auto mode가 Bash로 파일을 고치라고 지시해 훅이 검사 대상을 못 받는다                       |
 
