@@ -340,6 +340,9 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("데이터셋을 훑는다", "훑"),
         ("맨 아래 행부터 위로 훑어 올라간다", "훑"),
         ("무엇을 깨뜨렸는지 되짚는다", "되짚"),
+        ("학습으로 떨어지지 않는다", "떨어지"),
+        ("검출 하한 아래로 떨어졌다", "떨어졌"),
+        ("하한 아래로 떨어진 프레임", "떨어진"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
@@ -394,6 +397,8 @@ def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, te
         "폭이 좁아진다",
         "가로막는 벽이 없다",
         "앞을 가로막아 버틴다",
+        "본문과 동떨어진 예시를 걷어낸다",
+        "캐시를 끄면 성능이 떨어진다",
         "숨구멍이 트인다",
         "철새는 돌아온다",
         "API 게이트웨이를 만든다",
