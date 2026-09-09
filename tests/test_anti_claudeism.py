@@ -294,8 +294,8 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("쿠키는 host-only로 굽는다", "굽는"),
         ("검증에 구멍이 생긴다", "구멍"),
         ("폴백을 두면 방어선이 무너진다", "방어선"),
-        ("새는 방향으로 조용히 틀린다", "새는"),
-        ("게이트가 조용히 열린다", "게이트"),
+        ("새는 방향으로 잘못 판정한다", "새는"),
+        ("게이트가 검증 없이 열린다", "게이트"),
         ("사람이 개입하는 관문이다", "관문"),
         ("쿼리가 통째로 떨어져 나간다", "떨어져 나"),
         ("프루닝이 걸렸는지는 이 지표가 답한다", "답한"),
@@ -316,6 +316,15 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("값싸게 판정한다", "값싸"),
         ("값싼 발동 판정", "값싼"),
         ("가림에 강인하다", "강인"),
+        ("조용히 무시한다", "조용히"),
+        ("예외를 삼키고 넘어간다", "삼키"),
+        ("로그를 한 번에 떨군다", "떨군"),
+        ("중복을 남기는 쪽으로 보수적이다", "보수적"),
+        ("서버 기동 메시지", "기동"),
+        ("그리기를 건너뛰는 자리끼움", "자리끼움"),
+        ("본로직은 좌상단을 구한다", "본로직"),
+        ("앵커만큼 되뺀 좌상단", "되뺀"),
+        ("남길 진단거리가 없다", "진단거리"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
@@ -389,6 +398,7 @@ def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, te
         "코드를 살펴본다",
         "먼저 알아본다",
         "결과를 지켜본다",
+        "유지보수적인 관점에서 고른다",
     ],
 )
 def test_shipped_dictionary_leaves_these_alone(tmp_path: Path, text: str) -> None:
