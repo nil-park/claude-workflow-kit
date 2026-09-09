@@ -332,6 +332,10 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("자세와 인식 임계만 든다", "든다"),
         ("실패 사례를 남겨 둔다", "둔다"),
         ("이 자리를 그대로 두어야 한다", "두어"),
+        ("전제가 선다", "선다"),
+        ("이 분리가 서는지 확인한다", "서는"),
+        ("계획이 서면 그대로 실행한다", "서면"),
+        ("'안 잡힘=없음'이 서지 않는다", "서지"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
@@ -385,7 +389,7 @@ def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, te
         "간격이 좁다",
         "폭이 좁아진다",
         "가로막는 벽이 없다",
-        "앞을 가로막아 선다",
+        "앞을 가로막아 버틴다",
         "숨구멍이 트인다",
         "철새는 돌아온다",
         "API 게이트웨이를 만든다",
