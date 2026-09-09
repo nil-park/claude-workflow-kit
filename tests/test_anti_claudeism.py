@@ -325,6 +325,9 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("본로직은 좌상단을 구한다", "본로직"),
         ("앵커만큼 되뺀 좌상단", "되뺀"),
         ("남길 진단거리가 없다", "진단거리"),
+        ("log_level을 바닥으로 둔다", "바닥"),
+        ("서브픽셀 밀림을 흡수한다", "밀림"),
+        ("아는 칸만 채점하므로", "채점"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
