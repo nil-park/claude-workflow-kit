@@ -312,6 +312,10 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("중복으로 본다", "본다"),
         ("당첨 포즈의 방향", "당첨"),
         ("콘솔 홍수를 억제한다", "홍수"),
+        ("학습한 은행에서 자세를 고른다", "은행"),
+        ("값싸게 판정한다", "값싸"),
+        ("값싼 발동 판정", "값싼"),
+        ("가림에 강인하다", "강인"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
