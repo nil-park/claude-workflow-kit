@@ -71,21 +71,26 @@ description: >-
 - 파일은 있으나 목록에 `anti-claudeism` 항목이 없으면 추가한다.
 
 ```markdown
-# 설치된 스킬의 출처와 업데이트 방법
+# 스킬 업데이트
 
-이 파일이 있는 디렉터리의 스킬들은 아래 마켓플레이스가 제공하는
-`project-skills-bootstrap` 플러그인이 복사해 넣은 사본이다. 원본이 갱신되더라도 사본은
-저절로 따라가지 않으므로, 반영하려면 아래 절차를 직접 실행해야 한다.
+## 업스트림
 
-- 마켓플레이스: `claude-workflow-kit` (<https://github.com/nil-park/claude-workflow-kit>)
-- 플러그인: `project-skills-bootstrap`
+- 리포지토리: https://github.com/nil-park/claude-workflow-kit
+- 경로: `plugins/project-skills-bootstrap/skills/`
+- 업스트림의 `bootstrap-<스킬명>/SKILL.md`는 설치·업데이트 로더이고, 실제 템플릿은 같은 디렉터리에 있는 아래 표의 파일이다.
 
-원본의 변경을 사본에 반영하려면, 반영하려는 스킬에 대응하는 부트스트랩 스킬을 다시
-부른다. 부트스트랩 스킬은 사본이 이미 있으면 업데이트 절차로 동작하여, 템플릿과 사본의
-차이를 보고하고 무엇을 반영할지 사용자와 상의한다. 따라서 사본을 프로젝트에 맞게
-고쳐 둔 부분이 있더라도 그대로 유지할 수 있다.
+## 대상 스킬
 
-| 설치된 스킬      | 설치 위치                                                            | 다시 부를 부트스트랩 스킬                           |
-| ---------------- | -------------------------------------------------------------------- | --------------------------------------------------- |
-| `anti-claudeism` | `.agents/skills/anti-claudeism/`와 `.claude/settings.json`의 Stop 훅 | `project-skills-bootstrap:bootstrap-anti-claudeism` |
+| 로컬 경로                                  | 업스트림 템플릿                                    |
+| ------------------------------------------ | -------------------------------------------------- |
+| `anti-claudeism/SKILL.md`                  | `bootstrap-anti-claudeism/anti-claudeism.md`       |
+| `anti-claudeism/anti_claudeism.py`         | `bootstrap-anti-claudeism/anti_claudeism.py`       |
+| `anti-claudeism/claudeism-dictionary.json` | `bootstrap-anti-claudeism/claudeism-dictionary.json` |
+
+- 파이썬 스크립트와 사전 파일은 업데이트할 때 템플릿으로 덮어쓴다. 프로젝트에서만 쓸 사전 항목은 `.claude/claudeism-dictionary.json`에 적는다.
+- `anti-claudeism`은 `.claude/settings.json`의 Stop 훅도 함께 설치하므로, 업데이트할 때 등록 여부를 확인한다.
+
+## 업데이트 절차
+
+- `project-skills-bootstrap:bootstrap-<스킬명>` 스킬을 실행하면, 이미 설치된 스킬은 업스트림 템플릿과 비교하는 업데이트 흐름으로 진행된다.
 ```
