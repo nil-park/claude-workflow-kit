@@ -296,6 +296,7 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("폴백을 두면 방어선이 무너진다", "방어선"),
         ("새는 방향으로 조용히 틀린다", "새는"),
         ("게이트가 조용히 열린다", "게이트"),
+        ("사람이 개입하는 관문이다", "관문"),
         ("쿼리가 통째로 떨어져 나간다", "떨어져 나"),
         ("프루닝이 걸렸는지는 이 지표가 답한다", "답한"),
         ("값에 stage를 함께 싣는다", "싣는"),
@@ -309,6 +310,8 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("판정 결과를 내어 준다", "내어"),
         ("문장이 성립하는지 본다", "본다"),
         ("중복으로 본다", "본다"),
+        ("당첨 포즈의 방향", "당첨"),
+        ("콘솔 홍수를 억제한다", "홍수"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
