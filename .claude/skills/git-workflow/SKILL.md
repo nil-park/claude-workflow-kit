@@ -1,7 +1,7 @@
 ---
 name: git-workflow
 description: >-
-  브랜치를 만들고 GitHub PR을 열거나 고친다. 이렇게 부를 때 쓴다: "PR 작성하자", "PR 이어서 작업하자", "open the PR".
+  브랜치를 만들고 GitHub PR을 열거나 고친다. "PR 작성하자", "PR 이어서 작업하자", "open the PR"이라고 하면 부른다.
 ---
 
 이 저장소는 `git-workflow` 스킬의 배포 원본을 직접 보유하고 있다. 따라서 사본을 두지
