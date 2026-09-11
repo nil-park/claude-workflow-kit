@@ -19,7 +19,10 @@ ENCODINGS = ("utf-8", "cp949")
 DICTIONARY_NAME = "claudeism-dictionary.json"
 SELF_TEST_NAME = "test_anti_claudeism.py"
 EXEMPT_NAMES = frozenset({DICTIONARY_NAME, SELF_TEST_NAME})
-PREAMBLE = "지적된 이유를 확인한 뒤, 해당 낱말을 다른 낱말로 단순 치환하지 말고 문장을 완전히 새로 쓴다."
+PREAMBLE = (
+    "지적된 이유를 확인한 뒤, 해당 낱말을 다른 낱말로 단순 치환하지 말고 문장을 완전히 새로 쓴다. "
+    "지적이 유효했다면 `anti-claudeism` 스킬 본문을 다시 읽고, 이번 턴에 고친 파일을 모두 퇴고한다."
+)
 HANGUL_FIRST = 0xAC00
 HANGUL_LAST = 0xD7A3
 JONGSEONG_COUNT = 28
