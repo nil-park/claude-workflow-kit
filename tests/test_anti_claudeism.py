@@ -192,6 +192,36 @@ def test_scan_skips_a_file_that_is_gone(tmp_path: Path) -> None:
     assert anti_claudeism.scan(tmp_path / "nowhere.md", entries, ok) == []
 
 
+def scan_lines(tmp_path: Path, name: str, text: str) -> list[int]:
+    target = tmp_path / name
+    target.write_bytes(text.encode("utf-8"))
+    entries, ok = anti_claudeism.load_dictionary([write_dictionary(tmp_path / "d.json", [CONSUMER])])
+    return [finding.line for finding in anti_claudeism.scan(target, entries, ok)]
+
+
+@pytest.mark.parametrize("name", ["doc.md", "doc.mdx", "doc.markdown", "DOC.MD"])
+def test_scan_skips_quoted_lines_in_markdown(tmp_path: Path, name: str) -> None:
+    assert scan_lines(tmp_path, name, "> 소비자 큐\n   >소비자\n소비자 큐\n") == [3]
+
+
+def test_scan_skips_quotes_nested_in_a_list_but_not_the_bullets_under_them(tmp_path: Path) -> None:
+    text = "- 예시\n  - > 소비자가 온다\n    > 소비자 큐로\n    - 소비자는 직역이다\n1. > 소비자\n"
+    assert scan_lines(tmp_path, "doc.md", text) == [4]
+
+
+def test_scan_skips_mentions_closed_on_the_same_line_in_markdown(tmp_path: Path) -> None:
+    assert scan_lines(tmp_path, "doc.md", "⁌소비자⁍ 큐\n소비자 ⁌소비자\n⁍ ⁌⁍\n") == [2, 2]
+
+
+def test_scan_keeps_quotes_and_mentions_outside_markdown(tmp_path: Path) -> None:
+    assert scan_lines(tmp_path, "doc.py", "> 소비자 큐\n⁌소비자⁍\n") == [1, 2]
+
+
+def test_scan_keeps_alert_blocks_but_not_the_quote_after_them(tmp_path: Path) -> None:
+    text = "> [!note]\n> 소비자 큐\n>\n> 소비자\n\n> 소비자\n- > [!WARNING]\n  > 소비자\n- > 소비자\n"
+    assert scan_lines(tmp_path, "doc.md", text) == [2, 4, 8]
+
+
 ROOT = Path("/repo").resolve()
 DOC = ROOT / "docs" / "queue.md"
 
