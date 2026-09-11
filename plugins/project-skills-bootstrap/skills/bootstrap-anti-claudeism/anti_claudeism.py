@@ -23,6 +23,10 @@ PREAMBLE = (
     "지적된 이유를 확인한 뒤, 해당 낱말을 다른 낱말로 단순 치환하지 말고 문장을 완전히 새로 쓴다. "
     "지적이 유효했다면 `anti-claudeism` 스킬 본문을 다시 읽고, 이번 턴에 고친 파일을 모두 퇴고한다."
 )
+MARKDOWN_SUFFIXES = frozenset({".md", ".mdx", ".markdown"})
+# 중첩 목록 안의 인용은 네 칸 넘게 들여쓰일 수 있으므로 들여쓰기 폭을 제한하지 않는다.
+QUOTE_LINE = re.compile(r"[ \t]*(?P<marker>(?:(?:[-*+]|\d{1,9}[.)])[ \t]+)*)>")
+ALERT_HEAD = re.compile(r"[ \t]*\[![A-Za-z]+\]")
 HANGUL_FIRST = 0xAC00
 HANGUL_LAST = 0xD7A3
 JONGSEONG_COUNT = 28
@@ -199,11 +203,35 @@ def edited_files(transcript: Path) -> list[Path]:
     return list(unique)
 
 
+def mask_quotes(text: str) -> str:
+    """마크다운 인용 줄의 `>`부터 줄 끝까지를 공백으로 바꾼다. 오프셋과 줄 번호는 그대로다.
+
+    `> [!NOTE]`로 시작하는 알림 블록은 인용 문법을 빌린 본문이므로 바꾸지 않는다.
+    """
+    lines = text.split("\n")
+    quoted = alert = False
+    for index, line in enumerate(lines):
+        quote = QUOTE_LINE.match(line)
+        if quote is None:
+            quoted = False
+            continue
+        if quote.group("marker") or not quoted:
+            alert = ALERT_HEAD.match(line, quote.end()) is not None
+        quoted = True
+        if alert:
+            continue
+        start = quote.end() - 1
+        lines[index] = line[:start] + " " * (len(line) - start)
+    return "\n".join(lines)
+
+
 def scan(path: Path, entries: Iterable[Entry], ok: Iterable[re.Pattern[str]]) -> list[Finding]:
     """파일 하나를 훑어 나온 순서대로 탐지 결과를 돌려준다."""
     text = read_text(path)
     if text is None:
         return []
+    if path.suffix.lower() in MARKDOWN_SUFFIXES:
+        text = mask_quotes(text)
     located: list[tuple[int, Finding]] = []
     for entry in entries:
         for match in entry.pattern.finditer(text):
