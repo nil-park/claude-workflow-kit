@@ -342,7 +342,7 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("사전을 통째로 교체한다", "통째"),
         ("데이터셋을 훑는다", "훑"),
         ("맨 아래 행부터 위로 훑어 올라간다", "훑"),
-        ("무엇을 깨뜨렸는지 되짚는다", "되짚"),
+        ("무엇이 바뀌었는지 되짚는다", "되짚"),
         ("학습으로 떨어지지 않는다", "떨어지"),
         ("검출 하한 아래로 떨어졌다", "떨어졌"),
         ("하한 아래로 떨어진 프레임", "떨어진"),
@@ -383,6 +383,11 @@ def scan_text(tmp_path: Path, text: str) -> list[str]:
         ("잡음을 거르는 단계", "거르"),
         ("- 그 표현이 가장 짧다", "그 표현이"),
         ("판정을 적는다. 그 판정은 근거가 된다", "그 판정은"),
+        ("호환성을 깨뜨린 변경", "깨뜨린"),
+        ("기존 호출을 깨뜨리지 않는다", "깨뜨리"),
+        ("찌꺼기를 치우는 로직", "치우"),
+        ("임시 파일을 치운다", "치운"),
+        ("남은 설정을 치워야 한다", "치워"),
     ],
 )
 def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, text: str, matched: str) -> None:
@@ -463,7 +468,7 @@ def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, te
         "실측으로 확인했다",
         "구현을 베낀 기대값",
         "빠르기를 기대한다",
-        "불타는 장작을 치운다",
+        "불타는 장작을 옮긴다",
         "애타는 마음이 있다",
         "닫지 않은 파일과 소켓",
         "여닫는 문을 고친다",
@@ -474,6 +479,12 @@ def test_shipped_dictionary_catches_what_it_is_registered_for(tmp_path: Path, te
         "먼저 알아본다",
         "결과를 지켜본다",
         "유지보수적인 관점에서 고른다",
+        "잠에서 깨어난다",
+        "원인을 깨닫는다",
+        "한글이 깨진다",
+        "인코딩이 깨진 문자열",
+        "한쪽으로 치우친 분포",
+        "표본이 치우쳐 있다",
     ],
 )
 def test_shipped_dictionary_leaves_these_alone(tmp_path: Path, text: str) -> None:
