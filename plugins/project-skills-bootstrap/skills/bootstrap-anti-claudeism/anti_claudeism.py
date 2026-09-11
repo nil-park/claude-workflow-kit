@@ -27,6 +27,7 @@ MARKDOWN_SUFFIXES = frozenset({".md", ".mdx", ".markdown"})
 # 중첩 목록 안의 인용은 네 칸 넘게 들여쓰일 수 있으므로 들여쓰기 폭을 제한하지 않는다.
 QUOTE_LINE = re.compile(r"[ \t]*(?P<marker>(?:(?:[-*+]|\d{1,9}[.)])[ \t]+)*)>")
 ALERT_HEAD = re.compile(r"[ \t]*\[![A-Za-z]+\]")
+MENTION = re.compile("⁌[^⁍\n]*⁍")
 HANGUL_FIRST = 0xAC00
 HANGUL_LAST = 0xD7A3
 JONGSEONG_COUNT = 28
@@ -225,13 +226,17 @@ def mask_quotes(text: str) -> str:
     return "\n".join(lines)
 
 
+def _blank(match: re.Match[str]) -> str:
+    return " " * len(match.group(0))
+
+
 def scan(path: Path, entries: Iterable[Entry], ok: Iterable[re.Pattern[str]]) -> list[Finding]:
     """파일 하나를 훑어 나온 순서대로 탐지 결과를 돌려준다."""
     text = read_text(path)
     if text is None:
         return []
     if path.suffix.lower() in MARKDOWN_SUFFIXES:
-        text = mask_quotes(text)
+        text = MENTION.sub(_blank, mask_quotes(text))
     located: list[tuple[int, Finding]] = []
     for entry in entries:
         for match in entry.pattern.finditer(text):

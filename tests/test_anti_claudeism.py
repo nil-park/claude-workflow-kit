@@ -209,8 +209,12 @@ def test_scan_skips_quotes_nested_in_a_list_but_not_the_bullets_under_them(tmp_p
     assert scan_lines(tmp_path, "doc.md", text) == [4]
 
 
-def test_scan_keeps_quoted_lines_outside_markdown(tmp_path: Path) -> None:
-    assert scan_lines(tmp_path, "doc.py", "> 소비자 큐\n") == [1]
+def test_scan_skips_mentions_closed_on_the_same_line_in_markdown(tmp_path: Path) -> None:
+    assert scan_lines(tmp_path, "doc.md", "⁌소비자⁍ 큐\n소비자 ⁌소비자\n⁍ ⁌⁍\n") == [2, 2]
+
+
+def test_scan_keeps_quotes_and_mentions_outside_markdown(tmp_path: Path) -> None:
+    assert scan_lines(tmp_path, "doc.py", "> 소비자 큐\n⁌소비자⁍\n") == [1, 2]
 
 
 def test_scan_keeps_alert_blocks_but_not_the_quote_after_them(tmp_path: Path) -> None:
