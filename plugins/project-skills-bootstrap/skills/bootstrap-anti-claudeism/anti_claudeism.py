@@ -329,17 +329,15 @@ def hook_main() -> None:
         report(lines)
 
 
-def markdown_files(directory: Path) -> Iterator[Path]:
-    """숨김 디렉터리를 건너뛴다. 디렉터리마다 파일을 이름 순서로 먼저 모으고, 하위 디렉터리로 내려간다."""
+def files_under(directory: Path) -> Iterator[Path]:
+    """숨김 디렉터리와 `EXEMPT_NAMES`를 건너뛴다. 디렉터리마다 파일을 이름 순서로 먼저 모으고, 하위 디렉터리로 내려간다."""
     for current, directories, files in os.walk(directory):
         directories[:] = sorted(name for name in directories if not name.startswith("."))
-        for name in sorted(files):
-            path = Path(current) / name
-            if path.suffix.lower() in MARKDOWN_SUFFIXES:
-                yield path
+        yield from (Path(current) / name for name in sorted(files) if name not in EXEMPT_NAMES)
 
 
-def _parse_targets(argv: list[str]) -> list[Path]:
+def _parse_targets(argv: list[str]) -> dict[Path, bool]:
+    """검사할 경로를 중복 없이 모은다. 값은 `-f`로 직접 지정했는지 여부다."""
     parser = argparse.ArgumentParser(
         prog="anti_claudeism.py",
         description="사전에 등록된 표현을 지정한 파일에서 찾는다. 인자 없이 실행하면 Stop 훅으로 동작한다.",
@@ -362,8 +360,20 @@ def _parse_targets(argv: list[str]) -> list[Path]:
     for directory in directories:
         if not directory.is_dir():
             parser.error(f"디렉터리가 아니다: {directory}")
-    collected = [*files, *(path for directory in directories for path in markdown_files(directory))]
-    return list(dict.fromkeys(_resolved(path) for path in collected))
+    targets = dict.fromkeys((_resolved(path) for path in files), True)
+    for directory in directories:
+        for path in files_under(directory):
+            targets.setdefault(_resolved(path), False)
+    return targets
+
+
+def _skip_reason(path: Path) -> str:
+    try:
+        if path.stat().st_size > MAX_FILE_BYTES:
+            return "크기 상한을 넘어"
+    except OSError:
+        return "파일을 열지 못해"
+    return "텍스트로 읽지 못해"
 
 
 def cli_main(argv: list[str]) -> int:
@@ -379,9 +389,10 @@ def cli_main(argv: list[str]) -> int:
         return EXIT_ERROR
 
     lines: list[str] = []
-    for path in targets:
-        if read_text(path) is None:
-            _warn(f"텍스트로 읽지 못해 건너뛴다: {path}")
+    for path, named in targets.items():
+        # `-r`로 모은 이미지 같은 파일마다 경고하면 경고가 지나치게 많아지므로, 직접 지정한 파일만 경고한다.
+        if named and read_text(path) is None:
+            _warn(f"{_skip_reason(path)} 건너뛴다: {path}")
             continue
         lines.extend(describe(finding, root) for finding in scan(path, entries, ok))
     if not lines:

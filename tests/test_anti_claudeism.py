@@ -720,23 +720,30 @@ def test_cli_judges_an_exempt_file_named_on_the_command_line(
     assert finding_lines(out) == [f"tests/{anti_claudeism.SELF_TEST_NAME}:1  {QUEUE_FINDING}"]
 
 
-def test_cli_walks_markdown_files_before_subdirectories_and_skips_hidden_ones(
+def test_cli_walks_every_file_but_hidden_directories_and_exempt_names(
     cli_env: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     docs = cli_env / "docs"
-    for relative in ["b.md", "a/z.markdown", "a.MDX", ".hidden/c.md", "notes.txt", "code.py"]:
+    walked = ["b.md", "a/z.markdown", "code.py", "notes.txt"]
+    skipped = [".hidden/c.md", anti_claudeism.DICTIONARY_NAME, anti_claudeism.SELF_TEST_NAME]
+    for relative in [*walked, *skipped]:
         path = docs / relative
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("소비자\n", encoding="utf-8")
+    (docs / "image.png").write_bytes(b"\xff\xfe\x00\x80")
+    (docs / "big.md").write_text("소비자\n" + "가" * anti_claudeism.MAX_FILE_BYTES, encoding="utf-8")
 
-    code, out = run_cli(["-r", "docs"], capsys)
+    code = anti_claudeism.main(["-r", "docs"])
 
+    captured = capsys.readouterr()
     assert code == anti_claudeism.EXIT_FOUND
-    assert [line.split("  ")[0] for line in finding_lines(out)] == [
-        "docs/a.MDX:1",
+    assert [line.split("  ")[0] for line in finding_lines(captured.out)] == [
         "docs/b.md:1",
+        "docs/code.py:1",
+        "docs/notes.txt:1",
         "docs/a/z.markdown:1",
     ]
+    assert captured.err == ""
 
 
 def test_cli_judges_a_file_once_when_named_twice(cli_env: Path, capsys: pytest.CaptureFixture[str]) -> None:
@@ -747,18 +754,26 @@ def test_cli_judges_a_file_once_when_named_twice(cli_env: Path, capsys: pytest.C
     assert finding_lines(out) == [f"docs/queue.md:1  {QUEUE_FINDING}"]
 
 
-def test_cli_warns_about_a_file_it_cannot_read_and_judges_the_rest(
-    cli_env: Path, capsys: pytest.CaptureFixture[str]
+@pytest.mark.parametrize(
+    ("content", "reason"),
+    [
+        pytest.param(b"\xff\xfe\x00\x80", "텍스트로 읽지 못해", id="not-text"),
+        pytest.param(b"a" * (anti_claudeism.MAX_FILE_BYTES + 1), "크기 상한을 넘어", id="too-big"),
+    ],
+)
+def test_cli_warns_why_it_skips_a_named_file_and_judges_the_rest(
+    cli_env: Path, capsys: pytest.CaptureFixture[str], content: bytes, reason: str
 ) -> None:
-    (cli_env / "docs" / "binary.md").write_bytes(b"\xff\xfe\x00\x80")
+    (cli_env / "docs" / "skipped.md").write_bytes(content)
     (cli_env / "docs" / "queue.md").write_text("소비자\n", encoding="utf-8")
 
-    code = anti_claudeism.main(["-f", "docs/binary.md", "docs/queue.md"])
+    code = anti_claudeism.main(["-f", "docs/skipped.md", "docs/queue.md"])
 
     captured = capsys.readouterr()
     assert code == anti_claudeism.EXIT_FOUND
     assert finding_lines(captured.out) == [f"docs/queue.md:1  {QUEUE_FINDING}"]
-    assert "binary.md" in captured.err
+    assert f"{reason} 건너뛴다" in captured.err
+    assert "skipped.md" in captured.err
 
 
 @pytest.mark.parametrize(
