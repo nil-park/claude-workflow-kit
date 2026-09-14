@@ -68,7 +68,7 @@ def _string(value: object) -> str:
 
 
 def _warn(message: str) -> None:
-    """훅은 턴을 차단하지 않으므로 진단은 stderr로만 남긴다. `claude --debug`에서 보인다."""
+    """진단 메시지는 stdout의 탐지 결과와 분리해 stderr에 쓴다. 훅으로 실행했을 때는 `claude --debug`로 확인한다."""
     print(f"anti-claudeism: {message}", file=sys.stderr)
 
 
@@ -364,7 +364,7 @@ def _parse_targets(argv: list[str]) -> list[Path]:
 
 
 def cli_main(argv: list[str]) -> int:
-    # 파이프로 연결된 stderr는 로케일 코드페이지로 인코딩되어, Git Bash와 Claude Code에서 한글 오류 메시지가 깨진다.
+    # stderr가 파이프로 연결되면 Python은 로케일 코드페이지로 인코딩한다. 그러면 Git Bash와 Claude Code에서 한글 오류 메시지가 깨진다.
     reconfigure = getattr(sys.stderr, "reconfigure", None)
     if callable(reconfigure):
         reconfigure(encoding="utf-8")
@@ -372,7 +372,7 @@ def cli_main(argv: list[str]) -> int:
     root = project_root() or _resolved(Path.cwd())
     entries, ok = load_dictionary(dictionary_paths(root))
     if not entries:
-        _warn("탐지 항목이 담긴 사전을 찾지 못했다")
+        _warn("탐지 항목이 있는 사전이 없다")
         return EXIT_ERROR
 
     lines: list[str] = []
@@ -394,7 +394,7 @@ def main(argv: list[str]) -> int:
             hook_main()
             return 0
         return cli_main(argv)
-    # 훅의 실패가 턴을 차단하지 않게 0으로 끝낸다. 명령줄에서는 탐지 결과가 있을 때의 1과 구별되게 2로 끝낸다.
+    # 훅은 실패해도 턴을 차단하면 안 되므로 0으로 끝낸다. 명령줄 도구는 탐지 결과가 있을 때 쓰는 1과 구별하려고 2로 끝낸다.
     except Exception:  # noqa: BLE001
         _warn(traceback.format_exc())
         return EXIT_ERROR if argv else 0

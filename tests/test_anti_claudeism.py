@@ -754,7 +754,6 @@ def test_cli_warns_about_a_file_it_cannot_read_and_judges_the_rest(
     "argv",
     [
         pytest.param(["--verbose"], id="unknown-option"),
-        pytest.param(["-f"], id="option-without-a-path"),
         pytest.param(["-f", "docs/missing.md"], id="missing-file"),
         pytest.param(["-f", "docs"], id="directory-given-to-f"),
         pytest.param(["-r", "docs/missing"], id="missing-directory"),
@@ -765,6 +764,15 @@ def test_cli_exits_with_two_on_a_bad_argument(cli_env: Path, argv: list[str]) ->
         anti_claudeism.main(argv)
 
     assert raised.value.code == anti_claudeism.EXIT_ERROR
+
+
+def test_cli_exits_with_two_when_no_target_is_given(cli_env: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """`--`만 넘기면 Python 3.11의 argparse가 먼저 오류로 종료한다. 대상 누락 검사를 확인하려면 `cli_main`을 직접 호출해야 한다."""
+    with pytest.raises(SystemExit) as raised:
+        anti_claudeism.cli_main([])
+
+    assert raised.value.code == anti_claudeism.EXIT_ERROR
+    assert "-f나 -r" in capsys.readouterr().err
 
 
 def test_cli_exits_with_two_when_no_dictionary_has_entries(
