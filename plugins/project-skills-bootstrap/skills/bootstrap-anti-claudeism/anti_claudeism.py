@@ -233,7 +233,7 @@ def _blank(match: re.Match[str]) -> str:
 
 
 def scan(path: Path, entries: Iterable[Entry], ok: Iterable[re.Pattern[str]]) -> list[Finding]:
-    """파일 하나를 훑어 나온 순서대로 탐지 결과를 돌려준다."""
+    """파일 하나를 검사하고, 탐지 결과를 파일 안에서 나타난 순서대로 돌려준다."""
     text = read_text(path)
     if text is None:
         return []
