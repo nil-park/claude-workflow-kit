@@ -658,7 +658,14 @@ def run_cli(argv: list[str], capsys: pytest.CaptureFixture[str]) -> tuple[int, s
     return code, capsys.readouterr().out
 
 
-def test_cli_prints_the_findings_as_plain_lines_and_exits_with_one(
+def finding_lines(out: str) -> list[str]:
+    """출력이 머리말과 빈 줄로 시작하는지 확인하고, 그 뒤의 탐지 결과를 돌려준다."""
+    preamble, blank, *lines = out.splitlines()
+    assert (preamble, blank) == (anti_claudeism.PREAMBLE, "")
+    return lines
+
+
+def test_cli_prints_the_preamble_and_the_findings_and_exits_with_one(
     cli_env: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     (cli_env / "docs" / "queue.md").write_text("큐를 만든다\n소비자 큐를 만든다\n", encoding="utf-8")
@@ -666,7 +673,7 @@ def test_cli_prints_the_findings_as_plain_lines_and_exits_with_one(
     code, out = run_cli(["-f", "docs/queue.md"], capsys)
 
     assert code == anti_claudeism.EXIT_FOUND
-    assert out == f"docs/queue.md:2  {QUEUE_FINDING}\n"
+    assert out == f"{anti_claudeism.PREAMBLE}\n\ndocs/queue.md:2  {QUEUE_FINDING}\n"
 
 
 def test_cli_exits_with_zero_and_prints_nothing_when_clean(cli_env: Path, capsys: pytest.CaptureFixture[str]) -> None:
@@ -684,7 +691,7 @@ def test_cli_reads_the_project_dictionary_under_the_working_directory(
     code, out = run_cli(["-f", "docs/queue.md"], capsys)
 
     assert code == anti_claudeism.EXIT_FOUND
-    assert out.startswith("docs/queue.md:1  ")
+    assert finding_lines(out)[0].startswith("docs/queue.md:1  ")
 
 
 def test_cli_prefers_claude_project_dir_over_the_working_directory(
@@ -696,7 +703,7 @@ def test_cli_prefers_claude_project_dir_over_the_working_directory(
 
     _, out = run_cli(["-f", str(cli_env / "docs" / "queue.md")], capsys)
 
-    assert out == f"queue.md:1  {QUEUE_FINDING}\n"
+    assert finding_lines(out) == [f"queue.md:1  {QUEUE_FINDING}"]
 
 
 def test_cli_judges_an_exempt_file_named_on_the_command_line(
@@ -710,7 +717,7 @@ def test_cli_judges_an_exempt_file_named_on_the_command_line(
     code, out = run_cli(["-f", str(target)], capsys)
 
     assert code == anti_claudeism.EXIT_FOUND
-    assert out == f"tests/{anti_claudeism.SELF_TEST_NAME}:1  {QUEUE_FINDING}\n"
+    assert finding_lines(out) == [f"tests/{anti_claudeism.SELF_TEST_NAME}:1  {QUEUE_FINDING}"]
 
 
 def test_cli_walks_markdown_files_before_subdirectories_and_skips_hidden_ones(
@@ -725,7 +732,11 @@ def test_cli_walks_markdown_files_before_subdirectories_and_skips_hidden_ones(
     code, out = run_cli(["-r", "docs"], capsys)
 
     assert code == anti_claudeism.EXIT_FOUND
-    assert [line.split("  ")[0] for line in out.splitlines()] == ["docs/a.MDX:1", "docs/b.md:1", "docs/a/z.markdown:1"]
+    assert [line.split("  ")[0] for line in finding_lines(out)] == [
+        "docs/a.MDX:1",
+        "docs/b.md:1",
+        "docs/a/z.markdown:1",
+    ]
 
 
 def test_cli_judges_a_file_once_when_named_twice(cli_env: Path, capsys: pytest.CaptureFixture[str]) -> None:
@@ -733,7 +744,7 @@ def test_cli_judges_a_file_once_when_named_twice(cli_env: Path, capsys: pytest.C
 
     _, out = run_cli(["-f", "docs/queue.md", "./docs/queue.md", "-r", "docs"], capsys)
 
-    assert out == f"docs/queue.md:1  {QUEUE_FINDING}\n"
+    assert finding_lines(out) == [f"docs/queue.md:1  {QUEUE_FINDING}"]
 
 
 def test_cli_warns_about_a_file_it_cannot_read_and_judges_the_rest(
@@ -746,7 +757,7 @@ def test_cli_warns_about_a_file_it_cannot_read_and_judges_the_rest(
 
     captured = capsys.readouterr()
     assert code == anti_claudeism.EXIT_FOUND
-    assert captured.out == f"docs/queue.md:1  {QUEUE_FINDING}\n"
+    assert finding_lines(captured.out) == [f"docs/queue.md:1  {QUEUE_FINDING}"]
     assert "binary.md" in captured.err
 
 

@@ -297,9 +297,12 @@ def _write_stdout(text: str) -> None:
     sys.stdout.buffer.flush()
 
 
+def _with_preamble(lines: list[str]) -> str:
+    return "\n".join([PREAMBLE, "", *lines])
+
+
 def report(lines: list[str]) -> None:
-    context = "\n".join([PREAMBLE, "", *lines])
-    payload = {"hookSpecificOutput": {"hookEventName": "Stop", "additionalContext": context}}
+    payload = {"hookSpecificOutput": {"hookEventName": "Stop", "additionalContext": _with_preamble(lines)}}
     _write_stdout(json.dumps(payload, ensure_ascii=False))
 
 
@@ -383,7 +386,7 @@ def cli_main(argv: list[str]) -> int:
         lines.extend(describe(finding, root) for finding in scan(path, entries, ok))
     if not lines:
         return 0
-    _write_stdout("\n".join(lines))
+    _write_stdout(_with_preamble(lines))
     return EXIT_FOUND
 
 

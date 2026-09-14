@@ -138,8 +138,8 @@ python3 anti_claudeism.py -r docs
 - `claudeism-dictionary.json`과 `test_anti_claudeism.py`도 `-f`로 지정하면 검사한다.
 - 인용 줄과 `⁌⁍` 구간을 제외하는 규칙, 1MB 상한, 인코딩 규칙은 Hook과 같다.
   - 텍스트로 읽지 못한 파일은 stderr에 경고를 남기고 건너뛴다.
-- 탐지 결과는 머리말 없이 한 줄에 한 건씩 stdout에 쓴다.
-  - 한 줄의 형식은 [문구](#문구) 절과 같다.
+- 탐지 결과를 stdout에 쓴다.
+  - 출력의 구성과 문구는 [문구](#문구) 절과 같다.
   - stdout과 stderr에는 UTF-8 바이트를 쓴다.
 
 | 종료 코드 | 조건                                                             |
