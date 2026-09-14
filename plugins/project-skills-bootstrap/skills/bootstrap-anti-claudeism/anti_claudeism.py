@@ -1,10 +1,12 @@
-"""번역투를 탐지해 턴이 끝나기 전에 알리는 Stop 훅."""
+"""번역투를 탐지해 턴이 끝나기 전에 알리는 Stop 훅. 인자를 주면 지정한 파일을 검사하는 명령줄 도구로 동작한다."""
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import re
+import subprocess
 import sys
 import traceback
 import unicodedata
@@ -32,6 +34,9 @@ HANGUL_FIRST = 0xAC00
 HANGUL_LAST = 0xD7A3
 JONGSEONG_COUNT = 28
 JONGSEONG_RIEUL = 8
+EXIT_FOUND = 1
+EXIT_ERROR = 2
+GIT_TIMEOUT_SECONDS = 60
 
 
 class Entry(NamedTuple):
@@ -65,7 +70,7 @@ def _string(value: object) -> str:
 
 
 def _warn(message: str) -> None:
-    """훅은 턴을 차단하지 않으므로 진단은 stderr로만 남긴다. `claude --debug`에서 보인다."""
+    """진단 메시지는 stdout의 탐지 결과와 분리해 stderr에 쓴다. 훅으로 실행했을 때는 `claude --debug`로 확인한다."""
     print(f"anti-claudeism: {message}", file=sys.stderr)
 
 
@@ -97,11 +102,10 @@ def project_root() -> Path | None:
     return _resolved(Path(root)) if root else None
 
 
-def dictionary_paths() -> list[Path]:
+def dictionary_paths(root: Path | None) -> list[Path]:
     """읽는 순서대로 돌려준다. 뒤에 읽은 것이 같은 `term`을 이긴다."""
     installed = Path(__file__).parent / DICTIONARY_NAME
     paths = [installed, Path.home() / ".claude" / DICTIONARY_NAME]
-    root = project_root()
     if root is not None:
         paths.append(root / ".claude" / DICTIONARY_NAME)
     return paths
@@ -231,7 +235,7 @@ def _blank(match: re.Match[str]) -> str:
 
 
 def scan(path: Path, entries: Iterable[Entry], ok: Iterable[re.Pattern[str]]) -> list[Finding]:
-    """파일 하나를 훑어 나온 순서대로 탐지 결과를 돌려준다."""
+    """파일 하나를 검사하고, 탐지 결과를 파일 안에서 나타난 순서대로 돌려준다."""
     text = read_text(path)
     if text is None:
         return []
@@ -288,16 +292,23 @@ def describe(finding: Finding, root: Path | None) -> str:
     )
 
 
-def report(lines: list[str]) -> None:
+def _write_stdout(text: str) -> None:
     """stdout은 UTF-8로 직접 쓴다. Windows의 기본 stdout 인코딩은 cp949라 그대로 두면 깨진다."""
-    context = "\n".join([PREAMBLE, "", *lines])
-    payload = {"hookSpecificOutput": {"hookEventName": "Stop", "additionalContext": context}}
     sys.stdout.flush()
-    sys.stdout.buffer.write(json.dumps(payload, ensure_ascii=False).encode("utf-8") + b"\n")
+    sys.stdout.buffer.write(text.encode("utf-8") + b"\n")
     sys.stdout.buffer.flush()
 
 
-def main() -> None:
+def _with_preamble(lines: list[str]) -> str:
+    return "\n".join([PREAMBLE, "", *lines])
+
+
+def report(lines: list[str]) -> None:
+    payload = {"hookSpecificOutput": {"hookEventName": "Stop", "additionalContext": _with_preamble(lines)}}
+    _write_stdout(json.dumps(payload, ensure_ascii=False))
+
+
+def hook_main() -> None:
     stdin = sys.stdin.read().strip()
     payload = _mapping(json.loads(stdin)) if stdin else {}
     if payload.get("stop_hook_active"):
@@ -310,20 +321,128 @@ def main() -> None:
     if not targets:
         return
 
-    entries, ok = load_dictionary(dictionary_paths())
+    root = project_root()
+    entries, ok = load_dictionary(dictionary_paths(root))
     if not entries:
         return
 
-    root = project_root()
     lines = [describe(finding, root) for path in targets for finding in scan(path, entries, ok)]
     if lines:
         report(lines)
 
 
-if __name__ == "__main__":
+def _git_listed_files(directory: Path) -> list[str] | None:
+    """추적 중인 파일과 `.gitignore`에 걸리지 않은 파일의 상대경로. `git ls-files`를 쓸 수 없으면 이유를 경고하고 None."""
+    command = ["git", "-C", str(directory), "ls-files", "-z", "--cached", "--others", "--exclude-standard"]
     try:
-        main()
-    # 훅의 실패가 턴을 차단하지 않는다. 무엇이 터졌든 stderr로만 알리고 0으로 끝낸다.
+        result = subprocess.run(command, capture_output=True, timeout=GIT_TIMEOUT_SECONDS, check=False)
+    except FileNotFoundError:
+        reason = "git을 찾지 못했다"
+    else:
+        if result.returncode == 0:
+            return [name for name in result.stdout.decode("utf-8").split("\0") if name]
+        # 작업 트리 밖과 safe.directory 거부를 구별할 수 있게 git의 오류 메시지를 그대로 옮긴다.
+        reason = result.stderr.decode("utf-8", errors="replace").strip() or f"종료 코드 {result.returncode}"
+    _warn(f".gitignore를 적용하지 않고 모든 파일을 모은다: {directory} ({reason})")
+    return None
+
+
+def _walked_files(directory: Path) -> list[str]:
+    names: list[str] = []
+    for current, directories, files in os.walk(directory):
+        if ".git" in directories:
+            directories.remove(".git")
+        names.extend((Path(current) / name).relative_to(directory).as_posix() for name in files)
+    return names
+
+
+def files_under(directory: Path) -> list[Path]:
+    """`.gitignore`를 따르고 `EXEMPT_NAMES`를 건너뛰어 경로 순서대로 모은다."""
+    names = _git_listed_files(directory)
+    if names is None:
+        names = _walked_files(directory)
+    paths = [directory / name for name in sorted(names)]
+    # 추적 중인데 지워진 파일, 서브모듈, 디렉터리를 가리키는 심볼릭 링크도 ls-files에 나오므로 파일만 남긴다.
+    return [path for path in paths if path.name not in EXEMPT_NAMES and path.is_file()]
+
+
+def _parse_targets(argv: list[str]) -> dict[Path, bool]:
+    """검사할 경로를 중복 없이 모은다. 값은 `-f`로 직접 지정했는지 여부다."""
+    parser = argparse.ArgumentParser(
+        prog="anti_claudeism.py",
+        description="사전에 등록된 표현을 지정한 파일에서 찾는다. 인자 없이 실행하면 Stop 훅으로 동작한다.",
+        epilog="종료 코드: 0 탐지 결과 없음, 1 탐지 결과 있음, 2 인자 오류나 실행 오류",
+    )
+    parser.add_argument(
+        "-f", "--file", dest="files", type=Path, nargs="+", action="extend", default=[], metavar="PATH"
+    )
+    parser.add_argument(
+        "-r", "--recursive", dest="directories", type=Path, nargs="+", action="extend", default=[], metavar="DIR"
+    )
+    args = parser.parse_args(argv)
+    files = cast("list[Path]", args.files)
+    directories = cast("list[Path]", args.directories)
+    if not files and not directories:
+        parser.error("-f나 -r로 검사할 대상을 지정해야 한다")
+    for path in files:
+        if not path.is_file():
+            parser.error(f"파일이 아니다: {path}")
+    for directory in directories:
+        if not directory.is_dir():
+            parser.error(f"디렉터리가 아니다: {directory}")
+    targets = dict.fromkeys((_resolved(path) for path in files), True)
+    for directory in directories:
+        for path in files_under(directory):
+            targets.setdefault(_resolved(path), False)
+    return targets
+
+
+def _skip_reason(path: Path) -> str:
+    try:
+        if path.stat().st_size > MAX_FILE_BYTES:
+            return "크기 상한을 넘어"
+    except OSError:
+        return "파일을 열지 못해"
+    return "텍스트로 읽지 못해"
+
+
+def cli_main(argv: list[str]) -> int:
+    # stderr가 파이프로 연결되면 Python은 로케일 코드페이지로 인코딩한다. 그러면 Git Bash와 Claude Code에서 한글 오류 메시지가 깨진다.
+    reconfigure = getattr(sys.stderr, "reconfigure", None)
+    if callable(reconfigure):
+        reconfigure(encoding="utf-8")
+    targets = _parse_targets(argv)
+    root = project_root() or _resolved(Path.cwd())
+    entries, ok = load_dictionary(dictionary_paths(root))
+    if not entries:
+        _warn("탐지 항목이 있는 사전이 없다")
+        return EXIT_ERROR
+
+    lines: list[str] = []
+    for path, named in targets.items():
+        # `-r`로 모은 이미지 같은 파일마다 경고하면 경고가 지나치게 많아지므로, 직접 지정한 파일만 경고한다.
+        if named and read_text(path) is None:
+            _warn(f"{_skip_reason(path)} 건너뛴다: {path}")
+            continue
+        lines.extend(describe(finding, root) for finding in scan(path, entries, ok))
+    if not lines:
+        return 0
+    _write_stdout(_with_preamble(lines))
+    return EXIT_FOUND
+
+
+def main(argv: list[str]) -> int:
+    """인자가 없으면 Stop 훅으로, 있으면 명령줄 도구로 실행한다."""
+    try:
+        if not argv:
+            hook_main()
+            return 0
+        return cli_main(argv)
+    # 훅은 실패해도 턴을 차단하면 안 되므로 0으로 끝낸다. 명령줄 도구는 탐지 결과가 있을 때 쓰는 1과 구별하려고 2로 끝낸다.
     except Exception:  # noqa: BLE001
         _warn(traceback.format_exc())
-    sys.exit(0)
+        return EXIT_ERROR if argv else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

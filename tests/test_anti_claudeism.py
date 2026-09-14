@@ -1,6 +1,9 @@
 import io
 import json
 import re
+import shutil
+import subprocess
+from collections.abc import Callable
 from pathlib import Path
 
 import anti_claudeism
@@ -539,12 +542,12 @@ def hook_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 
 def run_hook(payload: dict[str, object], monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> str:
     monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(payload)))
-    anti_claudeism.main()
+    assert anti_claudeism.main([]) == 0
     return capsys.readouterr().out
 
 
 def test_dictionary_paths_are_read_installed_home_project(hook_env: Path, tmp_path: Path) -> None:
-    assert anti_claudeism.dictionary_paths() == [
+    assert anti_claudeism.dictionary_paths(anti_claudeism.project_root()) == [
         tmp_path / "installed" / "claudeism-dictionary.json",
         tmp_path / "home" / ".claude" / "claudeism-dictionary.json",
         hook_env.resolve() / ".claude" / "claudeism-dictionary.json",
@@ -600,7 +603,7 @@ def test_main_does_not_judge_a_dictionary_off_the_read_paths(
     """배포용 사전의 원본은 이 리포의 부트스트랩 스킬 아래에 있고, 읽는 경로 셋 어디에도 없다. 이름으로 걸러야 한다."""
     template = hook_env / "plugins" / "project-skills-bootstrap" / "skills" / "bootstrap-anti-claudeism"
     source = write_dictionary(template / anti_claudeism.DICTIONARY_NAME, [CONSUMER])
-    assert source not in anti_claudeism.dictionary_paths()
+    assert source not in anti_claudeism.dictionary_paths(anti_claudeism.project_root())
     transcript = write_transcript(tmp_path, [user_input(), edit(str(source))])
 
     assert run_hook({"transcript_path": str(transcript)}, monkeypatch, capsys) == ""
@@ -631,3 +634,251 @@ def test_main_still_judges_the_other_files_of_the_turn(
     assert json.loads(out)["hookSpecificOutput"]["additionalContext"] == (
         f'{anti_claudeism.PREAMBLE}\n\ndocs/queue.md:1  "소비자"가 컴퓨터 용어에서 consumer의 직역으로 쓰였다면 "컨슈머"로 수정한다.'
     )
+
+
+def test_main_ends_the_hook_with_zero_even_when_it_breaks(
+    hook_env: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setattr("sys.stdin", io.StringIO("{깨진 JSON"))
+
+    assert anti_claudeism.main([]) == 0
+    assert capsys.readouterr().out == ""
+
+
+QUEUE_FINDING = '"소비자"가 컴퓨터 용어에서 consumer의 직역으로 쓰였다면 "컨슈머"로 수정한다.'
+
+
+@pytest.fixture
+def cli_env(hook_env: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """명령줄에서 실행하면 `CLAUDE_PROJECT_DIR`이 없다. 프로젝트 루트에서 실행한 것으로 꾸민다.
+
+    tmp의 상위 디렉터리가 git 저장소일 수 있으므로, git이 저장소를 찾아 올라가는 상한을 tmp로 정한다.
+    """
+    monkeypatch.delenv("CLAUDE_PROJECT_DIR")
+    monkeypatch.setenv("GIT_CEILING_DIRECTORIES", str(tmp_path))
+    monkeypatch.chdir(hook_env)
+    return hook_env
+
+
+def run_cli(argv: list[str], capsys: pytest.CaptureFixture[str]) -> tuple[int, str]:
+    code = anti_claudeism.main(argv)
+    return code, capsys.readouterr().out
+
+
+def finding_lines(out: str) -> list[str]:
+    """출력이 머리말과 빈 줄로 시작하는지 확인하고, 그 뒤의 탐지 결과를 돌려준다."""
+    preamble, blank, *lines = out.splitlines()
+    assert (preamble, blank) == (anti_claudeism.PREAMBLE, "")
+    return lines
+
+
+def test_cli_prints_the_preamble_and_the_findings_and_exits_with_one(
+    cli_env: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    (cli_env / "docs" / "queue.md").write_text("큐를 만든다\n소비자 큐를 만든다\n", encoding="utf-8")
+
+    code, out = run_cli(["-f", "docs/queue.md"], capsys)
+
+    assert code == anti_claudeism.EXIT_FOUND
+    assert out == f"{anti_claudeism.PREAMBLE}\n\ndocs/queue.md:2  {QUEUE_FINDING}\n"
+
+
+def test_cli_exits_with_zero_and_prints_nothing_when_clean(cli_env: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    (cli_env / "docs" / "queue.md").write_text("컨슈머 큐를 만든다\n", encoding="utf-8")
+
+    assert run_cli(["-f", "docs/queue.md"], capsys) == (0, "")
+
+
+def test_cli_reads_the_project_dictionary_under_the_working_directory(
+    cli_env: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    write_dictionary(cli_env / ".claude" / anti_claudeism.DICTIONARY_NAME, [{"term": "큐", "as": "", "use": ""}])
+    (cli_env / "docs" / "queue.md").write_text("큐\n", encoding="utf-8")
+
+    code, out = run_cli(["-f", "docs/queue.md"], capsys)
+
+    assert code == anti_claudeism.EXIT_FOUND
+    assert finding_lines(out)[0].startswith("docs/queue.md:1  ")
+
+
+def test_cli_prefers_claude_project_dir_over_the_working_directory(
+    cli_env: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    (cli_env / "docs" / "queue.md").write_text("소비자\n", encoding="utf-8")
+    monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(cli_env / "docs"))
+    monkeypatch.chdir(tmp_path)
+
+    _, out = run_cli(["-f", str(cli_env / "docs" / "queue.md")], capsys)
+
+    assert finding_lines(out) == [f"queue.md:1  {QUEUE_FINDING}"]
+
+
+def test_cli_judges_an_exempt_file_named_on_the_command_line(
+    cli_env: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """훅은 이 이름을 건너뛰지만, 명령줄에서 직접 지정한 파일은 검사한다."""
+    target = cli_env / "tests" / anti_claudeism.SELF_TEST_NAME
+    target.parent.mkdir()
+    target.write_text('("소비자 큐를 만든다", "큐"),\n', encoding="utf-8")
+
+    code, out = run_cli(["-f", str(target)], capsys)
+
+    assert code == anti_claudeism.EXIT_FOUND
+    assert finding_lines(out) == [f"tests/{anti_claudeism.SELF_TEST_NAME}:1  {QUEUE_FINDING}"]
+
+
+def write_consumer_files(root: Path, relatives: list[str]) -> None:
+    for relative in relatives:
+        path = root / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("소비자\n", encoding="utf-8")
+
+
+def finding_paths(out: str) -> list[str]:
+    return [line.split("  ")[0] for line in finding_lines(out)]
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="git이 없는 환경")
+def test_cli_walks_the_files_git_does_not_ignore(cli_env: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    subprocess.run(["git", "init", "-q"], cwd=cli_env, check=True)
+    (cli_env / ".gitignore").write_text("ignored/\n*.log\n", encoding="utf-8")
+    write_consumer_files(cli_env, ["docs/b.md", "docs/a/z.markdown", "code.py", ".agents/skills/x/SKILL.md"])
+    write_consumer_files(cli_env, ["ignored/c.md", "docs/debug.log", "docs/" + anti_claudeism.DICTIONARY_NAME])
+    write_consumer_files(cli_env, ["tests/" + anti_claudeism.SELF_TEST_NAME])
+    (cli_env / "docs" / "image.png").write_bytes(b"\xff\xfe\x00\x80")
+    (cli_env / "docs" / "big.md").write_bytes(b"a" * (anti_claudeism.MAX_FILE_BYTES + 1))
+
+    code = anti_claudeism.main(["-r", "."])
+
+    captured = capsys.readouterr()
+    assert code == anti_claudeism.EXIT_FOUND
+    assert finding_paths(captured.out) == [
+        ".agents/skills/x/SKILL.md:1",
+        "code.py:1",
+        "docs/a/z.markdown:1",
+        "docs/b.md:1",
+    ]
+    assert captured.err == ""
+
+
+def test_cli_walks_every_file_but_dot_git_outside_a_work_tree_and_warns(
+    cli_env: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    write_consumer_files(cli_env, ["docs/b.md", "docs/.hidden/c.md", "docs/.git/config.md"])
+
+    code = anti_claudeism.main(["-r", "docs"])
+
+    captured = capsys.readouterr()
+    assert code == anti_claudeism.EXIT_FOUND
+    assert finding_paths(captured.out) == ["docs/.hidden/c.md:1", "docs/b.md:1"]
+    assert ".gitignore를 적용하지 않고" in captured.err
+
+
+def raise_missing_git(*_: object, **__: object) -> subprocess.CompletedProcess[bytes]:
+    raise FileNotFoundError("git")
+
+
+def refuse_repository(*_: object, **__: object) -> subprocess.CompletedProcess[bytes]:
+    return subprocess.CompletedProcess([], 128, b"", b"fatal: detected dubious ownership\n")
+
+
+@pytest.mark.parametrize(
+    ("run", "reason"),
+    [
+        pytest.param(raise_missing_git, "git을 찾지 못했다", id="git-missing"),
+        pytest.param(refuse_repository, "fatal: detected dubious ownership", id="git-refuses"),
+    ],
+)
+def test_cli_warns_with_the_reason_when_git_cannot_list_files(
+    cli_env: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    run: Callable[..., subprocess.CompletedProcess[bytes]],
+    reason: str,
+) -> None:
+    write_consumer_files(cli_env, ["docs/b.md"])
+    monkeypatch.setattr(anti_claudeism.subprocess, "run", run)
+
+    code = anti_claudeism.main(["-r", "docs"])
+
+    captured = capsys.readouterr()
+    assert code == anti_claudeism.EXIT_FOUND
+    assert finding_paths(captured.out) == ["docs/b.md:1"]
+    assert f"({reason})" in captured.err
+
+
+def test_cli_judges_a_file_once_when_named_twice(cli_env: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    (cli_env / "docs" / "queue.md").write_text("소비자\n", encoding="utf-8")
+
+    _, out = run_cli(["-f", "docs/queue.md", "./docs/queue.md", "-r", "docs"], capsys)
+
+    assert finding_lines(out) == [f"docs/queue.md:1  {QUEUE_FINDING}"]
+
+
+@pytest.mark.parametrize(
+    ("content", "reason"),
+    [
+        pytest.param(b"\xff\xfe\x00\x80", "텍스트로 읽지 못해", id="not-text"),
+        pytest.param(b"a" * (anti_claudeism.MAX_FILE_BYTES + 1), "크기 상한을 넘어", id="too-big"),
+    ],
+)
+def test_cli_warns_why_it_skips_a_named_file_and_judges_the_rest(
+    cli_env: Path, capsys: pytest.CaptureFixture[str], content: bytes, reason: str
+) -> None:
+    (cli_env / "docs" / "skipped.md").write_bytes(content)
+    (cli_env / "docs" / "queue.md").write_text("소비자\n", encoding="utf-8")
+
+    code = anti_claudeism.main(["-f", "docs/skipped.md", "docs/queue.md"])
+
+    captured = capsys.readouterr()
+    assert code == anti_claudeism.EXIT_FOUND
+    assert finding_lines(captured.out) == [f"docs/queue.md:1  {QUEUE_FINDING}"]
+    assert f"{reason} 건너뛴다" in captured.err
+    assert "skipped.md" in captured.err
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        pytest.param(["--verbose"], id="unknown-option"),
+        pytest.param(["-f", "docs/missing.md"], id="missing-file"),
+        pytest.param(["-f", "docs"], id="directory-given-to-f"),
+        pytest.param(["-r", "docs/missing"], id="missing-directory"),
+    ],
+)
+def test_cli_exits_with_two_on_a_bad_argument(cli_env: Path, argv: list[str]) -> None:
+    with pytest.raises(SystemExit) as raised:
+        anti_claudeism.main(argv)
+
+    assert raised.value.code == anti_claudeism.EXIT_ERROR
+
+
+def test_cli_exits_with_two_when_no_target_is_given(cli_env: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """`--`만 넘기면 Python 3.11의 argparse가 먼저 오류로 종료한다. 대상 누락 검사를 확인하려면 `cli_main`을 직접 호출해야 한다."""
+    with pytest.raises(SystemExit) as raised:
+        anti_claudeism.cli_main([])
+
+    assert raised.value.code == anti_claudeism.EXIT_ERROR
+    assert "-f나 -r" in capsys.readouterr().err
+
+
+def test_cli_exits_with_two_when_no_dictionary_has_entries(
+    cli_env: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    write_dictionary(tmp_path / "installed" / anti_claudeism.DICTIONARY_NAME, [])
+    (cli_env / "docs" / "queue.md").write_text("소비자\n", encoding="utf-8")
+
+    assert run_cli(["-f", "docs/queue.md"], capsys) == (anti_claudeism.EXIT_ERROR, "")
+
+
+def test_cli_exits_with_two_when_it_breaks(
+    cli_env: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    (cli_env / "docs" / "queue.md").write_text("소비자\n", encoding="utf-8")
+
+    def explode(_: object) -> None:
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(anti_claudeism, "load_dictionary", explode)
+
+    assert run_cli(["-f", "docs/queue.md"], capsys) == (anti_claudeism.EXIT_ERROR, "")
