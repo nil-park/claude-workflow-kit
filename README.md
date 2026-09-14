@@ -13,16 +13,16 @@
 - GitHub용과 GitLab용 템플릿이 모두 들어 있으므로, 플랫폼마다 다른 플러그인을 고를 필요가 없다.
 - `bootstrap-anti-claudeism`은 스킬과 함께 Stop 훅을 설치하고, 그 훅을 프로젝트의 `.claude/settings.json`에 등록한다.
 
-| 명령                                                   | 설명                                                                        |
-| ------------------------------------------------------ | --------------------------------------------------------------------------- |
-| `/project-skills-bootstrap:bootstrap`                  | 일괄 설치 대상 스킬을 순서대로 프로젝트에 설치                              |
-| `/project-skills-bootstrap:bootstrap-work-cycle`       | 작성-리뷰 사이클 스킬을 프로젝트에 설치                                     |
-| `/project-skills-bootstrap:bootstrap-coding-standards` | 코드 기준 스킬을 프로젝트에 설치                                            |
-| `/project-skills-bootstrap:bootstrap-docs-standards`   | 문서·주석 기준 스킬을 프로젝트에 설치                                       |
-| `/project-skills-bootstrap:bootstrap-scratch-dir`      | 스크래치 디렉터리 규약 스킬을 프로젝트에 설치                               |
-| `/project-skills-bootstrap:bootstrap-fluent-korean`    | 외부 `fluent-korean` 마켓플레이스 등록 및 출력 스타일 활성화                |
-| `/project-skills-bootstrap:bootstrap-git-workflow`     | 브랜치·PR/MR 워크플로 스킬을 프로젝트에 설치 (일괄 설치 미포함)             |
-| `/project-skills-bootstrap:bootstrap-anti-claudeism`   | Claude 한국어 문체 교정 스킬과 Stop 훅을 프로젝트에 설치 (일괄 설치 미포함) |
+| 명령                                                   | 설명                                                                               |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| `/project-skills-bootstrap:bootstrap`                  | 설치된 스킬이 없으면 일괄 설치 대상 스킬을 설치하고, 있으면 설치된 스킬만 업데이트 |
+| `/project-skills-bootstrap:bootstrap-work-cycle`       | 작성-리뷰 사이클 스킬을 프로젝트에 설치                                            |
+| `/project-skills-bootstrap:bootstrap-coding-standards` | 코드 기준 스킬을 프로젝트에 설치                                                   |
+| `/project-skills-bootstrap:bootstrap-docs-standards`   | 문서·주석 기준 스킬을 프로젝트에 설치                                              |
+| `/project-skills-bootstrap:bootstrap-scratch-dir`      | 스크래치 디렉터리 규약 스킬을 프로젝트에 설치                                      |
+| `/project-skills-bootstrap:bootstrap-fluent-korean`    | 외부 `fluent-korean` 마켓플레이스 등록 및 출력 스타일 활성화                       |
+| `/project-skills-bootstrap:bootstrap-git-workflow`     | 브랜치·PR/MR 워크플로 스킬을 프로젝트에 설치 (일괄 설치 미포함)                    |
+| `/project-skills-bootstrap:bootstrap-anti-claudeism`   | Claude 한국어 문체 교정 스킬과 Stop 훅을 프로젝트에 설치 (일괄 설치 미포함)        |
 
 - 설치된 스킬 사이의 의존 관계: [docs/architecture/component-dependency.md](docs/architecture/component-dependency.md)
 - `anti-claudeism` 스킬과 훅의 동작: [docs/architecture/anti-claudeism.md](docs/architecture/anti-claudeism.md)
