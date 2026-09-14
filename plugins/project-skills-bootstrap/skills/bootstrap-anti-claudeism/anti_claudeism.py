@@ -1,7 +1,8 @@
-"""번역투를 탐지해 턴이 끝나기 전에 알리는 Stop 훅."""
+"""번역투를 탐지해 턴이 끝나기 전에 알리는 Stop 훅. 인자를 주면 지정한 파일을 검사하는 명령줄 도구로 동작한다."""
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import re
@@ -32,6 +33,8 @@ HANGUL_FIRST = 0xAC00
 HANGUL_LAST = 0xD7A3
 JONGSEONG_COUNT = 28
 JONGSEONG_RIEUL = 8
+EXIT_FOUND = 1
+EXIT_ERROR = 2
 
 
 class Entry(NamedTuple):
@@ -97,11 +100,10 @@ def project_root() -> Path | None:
     return _resolved(Path(root)) if root else None
 
 
-def dictionary_paths() -> list[Path]:
+def dictionary_paths(root: Path | None) -> list[Path]:
     """읽는 순서대로 돌려준다. 뒤에 읽은 것이 같은 `term`을 이긴다."""
     installed = Path(__file__).parent / DICTIONARY_NAME
     paths = [installed, Path.home() / ".claude" / DICTIONARY_NAME]
-    root = project_root()
     if root is not None:
         paths.append(root / ".claude" / DICTIONARY_NAME)
     return paths
@@ -288,16 +290,20 @@ def describe(finding: Finding, root: Path | None) -> str:
     )
 
 
-def report(lines: list[str]) -> None:
+def _write_stdout(text: str) -> None:
     """stdout은 UTF-8로 직접 쓴다. Windows의 기본 stdout 인코딩은 cp949라 그대로 두면 깨진다."""
-    context = "\n".join([PREAMBLE, "", *lines])
-    payload = {"hookSpecificOutput": {"hookEventName": "Stop", "additionalContext": context}}
     sys.stdout.flush()
-    sys.stdout.buffer.write(json.dumps(payload, ensure_ascii=False).encode("utf-8") + b"\n")
+    sys.stdout.buffer.write(text.encode("utf-8") + b"\n")
     sys.stdout.buffer.flush()
 
 
-def main() -> None:
+def report(lines: list[str]) -> None:
+    context = "\n".join([PREAMBLE, "", *lines])
+    payload = {"hookSpecificOutput": {"hookEventName": "Stop", "additionalContext": context}}
+    _write_stdout(json.dumps(payload, ensure_ascii=False))
+
+
+def hook_main() -> None:
     stdin = sys.stdin.read().strip()
     payload = _mapping(json.loads(stdin)) if stdin else {}
     if payload.get("stop_hook_active"):
@@ -310,20 +316,89 @@ def main() -> None:
     if not targets:
         return
 
-    entries, ok = load_dictionary(dictionary_paths())
+    root = project_root()
+    entries, ok = load_dictionary(dictionary_paths(root))
     if not entries:
         return
 
-    root = project_root()
     lines = [describe(finding, root) for path in targets for finding in scan(path, entries, ok)]
     if lines:
         report(lines)
 
 
-if __name__ == "__main__":
+def markdown_files(directory: Path) -> Iterator[Path]:
+    """숨김 디렉터리를 건너뛴다. 디렉터리마다 파일을 이름 순서로 먼저 모으고, 하위 디렉터리로 내려간다."""
+    for current, directories, files in os.walk(directory):
+        directories[:] = sorted(name for name in directories if not name.startswith("."))
+        for name in sorted(files):
+            path = Path(current) / name
+            if path.suffix.lower() in MARKDOWN_SUFFIXES:
+                yield path
+
+
+def _parse_targets(argv: list[str]) -> list[Path]:
+    parser = argparse.ArgumentParser(
+        prog="anti_claudeism.py",
+        description="사전에 등록된 표현을 지정한 파일에서 찾는다. 인자 없이 실행하면 Stop 훅으로 동작한다.",
+        epilog="종료 코드: 0 탐지 결과 없음, 1 탐지 결과 있음, 2 인자 오류나 실행 오류",
+    )
+    parser.add_argument(
+        "-f", "--file", dest="files", type=Path, nargs="+", action="extend", default=[], metavar="PATH"
+    )
+    parser.add_argument(
+        "-r", "--recursive", dest="directories", type=Path, nargs="+", action="extend", default=[], metavar="DIR"
+    )
+    args = parser.parse_args(argv)
+    files = cast("list[Path]", args.files)
+    directories = cast("list[Path]", args.directories)
+    if not files and not directories:
+        parser.error("-f나 -r로 검사할 대상을 지정해야 한다")
+    for path in files:
+        if not path.is_file():
+            parser.error(f"파일이 아니다: {path}")
+    for directory in directories:
+        if not directory.is_dir():
+            parser.error(f"디렉터리가 아니다: {directory}")
+    collected = [*files, *(path for directory in directories for path in markdown_files(directory))]
+    return list(dict.fromkeys(_resolved(path) for path in collected))
+
+
+def cli_main(argv: list[str]) -> int:
+    # 파이프로 연결된 stderr는 로케일 코드페이지로 인코딩되어, Git Bash와 Claude Code에서 한글 오류 메시지가 깨진다.
+    reconfigure = getattr(sys.stderr, "reconfigure", None)
+    if callable(reconfigure):
+        reconfigure(encoding="utf-8")
+    targets = _parse_targets(argv)
+    root = project_root() or _resolved(Path.cwd())
+    entries, ok = load_dictionary(dictionary_paths(root))
+    if not entries:
+        _warn("탐지 항목이 담긴 사전을 찾지 못했다")
+        return EXIT_ERROR
+
+    lines: list[str] = []
+    for path in targets:
+        if read_text(path) is None:
+            _warn(f"텍스트로 읽지 못해 건너뛴다: {path}")
+            continue
+        lines.extend(describe(finding, root) for finding in scan(path, entries, ok))
+    if not lines:
+        return 0
+    _write_stdout("\n".join(lines))
+    return EXIT_FOUND
+
+
+def main(argv: list[str]) -> int:
+    """인자가 없으면 Stop 훅으로, 있으면 명령줄 도구로 실행한다."""
     try:
-        main()
-    # 훅의 실패가 턴을 차단하지 않는다. 무엇이 터졌든 stderr로만 알리고 0으로 끝낸다.
+        if not argv:
+            hook_main()
+            return 0
+        return cli_main(argv)
+    # 훅의 실패가 턴을 차단하지 않게 0으로 끝낸다. 명령줄에서는 탐지 결과가 있을 때의 1과 구별되게 2로 끝낸다.
     except Exception:  # noqa: BLE001
         _warn(traceback.format_exc())
-    sys.exit(0)
+        return EXIT_ERROR if argv else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
