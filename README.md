@@ -110,3 +110,17 @@ claude plugin marketplace update claude-workflow-kit
 ```
 
 훅의 입력 형식과 그 밖의 제약은 [docs/development/anti-claudeism.md](docs/development/anti-claudeism.md)를 참고한다.
+
+## Codex에서 쓸 때
+
+Codex CLI도 이 마켓플레이스에서 플러그인을 설치할 수 있다.
+
+```bash
+codex plugin marketplace add nil-park/claude-workflow-kit
+codex plugin add project-skills-bootstrap@claude-workflow-kit
+```
+
+- 부트스트랩 스킬은 `$project-skills-bootstrap:bootstrap`처럼 `$`를 붙여 부른다.
+- Codex에는 출력 스타일이 없으므로, fluent-korean의 규칙은 `~/.codex/AGENTS.md`에 넣는다.
+- anti-claudeism 훅은 Codex에서 동작하지 않는다.
+- Codex 지원의 전제: [docs/development/codex-support.md](docs/development/codex-support.md)
