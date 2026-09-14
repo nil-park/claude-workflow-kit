@@ -61,24 +61,6 @@ description: >-
 
 ## UPDATE.md 기록
 
-- `.agents/skills/UPDATE.md`가 없으면 아래 내용으로 만든다.
-- 파일은 있으나 목록에 `git-workflow` 항목이 없으면 추가한다.
-
-```markdown
-# 설치된 스킬의 출처와 업데이트 방법
-
-이 디렉터리의 스킬은 아래 마켓플레이스에서 제공하는
-`project-skills-bootstrap` 플러그인이 복사해 설치한 버전이다. 원본의 변경은 자동으로
-반영되지 않는다. 변경 사항을 반영하려면 아래 절차를 실행한다.
-
-- 마켓플레이스: `claude-workflow-kit` (<https://github.com/nil-park/claude-workflow-kit>)
-- 플러그인: `project-skills-bootstrap`
-
-원본의 변경 사항을 반영할 때에는 해당 스킬의 부트스트랩 스킬을 다시 부른다. 설치본이
-있으면 에이전트는 업데이트 절차에 따라 템플릿과 설치본의 차이를 보고한다. 반영할 변경
-사항은 사용자와 상의해서 정하며, 프로젝트별 변경 사항은 유지할 수 있다.
-
-| 설치된 스킬    | 설치 위치                      | 다시 부를 부트스트랩 스킬                         |
-| -------------- | ------------------------------ | ------------------------------------------------- |
-| `git-workflow` | `.agents/skills/git-workflow/` | `project-skills-bootstrap:bootstrap-git-workflow` |
-```
+- 베이스 디렉터리를 기준으로 `../bootstrap/UPDATE.md`(템플릿)를 읽는다.
+- `.agents/skills/UPDATE.md`가 없으면 템플릿의 내용으로 만든다.
+- 파일이 있는데 내용이 템플릿과 다르면 템플릿에 맞춘다. 프로젝트가 덧붙인 내용은 유지한다.

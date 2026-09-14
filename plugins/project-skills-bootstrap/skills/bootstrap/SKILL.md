@@ -2,55 +2,63 @@
 name: bootstrap
 description: >-
   docs-standards, coding-standards, work-cycle, fluent-korean, scratch-dir 스킬을
-  현재 프로젝트에 한 번에 설치하거나 업데이트하고 싶을 때 부른다. anti-claudeism과
-  git-workflow는 이 묶음에 들어 있지 않으므로 각각 따로 부른다.
+  현재 프로젝트에 한 번에 설치하거나, 이 플러그인으로 설치한 스킬을 한 번에 업데이트하고
+  싶을 때 부른다. anti-claudeism과 git-workflow는 새로 설치하지 않고, 설치되어 있을 때
+  업데이트만 한다.
 ---
 
-## 이 묶음이 설치하는 스킬
+## 대상 스킬
 
-아래 스킬들을 순서대로 실행한다.
+| 스킬               | 설치 여부를 확인할 곳                                                     | 부트스트랩 스킬                                       | 신규 설치 |
+| ------------------ | ------------------------------------------------------------------------- | ----------------------------------------------------- | --------- |
+| `docs-standards`   | `.agents/skills/docs-standards/SKILL.md`                                  | `project-skills-bootstrap:bootstrap-docs-standards`   | 포함      |
+| `coding-standards` | `.agents/skills/coding-standards/SKILL.md`                                | `project-skills-bootstrap:bootstrap-coding-standards` | 포함      |
+| `work-cycle`       | `.agents/skills/work-cycle/SKILL.md`                                      | `project-skills-bootstrap:bootstrap-work-cycle`       | 포함      |
+| `fluent-korean`    | `.claude/settings.json`의 `enabledPlugins["fluent-korean@fluent-korean"]` | `project-skills-bootstrap:bootstrap-fluent-korean`    | 포함      |
+| `scratch-dir`      | `.agents/skills/scratch-dir/SKILL.md`                                     | `project-skills-bootstrap:bootstrap-scratch-dir`      | 포함      |
+| `anti-claudeism`   | `.agents/skills/anti-claudeism/SKILL.md`                                  | `project-skills-bootstrap:bootstrap-anti-claudeism`   | 제외      |
+| `git-workflow`     | `.agents/skills/git-workflow/SKILL.md`                                    | `project-skills-bootstrap:bootstrap-git-workflow`     | 제외      |
 
-- `project-skills-bootstrap:bootstrap-docs-standards`
-- `project-skills-bootstrap:bootstrap-coding-standards`
-- `project-skills-bootstrap:bootstrap-work-cycle`
-- `project-skills-bootstrap:bootstrap-fluent-korean`
-- `project-skills-bootstrap:bootstrap-scratch-dir`
+- 신규 설치에서 제외한 스킬은 사용자가 명시적으로 요청할 때에만 해당 부트스트랩 스킬을 불러 설치한다.
+
+## 설치 여부 판정
+
+가장 먼저 위 표의 일곱 스킬이 각각 설치되어 있는지 확인한다.
+
+- 하나도 설치되어 있지 않으면 신규 설치 절차를 실행한다.
+- 하나라도 설치되어 있으면 업데이트 절차를 실행한다.
+
+## 신규 설치
+
+1. 신규 설치에 포함한 다섯 스킬의 부트스트랩 스킬을 표의 순서대로 실행한다.
+2. 결과를 보고할 때 설치되지 않은 스킬을 안내한다.
+
+## 업데이트
+
+1. 설치된 스킬의 부트스트랩 스킬만 표의 순서대로 불러 업데이트 절차를 실행한다.
+   - `fluent-korean`은 마켓플레이스의 `autoUpdate`로 갱신되므로 부르지 않는다.
+   - 설치되지 않은 스킬은 신규 설치 포함 여부와 상관없이 설치하지 않는다.
+2. 결과를 보고할 때 설치되지 않은 스킬을 안내한다.
+
+## 설치되지 않은 스킬 안내
+
+- 설치되지 않은 스킬의 이름을 표의 순서대로 쉼표로 이어 아래 문구로 안내한다.
+  - 한 스킬일 때: `참고: <스킬 이름> 스킬은 설치되어 있지 않습니다.`
+  - 여러 스킬일 때: `참고: <스킬 이름 목록> <개수> 스킬은 설치되어 있지 않습니다.`
+    - 개수는 "두, 세, 네, 다섯, 여섯"으로 적는다.
+    - 예: `참고: anti-claudeism, git-workflow 두 스킬은 설치되어 있지 않습니다.`
+- 모든 스킬이 설치되어 있으면 안내하지 않는다.
 
 ## UPDATE.md 기록
 
-위 스킬들을 모두 실행한 뒤에 `.agents/skills/UPDATE.md`를 확인한다. 각 부트스트랩 스킬이
-자기 항목을 기록하므로 대개 이미 채워져 있으니, 빠진 항목만 보태고 파일이 없으면 아래
-내용으로 만든다. `fluent-korean`은 `.agents/skills/` 아래에 사본을 두지 않는 외부
-플러그인이므로 이 목록에 넣지 않는다.
+신규 설치나 업데이트 절차를 마친 뒤에 `.agents/skills/UPDATE.md`를 확인한다.
 
-```markdown
-# 설치된 스킬의 출처와 업데이트 방법
-
-이 디렉터리의 스킬은 아래 마켓플레이스에서 제공하는
-`project-skills-bootstrap` 플러그인이 복사해 설치한 버전이다. 원본의 변경은 자동으로
-반영되지 않는다. 변경 사항을 반영하려면 아래 절차를 실행한다.
-
-- 마켓플레이스: `claude-workflow-kit` (<https://github.com/nil-park/claude-workflow-kit>)
-- 플러그인: `project-skills-bootstrap`
-
-원본의 변경 사항을 반영할 때에는 해당 스킬의 부트스트랩 스킬을 다시 부른다. 설치본이
-있으면 에이전트는 업데이트 절차에 따라 템플릿과 설치본의 차이를 보고한다. 반영할 변경
-사항은 사용자와 상의해서 정하며, 프로젝트별 변경 사항은 유지할 수 있다.
-
-| 설치된 스킬        | 설치 위치                          | 다시 부를 부트스트랩 스킬                             |
-| ------------------ | ---------------------------------- | ----------------------------------------------------- |
-| `docs-standards`   | `.agents/skills/docs-standards/`   | `project-skills-bootstrap:bootstrap-docs-standards`   |
-| `coding-standards` | `.agents/skills/coding-standards/` | `project-skills-bootstrap:bootstrap-coding-standards` |
-| `work-cycle`       | `.agents/skills/work-cycle/`       | `project-skills-bootstrap:bootstrap-work-cycle`       |
-| `scratch-dir`      | `.agents/skills/scratch-dir/`      | `project-skills-bootstrap:bootstrap-scratch-dir`      |
-```
-
-## 이 묶음에서 제외한 스킬
-
-사용자의 명시적인 요청이 있을 때만 설치한다.
-
-- `project-skills-bootstrap:bootstrap-anti-claudeism`
-- `project-skills-bootstrap:bootstrap-git-workflow`
+- 각 부트스트랩 스킬이 이 파일을 만들거나 최신 내용으로 맞추므로, 대개 손댈 것이 없다.
+- `.agents/skills/` 아래에 설치된 스킬이 하나도 없으면 이 파일을 만들지 않는다.
+  - `fluent-korean`만 설치한 프로젝트가 여기 해당한다.
+- 베이스 디렉터리 아래 `UPDATE.md`(템플릿)를 읽는다.
+- 파일이 없으면 템플릿의 내용으로 만든다.
+- 파일이 있는데 내용이 템플릿과 다르면 템플릿에 맞춘다. 프로젝트가 덧붙인 내용은 유지한다.
 
 ## 사용자 가이드
 
