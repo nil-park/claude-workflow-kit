@@ -111,6 +111,19 @@ claude plugin marketplace update claude-workflow-kit
 
 훅의 입력 형식과 그 밖의 제약은 [docs/development/anti-claudeism.md](docs/development/anti-claudeism.md)를 참고한다.
 
+### anti-claudeism 명령줄 검사
+
+훅을 기다리지 않고 원하는 파일을 검사하려면, 설치된 프로젝트의 루트에서 훅 스크립트를 인자와 함께 실행한다.
+
+```bash
+python3 .agents/skills/anti-claudeism/anti_claudeism.py -f README.md docs/guide.md
+python3 .agents/skills/anti-claudeism/anti_claudeism.py -r .
+```
+
+- `-f`는 지정한 파일을 검사한다.
+- `-r`은 디렉터리 아래에서 `.gitignore`에 걸리지 않는 파일을 모두 검사한다.
+- 옵션과 종료 코드: [docs/architecture/anti-claudeism.md](docs/architecture/anti-claudeism.md#명령줄-실행)
+
 ## Codex 설정
 
 Codex CLI도 이 마켓플레이스에서 플러그인을 설치할 수 있다.

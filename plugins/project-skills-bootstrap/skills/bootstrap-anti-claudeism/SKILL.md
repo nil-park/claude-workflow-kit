@@ -44,7 +44,7 @@ description: >-
    }
    ```
 
-5. 설치 결과를 보고하면서 아래 네 가지를 함께 안내한다.
+5. 설치 결과를 보고하면서 아래 다섯 가지를 함께 안내한다.
    - 훅을 실행하려면 `python3`라는 이름으로 Python 3.11 이상을 실행할 수 있어야 한다.
      python.org 인스톨러로 설치한 Windows에는 `python3.exe`가 없다.
    - 훅 등록은 새 세션부터 잡히기도 하므로 `/hooks`로 등록 여부를 확인한다.
@@ -53,6 +53,13 @@ description: >-
      Bash로 파일을 고치라고 지시하므로 그 모드에서는 훅이 검사 대상을 받지 못한다.
    - 프로젝트에서만 쓸 사전 항목은 `.claude/claudeism-dictionary.json`에 적는다. 설치본
      사전 전체는 다음 업데이트에 교체된다.
+   - 훅을 기다리지 않고 파일을 검사하려면 프로젝트 루트에서 아래 명령을 실행한다. `-f`는
+     지정한 파일을, `-r`은 디렉터리 아래에서 `.gitignore`에 걸리지 않는 파일을 모두 검사한다.
+
+     ```bash
+     python3 .agents/skills/anti-claudeism/anti_claudeism.py -f README.md
+     python3 .agents/skills/anti-claudeism/anti_claudeism.py -r .
+     ```
 
 ## 업데이트
 
