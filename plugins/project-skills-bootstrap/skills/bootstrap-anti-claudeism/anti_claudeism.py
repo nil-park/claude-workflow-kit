@@ -6,6 +6,7 @@ import argparse
 import json
 import os
 import re
+import subprocess
 import sys
 import traceback
 import unicodedata
@@ -35,6 +36,7 @@ JONGSEONG_COUNT = 28
 JONGSEONG_RIEUL = 8
 EXIT_FOUND = 1
 EXIT_ERROR = 2
+GIT_TIMEOUT_SECONDS = 60
 
 
 class Entry(NamedTuple):
@@ -329,11 +331,39 @@ def hook_main() -> None:
         report(lines)
 
 
-def files_under(directory: Path) -> Iterator[Path]:
-    """숨김 디렉터리와 `EXEMPT_NAMES`를 건너뛴다. 디렉터리마다 파일을 이름 순서로 먼저 모으고, 하위 디렉터리로 내려간다."""
+def _git_listed_files(directory: Path) -> list[str] | None:
+    """추적 중인 파일과 `.gitignore`에 걸리지 않은 파일의 상대경로. `git ls-files`를 쓸 수 없으면 이유를 경고하고 None."""
+    command = ["git", "-C", str(directory), "ls-files", "-z", "--cached", "--others", "--exclude-standard"]
+    try:
+        result = subprocess.run(command, capture_output=True, timeout=GIT_TIMEOUT_SECONDS, check=False)
+    except FileNotFoundError:
+        reason = "git을 찾지 못했다"
+    else:
+        if result.returncode == 0:
+            return [name for name in result.stdout.decode("utf-8").split("\0") if name]
+        # 작업 트리 밖과 safe.directory 거부를 구별할 수 있게 git의 오류 메시지를 그대로 옮긴다.
+        reason = result.stderr.decode("utf-8", errors="replace").strip() or f"종료 코드 {result.returncode}"
+    _warn(f".gitignore를 적용하지 않고 모든 파일을 모은다: {directory} ({reason})")
+    return None
+
+
+def _walked_files(directory: Path) -> list[str]:
+    names: list[str] = []
     for current, directories, files in os.walk(directory):
-        directories[:] = sorted(name for name in directories if not name.startswith("."))
-        yield from (Path(current) / name for name in sorted(files) if name not in EXEMPT_NAMES)
+        if ".git" in directories:
+            directories.remove(".git")
+        names.extend((Path(current) / name).relative_to(directory).as_posix() for name in files)
+    return names
+
+
+def files_under(directory: Path) -> list[Path]:
+    """`.gitignore`를 따르고 `EXEMPT_NAMES`를 건너뛰어 경로 순서대로 모은다."""
+    names = _git_listed_files(directory)
+    if names is None:
+        names = _walked_files(directory)
+    paths = [directory / name for name in sorted(names)]
+    # 추적 중인데 지워진 파일, 서브모듈, 디렉터리를 가리키는 심볼릭 링크도 ls-files에 나오므로 파일만 남긴다.
+    return [path for path in paths if path.name not in EXEMPT_NAMES and path.is_file()]
 
 
 def _parse_targets(argv: list[str]) -> dict[Path, bool]:

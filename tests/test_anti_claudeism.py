@@ -1,6 +1,9 @@
 import io
 import json
 import re
+import shutil
+import subprocess
+from collections.abc import Callable
 from pathlib import Path
 
 import anti_claudeism
@@ -646,9 +649,13 @@ QUEUE_FINDING = '"소비자"가 컴퓨터 용어에서 consumer의 직역으로 
 
 
 @pytest.fixture
-def cli_env(hook_env: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    """명령줄에서 실행하면 `CLAUDE_PROJECT_DIR`이 없다. 프로젝트 루트에서 실행한 것으로 꾸민다."""
+def cli_env(hook_env: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """명령줄에서 실행하면 `CLAUDE_PROJECT_DIR`이 없다. 프로젝트 루트에서 실행한 것으로 꾸민다.
+
+    tmp의 상위 디렉터리가 git 저장소일 수 있으므로, git이 저장소를 찾아 올라가는 상한을 tmp로 정한다.
+    """
     monkeypatch.delenv("CLAUDE_PROJECT_DIR")
+    monkeypatch.setenv("GIT_CEILING_DIRECTORIES", str(tmp_path))
     monkeypatch.chdir(hook_env)
     return hook_env
 
@@ -720,30 +727,84 @@ def test_cli_judges_an_exempt_file_named_on_the_command_line(
     assert finding_lines(out) == [f"tests/{anti_claudeism.SELF_TEST_NAME}:1  {QUEUE_FINDING}"]
 
 
-def test_cli_walks_every_file_but_hidden_directories_and_exempt_names(
-    cli_env: Path, capsys: pytest.CaptureFixture[str]
-) -> None:
-    docs = cli_env / "docs"
-    walked = ["b.md", "a/z.markdown", "code.py", "notes.txt"]
-    skipped = [".hidden/c.md", anti_claudeism.DICTIONARY_NAME, anti_claudeism.SELF_TEST_NAME]
-    for relative in [*walked, *skipped]:
-        path = docs / relative
+def write_consumer_files(root: Path, relatives: list[str]) -> None:
+    for relative in relatives:
+        path = root / relative
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("소비자\n", encoding="utf-8")
-    (docs / "image.png").write_bytes(b"\xff\xfe\x00\x80")
-    (docs / "big.md").write_text("소비자\n" + "가" * anti_claudeism.MAX_FILE_BYTES, encoding="utf-8")
+
+
+def finding_paths(out: str) -> list[str]:
+    return [line.split("  ")[0] for line in finding_lines(out)]
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="git이 없는 환경")
+def test_cli_walks_the_files_git_does_not_ignore(cli_env: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    subprocess.run(["git", "init", "-q"], cwd=cli_env, check=True)
+    (cli_env / ".gitignore").write_text("ignored/\n*.log\n", encoding="utf-8")
+    write_consumer_files(cli_env, ["docs/b.md", "docs/a/z.markdown", "code.py", ".agents/skills/x/SKILL.md"])
+    write_consumer_files(cli_env, ["ignored/c.md", "docs/debug.log", "docs/" + anti_claudeism.DICTIONARY_NAME])
+    write_consumer_files(cli_env, ["tests/" + anti_claudeism.SELF_TEST_NAME])
+    (cli_env / "docs" / "image.png").write_bytes(b"\xff\xfe\x00\x80")
+    (cli_env / "docs" / "big.md").write_bytes(b"a" * (anti_claudeism.MAX_FILE_BYTES + 1))
+
+    code = anti_claudeism.main(["-r", "."])
+
+    captured = capsys.readouterr()
+    assert code == anti_claudeism.EXIT_FOUND
+    assert finding_paths(captured.out) == [
+        ".agents/skills/x/SKILL.md:1",
+        "code.py:1",
+        "docs/a/z.markdown:1",
+        "docs/b.md:1",
+    ]
+    assert captured.err == ""
+
+
+def test_cli_walks_every_file_but_dot_git_outside_a_work_tree_and_warns(
+    cli_env: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    write_consumer_files(cli_env, ["docs/b.md", "docs/.hidden/c.md", "docs/.git/config.md"])
 
     code = anti_claudeism.main(["-r", "docs"])
 
     captured = capsys.readouterr()
     assert code == anti_claudeism.EXIT_FOUND
-    assert [line.split("  ")[0] for line in finding_lines(captured.out)] == [
-        "docs/b.md:1",
-        "docs/code.py:1",
-        "docs/notes.txt:1",
-        "docs/a/z.markdown:1",
-    ]
-    assert captured.err == ""
+    assert finding_paths(captured.out) == ["docs/.hidden/c.md:1", "docs/b.md:1"]
+    assert ".gitignore를 적용하지 않고" in captured.err
+
+
+def raise_missing_git(*_: object, **__: object) -> subprocess.CompletedProcess[bytes]:
+    raise FileNotFoundError("git")
+
+
+def refuse_repository(*_: object, **__: object) -> subprocess.CompletedProcess[bytes]:
+    return subprocess.CompletedProcess([], 128, b"", b"fatal: detected dubious ownership\n")
+
+
+@pytest.mark.parametrize(
+    ("run", "reason"),
+    [
+        pytest.param(raise_missing_git, "git을 찾지 못했다", id="git-missing"),
+        pytest.param(refuse_repository, "fatal: detected dubious ownership", id="git-refuses"),
+    ],
+)
+def test_cli_warns_with_the_reason_when_git_cannot_list_files(
+    cli_env: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    run: Callable[..., subprocess.CompletedProcess[bytes]],
+    reason: str,
+) -> None:
+    write_consumer_files(cli_env, ["docs/b.md"])
+    monkeypatch.setattr(anti_claudeism.subprocess, "run", run)
+
+    code = anti_claudeism.main(["-r", "docs"])
+
+    captured = capsys.readouterr()
+    assert code == anti_claudeism.EXIT_FOUND
+    assert finding_paths(captured.out) == ["docs/b.md:1"]
+    assert f"({reason})" in captured.err
 
 
 def test_cli_judges_a_file_once_when_named_twice(cli_env: Path, capsys: pytest.CaptureFixture[str]) -> None:
