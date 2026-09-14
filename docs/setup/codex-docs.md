@@ -1,12 +1,12 @@
 # Codex 문서
 
-Codex의 스킬·플러그인·마켓플레이스·훅 스펙은 아래 공식 문서가 SoT다. 이 리포의 플러그인을 Codex에서
-쓰거나 Codex 호환성을 확인할 때 참조한다.
+Codex의 스킬·플러그인·마켓플레이스·훅·지침 스펙은 아래 공식 문서가 SoT다. 이 리포지토리의 플러그인을
+Codex에서 쓰거나 Codex 호환성을 확인할 때 이 문서들을 참조한다.
 
 ## 원문을 받아서 읽는다
 
-[Claude Code 문서](claude-docs.md#원문을-받아서-읽는다)와 같은 방식으로 `curl`로 받는다. 페이지 URL
-끝에 `.md`를 붙이면 마크다운 원문이 온다.
+원문은 [Claude Code 문서](claude-docs.md#원문을-받아서-읽는다)와 같은 방식으로 `curl`로 받는다. Codex
+문서는 페이지 URL 끝에 `.md`를 붙인 주소에서 마크다운 원문을 제공한다.
 
 ```bash
 curl -sL https://developers.openai.com/codex/hooks.md -o .refs/codex-hooks-original-$(date +%y%m%d).md

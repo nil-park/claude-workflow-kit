@@ -111,7 +111,7 @@ claude plugin marketplace update claude-workflow-kit
 
 훅의 입력 형식과 그 밖의 제약은 [docs/development/anti-claudeism.md](docs/development/anti-claudeism.md)를 참고한다.
 
-## Codex에서 쓸 때
+## Codex 설정
 
 Codex CLI도 이 마켓플레이스에서 플러그인을 설치할 수 있다.
 
