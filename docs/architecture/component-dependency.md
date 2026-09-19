@@ -9,12 +9,18 @@ flowchart LR
     sd["scratch-dir"]
     gw["git-workflow"]
     ac["anti-claudeism"]
+    ms["multi-session"]
     hook{{"anti_claudeism.py"}}
   end
 
   wc --> cs
   wc --> ds
   wc -.-> sd
+  ms --> gw
+  ms --> wc
+  ms --> cs
+  ms --> ds
+  ms -.-> sd
   gw -.-> wc
   gw -.-> ds
   gw -.-> sd
