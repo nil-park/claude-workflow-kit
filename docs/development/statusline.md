@@ -30,7 +30,7 @@
   - 자격 증명별 스냅샷과 요청한 모델의 스냅샷을 함께 교체한다.
   - websocket 경로의 `codex.rate_limits` 이벤트도 같은 `X-Codex-*` 이름으로 바꿔 저장한다.
   - 관리 API는 스냅샷을 `quota`와 `model_quotas.<모델 이름>`으로 반환하고, `observed_at`은 RFC3339 문자열이다.
-- 아래 두 가지는 소스에서 확인하지 못해 가정으로 둔다.
+- 아래 두 가지는 소스에서 확인하지 못했으므로, 실제 응답으로 검증하기 전까지 가정으로 취급한다.
   - `model_quotas`의 키는 stdin의 `model.id`와 같은 문자열이다.
   - ChatGPT 구독의 5h, 7d 창은 `Window-Minutes`가 각각 `300`, `10080`으로 들어온다.
 - CLIProxyAPI는 추가 한도(예: `GPT-5.3-Codex-Spark`)를 `X-Codex-<짧은 이름>-*`나 `X-Codex-Additional-<한도 이름>-*`로 저장한다.
