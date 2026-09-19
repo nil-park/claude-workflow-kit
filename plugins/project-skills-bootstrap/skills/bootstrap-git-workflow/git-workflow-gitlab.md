@@ -26,8 +26,12 @@ description: >-
 - **브랜치를 만들기 전에 origin의 기본 브랜치(main/master)를 확인한다.**
   - MR은 이 기본 브랜치를 대상으로 연다.
 - 브랜치를 만들어 push한다.
-  - 브랜치 이름은 `<타입>/<슬러그>`로 짓는다(예: `chore/add-user-ssh-key`).
-  - 이슈 번호나 Jira 이슈 키는 브랜치 이름에 넣지 않는다.
+  - **리포지토리에 브랜치 이름 관례가 있으면 그것을 따른다.**
+    - `git branch -r`로 원격 브랜치 이름을 확인해 관례를 파악한다.
+    - 이슈 번호나 Jira 이슈 키를 이름에 넣을지도 관례를 따른다.
+    - 브랜치가 적어 관례를 판단할 수 없으면 아래 기본값을 제안하고 확인받는다.
+  - 관례가 없으면 기본값인 `<타입>/<슬러그>`로 짓는다(예: `chore/add-user-ssh-key`).
+    - 이슈 번호나 Jira 이슈 키는 이름에 넣지 않는다.
 - **이 단계에서는 구현 코드를 한 줄도 쓰지 않는다.**
 
 ## 2. 설계
@@ -68,8 +72,7 @@ description: >-
   - draft MR은 작업 단위 확정 단계에서 브랜치를 push한 뒤 연다.
 
 ```
-glab mr create --remove-source-branch --squash-before-merge \
-  --target-branch "<origin 기본 브랜치>" --draft -a @me \
+glab mr create --target-branch "<origin 기본 브랜치>" --draft -a @me \
   -t "제목" -d "$(cat <본문 파일>)"
 ```
 
