@@ -31,7 +31,7 @@ description: >-
 
 - PR/MR 제목 앞에 이슈 트래커 키(Jira 키 등)를 붙일지 사용자에게 묻는다.
 - 붙이기로 하면 키의 형식을 확인한다(예: `GAI-123`).
-- 그다음 아래 항목들을 규칙으로 추가한다.
+- 그다음 아래 항목들을 설치본이 아니라 `CLAUDE.md`나 `AGENTS.md`에 추가한다.
   - `<키>`는 확인한 형식으로 바꾼다.
   - GitLab이면 `PR`을 `MR`로, `gh pr create`를 `glab mr create`로 바꾼다.
 
@@ -51,7 +51,7 @@ description: >-
 - MR을 열 때 `--squash-before-merge`와 `--remove-source-branch`를 붙일지 사용자에게 묻는다.
   - 두 플래그는 프로젝트의 머지 설정을 MR마다 덮어쓴다.
   - 붙이지 않으면 프로젝트의 머지 설정대로 머지된다.
-- 붙이기로 하면 다음 항목을 규칙으로 추가한다.
+- 붙이기로 하면 다음 항목을 설치본이 아니라 `CLAUDE.md`나 `AGENTS.md`에 추가한다.
 
   > - `glab mr create`에 `--squash-before-merge --remove-source-branch`를 붙인다.
 
