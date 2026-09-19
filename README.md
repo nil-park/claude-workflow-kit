@@ -66,6 +66,7 @@
 | auto mode의 Bash 편집 지시                                                        | `bootstrap-anti-claudeism` | `~/.claude/CLAUDE.md`에 아래 설정 절의 규칙을 추가하지 않으면, 훅이 검사할 파일을 받지 못한다                |
 | `go` 명령 필요                                                                    | `bootstrap-statusline`     | Go가 없으면 바이너리를 빌드할 수 없다                                                                        |
 | 쿼터 세그먼트는 Pro·Max 요금제 전용                                               | `bootstrap-statusline`     | 다른 요금제에서는 Claude Code가 stdin에 `rate_limits`를 넣지 않아 5h·7d 쿼터가 표시되지 않는다               |
+| CLIProxyAPI를 거친 ChatGPT 쿼터는 관리 키 필요                                    | `bootstrap-statusline`     | CLIProxyAPI에 관리 키를 설정하고 같은 키를 `CLIPROXY_MANAGEMENT_KEY`로 넘겨야 5h·7d 쿼터가 표시된다          |
 
 ## 설정
 

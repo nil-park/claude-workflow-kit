@@ -1,0 +1,55 @@
+{
+  "observed_at": "2026-09-19T06:00:05Z",
+  "files": [
+    {
+      "name": "codex-b.json",
+      "provider": "codex",
+      "email": "user@example.com",
+      "recent_requests": [{ "model": "gpt-5.6-luna" }],
+      "quota": {
+        "observed_at": "2026-09-19T06:00:00Z",
+        "signals": {
+          "X-Codex-Plan-Type": "plus",
+          "X-Codex-Primary-Used-Percent": "12.5",
+          "X-Codex-Primary-Window-Minutes": "300",
+          "X-Codex-Primary-Reset-At": "1789812000",
+          "X-Codex-Secondary-Used-Percent": "40",
+          "X-Codex-Secondary-Window-Minutes": "10080",
+          "X-Codex-Secondary-Reset-After-Seconds": "86400",
+          "X-Codex-Bengalfox-Primary-Used-Percent": "99",
+          "X-Codex-Bengalfox-Primary-Window-Minutes": "300"
+        }
+      },
+      "model_quotas": {
+        "gpt-5.6-luna": {
+          "observed_at": "2026-09-19T05:59:00Z",
+          "signals": {
+            "X-Codex-Primary-Used-Percent": "10",
+            "X-Codex-Primary-Window-Minutes": "300"
+          }
+        }
+      }
+    },
+    {
+      "name": "claude.json",
+      "provider": "claude",
+      "quota": {
+        "observed_at": "2026-09-19T06:00:01Z",
+        "signals": {
+          "Anthropic-Ratelimit-Unified-5h-Utilization": "0.2"
+        }
+      }
+    },
+    {
+      "name": "codex-a.json",
+      "provider": "codex",
+      "quota": {
+        "observed_at": "not a time",
+        "signals": {
+          "X-Codex-Primary-Used-Percent": "1",
+          "X-Codex-Primary-Window-Minutes": "300"
+        }
+      }
+    }
+  ]
+}

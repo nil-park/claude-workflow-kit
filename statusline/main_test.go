@@ -15,8 +15,8 @@ func TestParseInputCaptured(t *testing.T) {
 	}
 	in := parseInput(raw)
 
-	if in.modelName != "Opus 5" {
-		t.Errorf("modelName = %q", in.modelName)
+	if in.modelID != "claude-opus-5" || in.modelName != "Opus 5" {
+		t.Errorf("modelID = %q, modelName = %q", in.modelID, in.modelName)
 	}
 	if in.inputTokens == nil || *in.inputTokens != 216297 {
 		t.Errorf("inputTokens = %v", in.inputTokens)

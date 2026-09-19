@@ -1,5 +1,6 @@
 // Command statusline renders the Claude Code status line from the session
-// JSON that Claude Code writes to stdin:
+// JSON that Claude Code writes to stdin, taking the quota from CLIProxyAPI
+// when a gpt-* session's stdin has none:
 // model | context usage | session cost | 5h quota | 7d quota | idle.
 package main
 
@@ -20,6 +21,7 @@ type quotaWindow struct {
 }
 
 type statusInput struct {
+	modelID        string
 	modelName      string
 	inputTokens    *float64
 	contextPercent *float64
@@ -34,7 +36,8 @@ func main() {
 	if err != nil {
 		raw = nil
 	}
-	os.Stdout.WriteString(render(parseInput(raw), time.Now()))
+	now := time.Now()
+	os.Stdout.WriteString(render(withCLIProxyQuota(parseInput(raw), now), now))
 }
 
 // parseInput decodes into generic values rather than a tagged struct so a
@@ -51,6 +54,7 @@ func parseInput(raw []byte) statusInput {
 		return statusInput{}
 	}
 	return statusInput{
+		modelID:        text(field(root, "model", "id")),
 		modelName:      text(field(root, "model", "display_name")),
 		inputTokens:    number(field(root, "context_window", "total_input_tokens")),
 		contextPercent: number(field(root, "context_window", "used_percentage")),

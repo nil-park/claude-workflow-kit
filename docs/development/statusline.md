@@ -20,6 +20,18 @@
   - 두 쿼터 창(`five_hour`, `seven_day`) 중 한쪽만 들어올 수 있다.
   - Claude Code는 `resets_at`이 지난 쿼터 창을 stdin에서 제외한다.
 
+### CLIProxyAPI
+
+- 설치 형태
+  - CLIProxyAPI v7.3.7을 `127.0.0.1:8317`에서 실행하고, `--codex-login`으로 ChatGPT 계정에 로그인했다.
+  - 셸 함수가 `ANTHROPIC_BASE_URL`을 이 주소로 지정하고 `gpt-*` 모델로 Claude Code를 실행한다.
+- 추가 설정
+  - CLIProxyAPI 설정의 `remote-management.secret-key`에 관리 키를 넣는다.
+    - 이 값이 비어 있으면 관리 API가 꺼진다.
+  - 같은 키를 환경 변수 `CLIPROXY_MANAGEMENT_KEY`로 export해 Claude Code에 넘긴다.
+    - statusline은 Claude Code에게서 이 환경 변수를 물려받는다.
+  - CLIProxyAPI의 주소가 다르면 `CLIPROXY_URL`로 지정한다.
+
 ### 실행 시점
 
 - Claude Code는 세션을 시작할 때, 응답이 도착할 때, `/compact`가 끝날 때 등 이벤트가 생길 때마다 명령을 실행한다.
