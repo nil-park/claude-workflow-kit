@@ -33,7 +33,7 @@
 - 아래 두 가지는 소스에서 확인하지 못해 가정으로 둔다.
   - `model_quotas`의 키는 stdin의 `model.id`와 같은 문자열이다.
   - ChatGPT 구독의 5h, 7d 창은 `Window-Minutes`가 각각 `300`, `10080`으로 들어온다.
-- 추가 한도(예: `GPT-5.3-Codex-Spark`)는 `X-Codex-<짧은 이름>-*`나 `X-Codex-Additional-<한도 이름>-*`로 저장된다.
+- CLIProxyAPI는 추가 한도(예: `GPT-5.3-Codex-Spark`)를 `X-Codex-<짧은 이름>-*`나 `X-Codex-Additional-<한도 이름>-*`로 저장한다.
 - 관리 API는 관리 키가 있어야 열린다.
   - 관리 키는 CLIProxyAPI 설정의 `remote-management.secret-key`나 환경 변수 `MANAGEMENT_PASSWORD`로 설정한다.
   - 관리 키가 설정되지 않은 서버는 404를 반환한다.

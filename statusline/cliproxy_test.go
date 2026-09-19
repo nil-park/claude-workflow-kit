@@ -6,16 +6,19 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"sync/atomic"
 	"testing"
 	"time"
 )
 
 var observed = time.Date(2026, 9, 19, 6, 0, 0, 0, time.UTC)
 
+// fakeProxy's handler runs on the server's goroutine, so the counters the
+// test reads and writes are atomic.
 type fakeProxy struct {
 	server *httptest.Server
-	hits   int
-	status int
+	hits   atomic.Int32
+	status atomic.Int32
 }
 
 func newFakeProxy(t *testing.T) *fakeProxy {
@@ -24,14 +27,15 @@ func newFakeProxy(t *testing.T) *fakeProxy {
 	if err != nil {
 		t.Fatal(err)
 	}
-	p := &fakeProxy{status: http.StatusOK}
+	p := &fakeProxy{}
+	p.status.Store(http.StatusOK)
 	p.server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		p.hits++
+		p.hits.Add(1)
 		if r.URL.Path != "/v0/management/auth-files" || r.Header.Get("Authorization") != "Bearer secret-key" {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		w.WriteHeader(p.status)
+		w.WriteHeader(int(p.status.Load()))
 		w.Write(body)
 	}))
 	t.Cleanup(p.server.Close)
@@ -78,7 +82,7 @@ func TestFetchReportsRejectedKey(t *testing.T) {
 	if _, err := source.fetch(); !errors.Is(err, errKeyRejected) {
 		t.Errorf("fetch with a wrong key: err = %v, want errKeyRejected", err)
 	}
-	proxy.status = http.StatusInternalServerError
+	proxy.status.Store(http.StatusInternalServerError)
 	source.key = "secret-key"
 	if _, err := source.fetch(); err == nil || errors.Is(err, errKeyRejected) {
 		t.Errorf("fetch on a 500: err = %v, want a non-key error", err)
@@ -118,8 +122,8 @@ func TestWithCLIProxyQuota(t *testing.T) {
 	in := statusInput{modelID: "gpt-5.6-luna"}
 
 	t.Setenv("CLIPROXY_MANAGEMENT_KEY", "")
-	if got := withCLIProxyQuota(in, observed); got != in || proxy.hits != 0 {
-		t.Errorf("without a key: %+v after %d hits, want input unchanged and no request", got, proxy.hits)
+	if got := withCLIProxyQuota(in, observed); got != in || proxy.hits.Load() != 0 {
+		t.Errorf("without a key: %+v after %d hits, want input unchanged and no request", got, proxy.hits.Load())
 	}
 
 	t.Setenv("CLIPROXY_MANAGEMENT_KEY", "secret-key")
