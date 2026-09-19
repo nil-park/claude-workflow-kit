@@ -1,7 +1,8 @@
 # 설치된 스킬의 출처와 업데이트 방법
 
-이 디렉터리의 스킬은 `claude-workflow-kit` 마켓플레이스의 `project-skills-bootstrap`
-플러그인이 복사해 설치한 버전이다. 원본의 변경은 자동으로 반영되지 않는다.
+`claude-workflow-kit` 마켓플레이스의 `project-skills-bootstrap` 플러그인은 스킬을
+`.agents/skills/`에 복사해 설치한다. Claude Code 전용 스킬의 설치 위치는 `.claude/skills/`이다.
+원본의 변경은 설치본에 자동으로 반영되지 않는다.
 
 - 마켓플레이스: <https://github.com/nil-park/claude-workflow-kit>
 
