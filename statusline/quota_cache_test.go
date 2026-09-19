@@ -31,7 +31,7 @@ func TestLoadCachesWithinTTL(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, secret := range []string{"secret-key", "user@example.com", "recent_requests"} {
+	for _, secret := range []string{"secret-key", "user@example.com", "codex-b.json", "recent_requests"} {
 		if strings.Contains(string(raw), secret) {
 			t.Errorf("cache contains %q", secret)
 		}

@@ -11,9 +11,22 @@ import (
 )
 
 const (
-	cliproxyCacheName = "claude-statusline-cliproxy-quota.json"
+	cliproxyCacheName = "statusline-cliproxy-quota.json"
 	cliproxyCacheTTL  = 30 * time.Second
 )
+
+// claudeCacheDir follows CLAUDE_CONFIG_DIR the way Claude Code does, so the
+// cache sits next to the rest of Claude Code's per-user state.
+func claudeCacheDir() (string, error) {
+	if dir := os.Getenv("CLAUDE_CONFIG_DIR"); dir != "" {
+		return filepath.Join(dir, "cache"), nil
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, ".claude", "cache"), nil
+}
 
 type quotaCache struct {
 	FetchedAt time.Time   `json:"fetched_at"`
@@ -46,9 +59,11 @@ func (s cliproxySource) load(now time.Time) []codexAuth {
 	return next.Auths
 }
 
-func keyFingerprint(key string) string {
-	sum := sha256.Sum256([]byte(key))
-	return hex.EncodeToString(sum[:4])
+func keyFingerprint(key string) string { return shortHash(key, 4) }
+
+func shortHash(s string, bytes int) string {
+	sum := sha256.Sum256([]byte(s))
+	return hex.EncodeToString(sum[:bytes])
 }
 
 func readQuotaCache(path string) (quotaCache, bool) {

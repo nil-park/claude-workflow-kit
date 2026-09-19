@@ -23,16 +23,18 @@
 ### CLIProxyAPI
 
 - CLIProxyAPI 7.3.7을 거쳐 `gpt-*` 모델을 쓰는 세션을 대상으로 한다.
-  - 필드와 동작은 v7.3.7 소스와 테스트에서 확인했고, 실제 서버의 응답은 아직 관측하지 않았다.
-- 이 세션의 stdin에는 `rate_limits`가 없다고 가정한다.
+  - 필드와 동작은 v7.3.7 소스와 테스트에서 확인했다.
+  - 2026-09-19에 ChatGPT Plus 계정과 `gpt-5.6-sol` 세션으로 실제 응답을 관측했다.
+- 이 세션의 stdin에는 `rate_limits`가 없다.
   - CLIProxyAPI는 클라이언트로 보내는 응답에 `anthropic-ratelimit-unified-*` 헤더를 쓰지 않는다.
 - CLIProxyAPI는 Codex 업스트림 응답을 받을 때마다 쿼터 헤더를 스냅샷으로 저장한다.
   - 자격 증명별 스냅샷과 요청한 모델의 스냅샷을 함께 교체한다.
   - websocket 경로의 `codex.rate_limits` 이벤트도 같은 `X-Codex-*` 이름으로 바꿔 저장한다.
   - 관리 API는 스냅샷을 `quota`와 `model_quotas.<모델 이름>`으로 반환하고, `observed_at`은 RFC3339 문자열이다.
-- 아래 두 가지는 소스에서 확인하지 못했으므로, 실제 응답으로 검증하기 전까지 가정으로 취급한다.
-  - `model_quotas`의 키는 stdin의 `model.id`와 같은 문자열이다.
-  - ChatGPT 구독의 5h, 7d 창은 `Window-Minutes`가 각각 `300`, `10080`으로 들어온다.
+- 아래 내용은 소스에 없고 실제 응답에서 확인했다.
+  - `model_quotas`의 키는 stdin의 `model.id`와 같은 문자열이다(예: `gpt-5.6-sol`).
+  - ChatGPT 구독의 5h 창은 `Primary`에 `Window-Minutes=300`으로, 7d 창은 `Secondary`에 `10080`으로 들어온다.
+  - 두 창 모두 `Reset-At`과 `Reset-After-Seconds`가 함께 들어온다.
 - CLIProxyAPI는 추가 한도(예: `GPT-5.3-Codex-Spark`)를 `X-Codex-<짧은 이름>-*`나 `X-Codex-Additional-<한도 이름>-*`로 저장한다.
 - 관리 API는 관리 키가 있어야 열린다.
   - 관리 키는 CLIProxyAPI 설정의 `remote-management.secret-key`나 환경 변수 `MANAGEMENT_PASSWORD`로 설정한다.
@@ -40,7 +42,7 @@
   - 키를 넘기지 않거나 틀린 키를 넘기면 401을 반환한다.
   - 같은 IP에서 키 인증이 5번 실패하면, 그 IP의 관리 API 호출을 30분 동안 403으로 거부한다.
   - 기본 설정(`allow-remote: false`)에서는 localhost 호출만 받는다.
-- Claude Code는 statusline 명령에 자기 환경 변수를 물려준다고 가정한다.
+- Claude Code는 statusline 명령에 자기 환경 변수를 물려준다(2026-09-19 실측).
 
 ### 실행 시점
 

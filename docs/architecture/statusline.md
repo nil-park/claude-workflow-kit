@@ -72,60 +72,14 @@ Opus 5 | 145.7k (15%) ctx | $5.18 session | 8% 5h → 15:20 | 7% 7d → 09-25 07
 
 ## CLIProxyAPI 쿼터
 
-- 아래 조건을 모두 만족하면 CLIProxyAPI 관리 API에서 ChatGPT 구독의 5h, 7d 쿼터를 읽는다.
-  - stdin에 `rate_limits.five_hour`와 `rate_limits.seven_day`가 모두 없다.
+- 아래 조건을 모두 만족하면 CLIProxyAPI 관리 API(`/v0/management/auth-files`)에서 ChatGPT 구독의 5h, 7d 쿼터를 읽는다.
+  - stdin에 `rate_limits`가 없다.
   - `model.id`가 `gpt`로 시작한다.
   - 환경 변수 `CLIPROXY_MANAGEMENT_KEY`가 비어 있지 않다.
-
-### 조회
-
-- `GET <CLIPROXY_URL>/v0/management/auth-files`를 호출한다.
-  - 요청 헤더: `Authorization: Bearer <CLIPROXY_MANAGEMENT_KEY>`
-  - `CLIPROXY_URL`이 비어 있으면 `http://127.0.0.1:8317`을 사용한다.
-  - 타임아웃은 300ms다.
-- 응답의 `files`에서 `provider`가 `codex`인 항목만 사용한다.
-
-### 캐시
-
-- 조회 결과는 사용자 캐시 디렉터리의 `claude-statusline-cliproxy-quota.json`에 저장한다.
-  - 사용자 캐시 디렉터리는 OS마다 다르다.
-    - Windows: `%LocalAppData%`
-    - Linux: `$XDG_CACHE_HOME` 또는 `~/.cache`
-    - macOS: `~/Library/Caches`
-  - 사용자 캐시 디렉터리를 구할 수 없으면 CLIProxyAPI 쿼터를 읽지 않는다.
-  - 저장하는 값은 codex 항목의 `name`과, 자격 증명별·모델별 스냅샷의 `observed_at`과 기본 창 신호뿐이다.
-  - 관리 키와 계정 정보는 저장하지 않는다.
-- 마지막 조회 시도로부터 30초가 지나기 전에는 관리 API를 다시 호출하지 않고, 캐시에 저장된 스냅샷을 사용한다.
-- 조회가 실패하면 캐시에 있던 스냅샷을 그대로 두고 조회 시도 시각만 갱신한다.
-- 관리 API가 401이나 403을 반환하면 스냅샷을 비우고, 그 키의 SHA-256 앞 4바이트를 캐시에 기록한다.
-  - 기록된 값과 같은 키로는 관리 API를 다시 호출하지 않는다.
-  - 키가 바뀌면 30초를 기다리지 않고 바로 조회한다.
-- 캐시 파일은 같은 디렉터리의 새 파일에 쓴 뒤 이름을 바꿔 교체한다.
-
-### 스냅샷 선택
-
-- 아래 순서로 스냅샷 하나를 고른다.
-  1. `model_quotas`에 `model.id`와 같은 키가 있는 항목들의 모델별 스냅샷
-  2. 그런 항목이 없으면 모든 항목의 자격 증명별 스냅샷(`quota`)
-- 기본 창 신호가 하나도 없는 스냅샷은 후보에서 뺀다.
-- 후보가 여럿이면 `observed_at`이 가장 늦은 스냅샷을 고르고, 같으면 `name`이 사전순으로 앞선 항목을 고른다.
-
-### 창
-
-- 고른 스냅샷의 `signals`에서 `X-Codex-Primary-*`와 `X-Codex-Secondary-*`만 읽는다.
-
-| 신호 이름 접미사      | 쓰는 곳                                   |
-| --------------------- | ----------------------------------------- |
-| `Used-Percent`        | 사용률                                    |
-| `Window-Minutes`      | `300`이면 5h 창, `10080`이면 7d 창        |
-| `Reset-At`            | 리셋 시각(Unix epoch 초)                  |
-| `Reset-After-Seconds` | `Reset-At`이 없을 때 `observed_at`에 더함 |
-
-- 다음에 해당하는 창은 표시하지 않는다.
-  - `Used-Percent`가 0~100 밖에 있다.
-  - `Window-Minutes`가 300과 10080 중 어느 것도 아니다.
-  - 리셋 시각이 현재 시각보다 이르다.
-- 리셋 시각을 구할 수 없으면 쿼터 세그먼트에서 `→`와 시각만 생략한다.
+- 관리 API 주소는 `CLIPROXY_URL`로 바꿀 수 있고, 기본값은 `http://127.0.0.1:8317`이다.
+- 세션 모델의 스냅샷(`model_quotas.<model.id>`)이 있으면 그것을, 없으면 자격 증명별 스냅샷을 표시한다.
+- 관리 API는 30초에 한 번까지만 호출하고, 401이나 403을 받은 키로는 다시 호출하지 않는다.
+- 조회 결과는 `~/.claude/cache/statusline-cliproxy-quota.json`에 저장하며, 관리 키와 계정 정보는 저장하지 않는다.
 
 ## 입력 처리
 

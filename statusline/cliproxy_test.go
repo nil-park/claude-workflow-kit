@@ -57,7 +57,7 @@ func TestFetchKeepsOnlyCodexWindows(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(auths) != 2 || auths[0].Name != "codex-b.json" || auths[1].Name != "codex-a.json" {
+	if len(auths) != 2 || auths[0].Name != shortHash("codex-b.json", 8) || auths[1].Name != shortHash("codex-a.json", 8) {
 		t.Fatalf("auths = %+v, want the two codex entries in response order", auths)
 	}
 	b := auths[0]
@@ -109,15 +109,8 @@ func TestNeedsCLIProxyQuota(t *testing.T) {
 
 func TestWithCLIProxyQuota(t *testing.T) {
 	proxy := newFakeProxy(t)
-	// A cache directory that does not exist yet, set for every OS's lookup.
-	home := filepath.Join(t.TempDir(), "home")
-	for _, name := range []string{"LocalAppData", "XDG_CACHE_HOME", "HOME"} {
-		t.Setenv(name, home)
-	}
-	cacheDir, err := os.UserCacheDir()
-	if err != nil {
-		t.Fatal(err)
-	}
+	configDir := filepath.Join(t.TempDir(), "claude") // does not exist yet
+	t.Setenv("CLAUDE_CONFIG_DIR", configDir)
 	t.Setenv("CLIPROXY_URL", proxy.server.URL)
 	in := statusInput{modelID: "gpt-5.6-luna"}
 
@@ -131,7 +124,18 @@ func TestWithCLIProxyQuota(t *testing.T) {
 	if windowString(got.fiveHour) != "10" || got.sevenDay != nil {
 		t.Errorf("5h = %q, 7d = %+v, want the model snapshot's 10%% and no 7d", windowString(got.fiveHour), got.sevenDay)
 	}
-	if _, err := os.Stat(filepath.Join(cacheDir, cliproxyCacheName)); err != nil {
-		t.Errorf("cache not written under the user cache dir: %v", err)
+	if _, err := os.Stat(filepath.Join(configDir, "cache", cliproxyCacheName)); err != nil {
+		t.Errorf("cache not written under CLAUDE_CONFIG_DIR/cache: %v", err)
+	}
+}
+
+func TestClaudeCacheDirDefaultsToHome(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("CLAUDE_CONFIG_DIR", "")
+	t.Setenv("USERPROFILE", home)
+	t.Setenv("HOME", home)
+	got, err := claudeCacheDir()
+	if want := filepath.Join(home, ".claude", "cache"); err != nil || got != want {
+		t.Errorf("claudeCacheDir = %q, %v, want %q", got, err, want)
 	}
 }

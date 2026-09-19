@@ -37,9 +37,8 @@ func cliproxySourceFromEnv() (cliproxySource, bool) {
 	if key == "" {
 		return cliproxySource{}, false
 	}
-	// A per-user directory, unlike a shared /tmp, keeps another account from
-	// planting the cache first. Without it the proxy would be hit every second.
-	cacheDir, err := os.UserCacheDir()
+	// Without a cache the proxy would be hit on every refresh.
+	cacheDir, err := claudeCacheDir()
 	if err != nil {
 		return cliproxySource{}, false
 	}
@@ -123,7 +122,9 @@ func (s cliproxySource) fetch() ([]codexAuth, error) {
 		if !strings.EqualFold(strings.TrimSpace(file.Provider), "codex") {
 			continue
 		}
-		auth := codexAuth{Name: file.Name, Quota: file.Quota.windowsOnly()}
+		// The file name embeds the account's email, and the cache only needs
+		// a stable tie-breaker, so a hash of it is kept instead.
+		auth := codexAuth{Name: shortHash(file.Name, 8), Quota: file.Quota.windowsOnly()}
 		for model, snap := range file.ModelQuotas {
 			if auth.ModelQuotas == nil {
 				auth.ModelQuotas = map[string]codexSnapshot{}
