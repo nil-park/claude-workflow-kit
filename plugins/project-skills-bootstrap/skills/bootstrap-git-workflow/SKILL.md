@@ -76,8 +76,6 @@ description: >-
 1. 플랫폼 판정을 실행해 해당 템플릿을 읽는다.
 2. `.agents/skills/git-workflow/SKILL.md`(현재 파일)를 읽는다.
 3. 두 파일을 비교해 차이를 사용자에게 보고한다.
-   - 현재 파일에 설치 옵션에 해당하는 내용이 들어 있으면 `CLAUDE.md`나 `AGENTS.md`로 옮기자고 제안한다.
-   - 예전 템플릿으로 설치한 GitLab 프로젝트에는 `glab mr create`의 두 플래그와 제목 prefix 규칙이 들어 있을 수 있다.
 4. 사용자와 상의해 반영할 변경과 유지할 내용을 정한 뒤 파일을 수정한다.
 
 ## UPDATE.md 기록
