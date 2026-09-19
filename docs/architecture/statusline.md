@@ -97,6 +97,9 @@ Opus 5 | 145.7k (15%) ctx | $5.18 session | 8% 5h → 15:20 | 7% 7d → 09-25 07
   - 관리 키와 계정 정보는 저장하지 않는다.
 - 마지막 조회 시도로부터 30초가 지나기 전에는 관리 API를 다시 호출하지 않고 캐시를 쓴다.
 - 조회가 실패하면 캐시에 있던 스냅샷을 그대로 두고 조회 시도 시각만 갱신한다.
+- 관리 API가 401이나 403을 반환하면 스냅샷을 비우고, 그 키의 SHA-256 앞 4바이트를 캐시에 기록한다.
+  - 기록된 값과 같은 키로는 관리 API를 다시 호출하지 않는다.
+  - 키가 바뀌면 30초를 기다리지 않고 바로 조회한다.
 - 캐시 파일은 같은 디렉터리의 새 파일에 쓴 뒤 이름을 바꿔 교체한다.
 
 ### 스냅샷 선택
@@ -139,8 +142,10 @@ statusline/
 ├── go.mod           # Go 1.27, 표준 라이브러리만 사용
 ├── main.go          # 입력 파싱, 세그먼트 조립
 ├── main_test.go
-├── cliproxy.go      # CLIProxyAPI 관리 API 조회와 캐시
+├── cliproxy.go      # CLIProxyAPI 관리 API 조회
 ├── cliproxy_test.go
+├── quota_cache.go   # CLIProxyAPI 쿼터 캐시
+├── quota_cache_test.go
 ├── codex_quota.go   # 스냅샷 선택과 5h, 7d 창 해석
 ├── codex_quota_test.go
 ├── segments.go      # 세그먼트별 렌더링

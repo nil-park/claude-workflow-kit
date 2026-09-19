@@ -1,11 +1,11 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 	"time"
 )
@@ -71,59 +71,17 @@ func TestFetchKeepsOnlyCodexWindows(t *testing.T) {
 	}
 }
 
-func TestFetchRejectsNonOK(t *testing.T) {
+func TestFetchReportsRejectedKey(t *testing.T) {
 	proxy := newFakeProxy(t)
 	source := proxy.source(t)
 	source.key = "wrong"
-	if _, err := source.fetch(); err == nil {
-		t.Error("fetch with a rejected key should fail")
+	if _, err := source.fetch(); !errors.Is(err, errKeyRejected) {
+		t.Errorf("fetch with a wrong key: err = %v, want errKeyRejected", err)
 	}
-}
-
-func TestLoadCachesWithinTTL(t *testing.T) {
-	proxy := newFakeProxy(t)
-	source := proxy.source(t)
-	now := observed
-
-	if auths := source.load(now); len(auths) != 2 || proxy.hits != 1 {
-		t.Fatalf("first load: %d auths, %d hits", len(auths), proxy.hits)
-	}
-	if auths := source.load(now.Add(cliproxyCacheTTL - time.Second)); len(auths) != 2 || proxy.hits != 1 {
-		t.Errorf("load within TTL: %d auths, %d hits, want cache only", len(auths), proxy.hits)
-	}
-	if source.load(now.Add(cliproxyCacheTTL)); proxy.hits != 2 {
-		t.Errorf("load at TTL: %d hits, want a refetch", proxy.hits)
-	}
-	if source.load(now.Add(-time.Second)); proxy.hits != 3 {
-		t.Errorf("load before fetched_at: %d hits, want a refetch", proxy.hits)
-	}
-
-	raw, err := os.ReadFile(source.cachePath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, secret := range []string{"secret-key", "user@example.com", "recent_requests"} {
-		if strings.Contains(string(raw), secret) {
-			t.Errorf("cache contains %q", secret)
-		}
-	}
-}
-
-func TestLoadKeepsCacheOnFailureAndWaitsTTL(t *testing.T) {
-	proxy := newFakeProxy(t)
-	source := proxy.source(t)
-	source.load(observed)
-
 	proxy.status = http.StatusInternalServerError
-	failedAt := observed.Add(cliproxyCacheTTL)
-	if auths := source.load(failedAt); len(auths) != 2 {
-		t.Errorf("load after failure: %d auths, want the cached two", len(auths))
-	}
-	if source.load(failedAt.Add(time.Second)); proxy.hits != 2 {
-		t.Errorf("hits = %d, want no retry within TTL of the failed attempt", proxy.hits)
-	}
-	if entries, _ := os.ReadDir(filepath.Dir(source.cachePath)); len(entries) != 1 {
-		t.Errorf("cache dir has %d entries, want no leftover temp file", len(entries))
+	source.key = "secret-key"
+	if _, err := source.fetch(); err == nil || errors.Is(err, errKeyRejected) {
+		t.Errorf("fetch on a 500: err = %v, want a non-key error", err)
 	}
 }
 

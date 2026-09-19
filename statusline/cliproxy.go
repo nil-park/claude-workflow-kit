@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,18 +14,16 @@ import (
 
 const (
 	cliproxyDefaultURL = "http://127.0.0.1:8317"
-	cliproxyCacheName  = "claude-statusline-cliproxy-quota.json"
-	cliproxyCacheTTL   = 30 * time.Second
 	cliproxyTimeout    = 300 * time.Millisecond
 	// The auth-files listing also carries per-request history, so it can be
 	// far larger than the few signals kept from it.
 	cliproxyMaxBody = 8 << 20
 )
 
-type quotaCache struct {
-	FetchedAt time.Time   `json:"fetched_at"`
-	Auths     []codexAuth `json:"auths"`
-}
+// errKeyRejected marks a 401 or 403. CLIProxyAPI bans the client IP from the
+// management API for 30 minutes after five failed keys, so a rejected key must
+// not be retried on every TTL.
+var errKeyRejected = errors.New("management key rejected")
 
 type cliproxySource struct {
 	baseURL   string
@@ -82,21 +81,6 @@ func withCLIProxyQuota(in statusInput, now time.Time) (out statusInput) {
 	return out
 }
 
-// load bumps fetched_at even when the fetch fails, so an unreachable proxy is
-// retried once per TTL instead of on every refresh.
-func (s cliproxySource) load(now time.Time) []codexAuth {
-	cached, ok := readQuotaCache(s.cachePath)
-	if age := now.Sub(cached.FetchedAt); ok && age >= 0 && age < cliproxyCacheTTL {
-		return cached.Auths
-	}
-	auths, err := s.fetch()
-	if err != nil {
-		auths = cached.Auths
-	}
-	writeQuotaCache(s.cachePath, quotaCache{FetchedAt: now, Auths: auths})
-	return auths
-}
-
 type authFilesResponse struct {
 	Files []struct {
 		Name        string                 `json:"name"`
@@ -124,6 +108,9 @@ func (s cliproxySource) fetch() ([]codexAuth, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+		return nil, errKeyRejected
+	}
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("auth-files: status %d", resp.StatusCode)
 	}
@@ -163,37 +150,4 @@ func (r rawSnapshot) windowsOnly() codexSnapshot {
 		}
 	}
 	return codexSnapshot{ObservedAt: observedAt, Signals: signals}
-}
-
-func readQuotaCache(path string) (quotaCache, bool) {
-	raw, err := os.ReadFile(path)
-	if err != nil {
-		return quotaCache{}, false
-	}
-	var cache quotaCache
-	if err := json.Unmarshal(raw, &cache); err != nil {
-		return quotaCache{}, false
-	}
-	return cache, true
-}
-
-// writeQuotaCache renames a finished file into place so a statusline process
-// from another session never reads a half-written cache.
-func writeQuotaCache(path string, cache quotaCache) {
-	raw, err := json.Marshal(cache)
-	if err != nil {
-		return
-	}
-	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
-		return
-	}
-	tmp, err := os.CreateTemp(filepath.Dir(path), filepath.Base(path)+".*.tmp")
-	if err != nil {
-		return
-	}
-	_, writeErr := tmp.Write(raw)
-	closeErr := tmp.Close()
-	if writeErr != nil || closeErr != nil || os.Rename(tmp.Name(), path) != nil {
-		os.Remove(tmp.Name())
-	}
 }

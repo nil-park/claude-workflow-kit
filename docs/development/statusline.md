@@ -38,6 +38,7 @@
   - 관리 키는 CLIProxyAPI 설정의 `remote-management.secret-key`나 환경 변수 `MANAGEMENT_PASSWORD`로 설정한다.
   - 관리 키가 설정되지 않은 서버는 404를 반환한다.
   - 키를 넘기지 않거나 틀린 키를 넘기면 401을 반환한다.
+  - 같은 IP에서 키 인증이 5번 실패하면, 그 IP의 관리 API 호출을 30분 동안 403으로 거부한다.
   - 기본 설정(`allow-remote: false`)에서는 localhost 호출만 받는다.
 - Claude Code는 statusline 명령에 자기 환경 변수를 물려준다고 가정한다.
 
