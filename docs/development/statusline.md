@@ -20,6 +20,23 @@
   - 두 쿼터 창(`five_hour`, `seven_day`) 중 한쪽만 들어올 수 있다.
   - Claude Code는 `resets_at`이 지난 쿼터 창을 stdin에서 제외한다.
 
+### CLIProxyAPI
+
+- CLIProxyAPI 7.3.7을 거쳐 `gpt-*` 모델을 쓰는 세션을 대상으로 한다.
+  - 필드와 동작은 v7.3.7 소스와 테스트에서 확인했고, 실제 서버의 응답은 아직 관측하지 않았다.
+- 이 세션의 stdin에는 `rate_limits`가 없다고 가정한다.
+  - CLIProxyAPI는 클라이언트로 보내는 응답에 `anthropic-ratelimit-unified-*` 헤더를 쓰지 않는다.
+- CLIProxyAPI는 Codex 업스트림 응답을 받을 때마다 쿼터 헤더를 스냅샷으로 저장한다.
+  - 자격 증명별 스냅샷과 요청한 모델의 스냅샷을 함께 교체한다.
+  - websocket 경로의 `codex.rate_limits` 이벤트도 같은 `X-Codex-*` 이름으로 바꿔 저장한다.
+  - 관리 API는 스냅샷을 `quota`와 `model_quotas.<모델 이름>`으로 반환하고, `observed_at`은 RFC3339 문자열이다.
+- 추가 한도(예: `GPT-5.3-Codex-Spark`)는 `X-Codex-<짧은 이름>-*`나 `X-Codex-Additional-<한도 이름>-*`로 저장된다.
+- 관리 API는 관리 키가 있어야 열린다.
+  - 관리 키는 CLIProxyAPI 설정의 `remote-management.secret-key`나 환경 변수 `MANAGEMENT_PASSWORD`로 설정한다.
+  - 관리 키가 없으면 404, 키를 넘기지 않거나 틀린 키를 넘기면 401을 반환한다.
+  - 기본 설정(`allow-remote: false`)에서는 localhost 호출만 받는다.
+- Claude Code는 statusline 명령에 자기 환경 변수를 물려준다고 가정한다.
+
 ### 실행 시점
 
 - Claude Code는 세션을 시작할 때, 응답이 도착할 때, `/compact`가 끝날 때 등 이벤트가 생길 때마다 명령을 실행한다.
