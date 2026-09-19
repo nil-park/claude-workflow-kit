@@ -96,5 +96,5 @@ func codexResetAt(snap codexSnapshot, prefix string) (time.Time, bool) {
 	if err != nil || after < 0 || after > sevenDayMinutes*60 || snap.ObservedAt.IsZero() {
 		return time.Time{}, false
 	}
-	return snap.ObservedAt.Add(time.Duration(after) * time.Second), true
+	return snap.ObservedAt.Add(time.Duration(after) * time.Second).Local(), true
 }

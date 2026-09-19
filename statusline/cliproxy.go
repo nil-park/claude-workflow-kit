@@ -38,6 +38,12 @@ func cliproxySourceFromEnv() (cliproxySource, bool) {
 	if key == "" {
 		return cliproxySource{}, false
 	}
+	// A per-user directory, unlike a shared /tmp, keeps another account from
+	// planting the cache first. Without it the proxy would be hit every second.
+	cacheDir, err := os.UserCacheDir()
+	if err != nil {
+		return cliproxySource{}, false
+	}
 	baseURL := os.Getenv("CLIPROXY_URL")
 	if baseURL == "" {
 		baseURL = cliproxyDefaultURL
@@ -45,7 +51,7 @@ func cliproxySourceFromEnv() (cliproxySource, bool) {
 	return cliproxySource{
 		baseURL:   baseURL,
 		key:       key,
-		cachePath: filepath.Join(os.TempDir(), cliproxyCacheName),
+		cachePath: filepath.Join(cacheDir, cliproxyCacheName),
 		client:    &http.Client{Timeout: cliproxyTimeout},
 	}, true
 }
@@ -176,6 +182,9 @@ func readQuotaCache(path string) (quotaCache, bool) {
 func writeQuotaCache(path string, cache quotaCache) {
 	raw, err := json.Marshal(cache)
 	if err != nil {
+		return
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		return
 	}
 	tmp, err := os.CreateTemp(filepath.Dir(path), filepath.Base(path)+".*.tmp")

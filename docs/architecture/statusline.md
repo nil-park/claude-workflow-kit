@@ -23,7 +23,7 @@ Opus 5 | 145.7k (15%) ctx | $5.18 session | 8% 5h → 15:20 | 7% 7d → 09-25 07
 
 - 각 세그먼트는 사용하는 필드 중 하나라도 없으면 생략한다.
   - 예외로 쿼터 세그먼트는 `resets_at`이 없어도 표시하고, `→`와 시각만 생략한다.
-- stdin에 `rate_limits`가 없으면 쿼터 세그먼트의 값을 [CLIProxyAPI 쿼터](#cliproxyapi-쿼터)에서 가져온다.
+- `gpt`로 시작하는 모델의 stdin에 `rate_limits`가 없으면 쿼터 세그먼트의 값을 [CLIProxyAPI 쿼터](#cliproxyapi-쿼터)에서 가져온다.
 
 ### 색
 
@@ -79,14 +79,20 @@ Opus 5 | 145.7k (15%) ctx | $5.18 session | 8% 5h → 15:20 | 7% 7d → 09-25 07
 
 ### 조회
 
-- `GET <CLIPROXY_URL>/v0/management/auth-files`를 `Authorization: Bearer <CLIPROXY_MANAGEMENT_KEY>` 헤더로 호출한다.
+- `GET <CLIPROXY_URL>/v0/management/auth-files`를 호출한다.
+  - 요청 헤더: `Authorization: Bearer <CLIPROXY_MANAGEMENT_KEY>`
   - `CLIPROXY_URL`이 비어 있으면 `http://127.0.0.1:8317`을 쓴다.
   - 타임아웃은 300ms다.
 - 응답의 `files`에서 `provider`가 `codex`인 항목만 쓴다.
 
 ### 캐시
 
-- 조회 결과는 OS 임시 디렉터리의 `claude-statusline-cliproxy-quota.json`에 저장한다.
+- 조회 결과는 사용자 캐시 디렉터리의 `claude-statusline-cliproxy-quota.json`에 저장한다.
+  - 사용자 캐시 디렉터리는 OS마다 다르다.
+    - Windows: `%LocalAppData%`
+    - Linux: `$XDG_CACHE_HOME` 또는 `~/.cache`
+    - macOS: `~/Library/Caches`
+  - 사용자 캐시 디렉터리를 구할 수 없으면 CLIProxyAPI 쿼터를 읽지 않는다.
   - 저장하는 값은 codex 항목의 `name`과, 자격 증명별·모델별 스냅샷의 `observed_at`과 기본 창 신호뿐이다.
   - 관리 키와 계정 정보는 저장하지 않는다.
 - 마지막 조회 시도로부터 30초가 지나기 전에는 관리 API를 다시 호출하지 않고 캐시를 쓴다.
@@ -123,7 +129,7 @@ Opus 5 | 145.7k (15%) ctx | $5.18 session | 8% 5h → 15:20 | 7% 7d → 09-25 07
 - 문법이 틀린 JSON이나 빈 입력을 받으면 stdin을 쓰는 세그먼트를 모두 생략한다.
 - 필드의 타입이 틀리면 그 필드만 없는 것으로 보고, 나머지 필드는 그대로 사용한다.
 - 세그먼트 하나를 만들다 panic이 발생하면 그 세그먼트만 생략한다.
-- 파일 시스템에서는 transcript 파일의 수정 시각과 CLIProxyAPI 쿼터 캐시만 읽는다.
+- 파일 시스템에서는 transcript 파일의 수정 시각을 읽고, CLIProxyAPI 쿼터 캐시를 읽고 쓴다.
 - 네트워크에는 CLIProxyAPI 관리 API를 조회할 때만 접근한다.
 
 ## 소스

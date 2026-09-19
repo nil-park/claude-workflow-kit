@@ -68,17 +68,22 @@ func TestQuotaWindows(t *testing.T) {
 	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			five, seven := quotaWindows(codexSnapshot{ObservedAt: observed, Signals: c.signals}, now)
-			if got := describe(five); got != c.wantFive {
+			if got := windowString(five); got != c.wantFive {
 				t.Errorf("5h = %q, want %q", got, c.wantFive)
 			}
-			if got := describe(seven); got != c.wantSeven {
+			if got := windowString(seven); got != c.wantSeven {
 				t.Errorf("7d = %q, want %q", got, c.wantSeven)
+			}
+			for _, w := range []*quotaWindow{five, seven} {
+				if w != nil && w.resetsAt != nil && w.resetsAt.Location() != time.Local {
+					t.Errorf("reset time in %v, want local time for display", w.resetsAt.Location())
+				}
 			}
 		})
 	}
 }
 
-func describe(w *quotaWindow) string {
+func windowString(w *quotaWindow) string {
 	if w == nil {
 		return ""
 	}

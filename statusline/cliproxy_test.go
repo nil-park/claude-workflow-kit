@@ -147,9 +147,14 @@ func TestNeedsCLIProxyQuota(t *testing.T) {
 
 func TestWithCLIProxyQuota(t *testing.T) {
 	proxy := newFakeProxy(t)
-	tmp := t.TempDir()
-	for _, name := range []string{"TMP", "TEMP", "TMPDIR"} {
-		t.Setenv(name, tmp)
+	// A cache directory that does not exist yet, set for every OS's lookup.
+	home := filepath.Join(t.TempDir(), "home")
+	for _, name := range []string{"LocalAppData", "XDG_CACHE_HOME", "HOME"} {
+		t.Setenv(name, home)
+	}
+	cacheDir, err := os.UserCacheDir()
+	if err != nil {
+		t.Fatal(err)
 	}
 	t.Setenv("CLIPROXY_URL", proxy.server.URL)
 	in := statusInput{modelID: "gpt-5.6-luna"}
@@ -161,10 +166,10 @@ func TestWithCLIProxyQuota(t *testing.T) {
 
 	t.Setenv("CLIPROXY_MANAGEMENT_KEY", "secret-key")
 	got := withCLIProxyQuota(in, observed)
-	if describe(got.fiveHour) != "10" || got.sevenDay != nil {
-		t.Errorf("5h = %q, 7d = %+v, want the model snapshot's 10%% and no 7d", describe(got.fiveHour), got.sevenDay)
+	if windowString(got.fiveHour) != "10" || got.sevenDay != nil {
+		t.Errorf("5h = %q, 7d = %+v, want the model snapshot's 10%% and no 7d", windowString(got.fiveHour), got.sevenDay)
 	}
-	if _, err := os.Stat(filepath.Join(tmp, cliproxyCacheName)); err != nil {
-		t.Errorf("cache not written under the temp dir: %v", err)
+	if _, err := os.Stat(filepath.Join(cacheDir, cliproxyCacheName)); err != nil {
+		t.Errorf("cache not written under the user cache dir: %v", err)
 	}
 }

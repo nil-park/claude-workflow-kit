@@ -30,10 +30,14 @@
   - 자격 증명별 스냅샷과 요청한 모델의 스냅샷을 함께 교체한다.
   - websocket 경로의 `codex.rate_limits` 이벤트도 같은 `X-Codex-*` 이름으로 바꿔 저장한다.
   - 관리 API는 스냅샷을 `quota`와 `model_quotas.<모델 이름>`으로 반환하고, `observed_at`은 RFC3339 문자열이다.
+- 아래 두 가지는 소스에서 확인하지 못해 가정으로 둔다.
+  - `model_quotas`의 키는 stdin의 `model.id`와 같은 문자열이다.
+  - ChatGPT 구독의 5h, 7d 창은 `Window-Minutes`가 각각 `300`, `10080`으로 들어온다.
 - 추가 한도(예: `GPT-5.3-Codex-Spark`)는 `X-Codex-<짧은 이름>-*`나 `X-Codex-Additional-<한도 이름>-*`로 저장된다.
 - 관리 API는 관리 키가 있어야 열린다.
   - 관리 키는 CLIProxyAPI 설정의 `remote-management.secret-key`나 환경 변수 `MANAGEMENT_PASSWORD`로 설정한다.
-  - 관리 키가 없으면 404, 키를 넘기지 않거나 틀린 키를 넘기면 401을 반환한다.
+  - 관리 키가 설정되지 않은 서버는 404를 반환한다.
+  - 키를 넘기지 않거나 틀린 키를 넘기면 401을 반환한다.
   - 기본 설정(`allow-remote: false`)에서는 localhost 호출만 받는다.
 - Claude Code는 statusline 명령에 자기 환경 변수를 물려준다고 가정한다.
 
