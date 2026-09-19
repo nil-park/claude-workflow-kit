@@ -89,4 +89,11 @@ statusline/
 └── testdata/        # 테스트 입력 JSON
 ```
 
-- 빌드 결과물은 `build/statusline`(Windows에서는 `build/statusline.exe`)이다.
+- `make statusline`의 빌드 결과물은 `build/statusline`(Windows에서는 `build/statusline.exe`)이다.
+
+## 설치
+
+- `user-tools-bootstrap` 플러그인의 `bootstrap-statusline` 스킬은 아래 두 가지를 수행해 statusline을 설치한다.
+  - `go install`로 main의 최신 커밋을 빌드해 `~/.claude/bin/statusline`(Windows에서는 `.exe`)을 만든다.
+  - `~/.claude/settings.json`의 `statusLine.command`에 그 바이너리의 절대 경로를 적고, `refreshInterval`을 `1`로 설정한다.
+- 이 스킬을 다시 부르면 바이너리를 main의 최신 커밋으로 새로 빌드한다.
