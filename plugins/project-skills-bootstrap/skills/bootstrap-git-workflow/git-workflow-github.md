@@ -66,6 +66,7 @@ description: >-
 
 # GitHub PR
 
+- **리포지토리의 `CLAUDE.md`나 `AGENTS.md`에 PR 제목이나 `gh pr create` 옵션에 관한 규칙이 있으면, 이 절보다 그 규칙을 우선한다.**
 - **PR 제목과 본문은 구현까지 완료된 최종 결과를 기준으로 작성한다.**
   - draft PR을 설계 단계에서 열더라도, "설계 문서 추가"나 "설계 단계"처럼 범위를 설계로 한정하는 표현을 넣지 않는다.
 - **PR 제목은 Conventional Commits 형태로 쓴다.**
