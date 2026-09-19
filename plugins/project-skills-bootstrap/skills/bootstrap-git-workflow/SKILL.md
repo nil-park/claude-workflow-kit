@@ -9,46 +9,32 @@ description: >-
 
 ## 플랫폼 판정
 
-설치와 업데이트 모두, 템플릿을 읽기 전에 이 단계를 실행한다.
-
 1. `git remote get-url origin`으로 origin URL을 확인한다.
 2. URL에 `github.com`이 포함되면 GitHub, `gitlab`이 포함되면 GitLab으로 판정한다.
 3. 판정된 플랫폼에 해당하는 템플릿 파일만 읽는다.
    - GitHub: 베이스 디렉터리 아래 `git-workflow-github.md`
    - GitLab: 베이스 디렉터리 아래 `git-workflow-gitlab.md`
 
-## 플랫폼별 설치 옵션
+## 설치 옵션
 
-플랫폼에 따라 아래 옵션을 사용자에게 확인한다. 파일을 쓰기 전에 실행한다.
+아래 옵션을 사용자에게 묻는다. 선택한 옵션은 설치본이 아니라 리포지토리의 `CLAUDE.md`나 `AGENTS.md`에 규칙으로 추가한다.
 
-### GitHub
-
-템플릿을 그대로 사용한다.
-
-### GitLab
-
-- **MR 제목 prefix 여부**: MR 제목 앞에 이슈 트래커 키(Jira 키 등)를 붙일지 사용자에게 묻는다.
-  - 붙이기로 하면 어떤 형식인지도 확인한다(예: `GAI-123`).
-  - 포함하기로 하면, 설치할 파일의 `# GitLab MR` 절에 다음 항목들을 추가한다.
-
-    > - **`<키>` 형식의 이슈 트래커 키는 MR 제목 앞에만 넣는다.**
-    >   - `glab mr create`의 `-t` 값도 `"<키> 제목"` 형태로 쓴다.
-    > - 변경 사항에 해당하는 키가 없으면 키를 빼고 Conventional Commits 형태로 제목을 쓴다
-    >   - 예시: `fix: 배포 스크립트 경로 보정`
-    > - GitLab 이슈 링크는 MR 본문에 넣는다.
-
-- 포함하지 않기로 하면 템플릿 그대로 사용한다.
+- PR/MR 제목 앞에 이슈 트래커 키(예: `GAI-123`)를 붙일지 묻는다.
+  - 해당하는 키가 없는 변경은 Conventional Commits 형태로 제목을 쓴다는 규칙도 함께 추가한다.
+  - GitLab이면 GitLab 이슈 링크를 MR 본문에 넣는다는 규칙도 추가한다.
+- GitLab이면 `glab mr create`에 `--squash-before-merge --remove-source-branch`를 붙일지 묻는다.
 
 ## 설치
 
 `.agents/skills/git-workflow/SKILL.md`가 없을 때 실행한다.
 
 1. 플랫폼 판정을 실행해 해당 템플릿을 읽는다.
-2. 플랫폼별 설치 옵션을 확인한다.
-3. `.agents/skills/git-workflow/SKILL.md`에 내용을 쓴다.
+2. 설치 옵션을 확인한다.
+3. `.agents/skills/git-workflow/SKILL.md`에 템플릿을 그대로 쓴다.
 4. `.claude/skills/git-workflow`에 `.agents/skills/git-workflow`을 가리키는
    심볼릭 링크를 만든다.
-5. 완료 후 설치 결과(플랫폼 및 선택한 옵션 포함)를 보고한다.
+5. 선택한 옵션을 `CLAUDE.md`나 `AGENTS.md`에 규칙으로 추가한다.
+6. 설치 결과를 보고한다.
 
 ## 업데이트
 

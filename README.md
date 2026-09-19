@@ -49,24 +49,22 @@
 - 스킬 단위로 설치하므로 필요한 스킬만 고를 수 있다.
 - 표의 항목이 팀에 맞지 않으면 그 스킬을 빼거나, 설치한 뒤 설치본을 고친다.
 
-| 요소                                                                              | 위치                       | 미리 알아둘 점                                                                                               |
-| --------------------------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| 서브에이전트·빌트인 리뷰 금지                                                     | `bootstrap-work-cycle`     | 서브에이전트나 `/code-review`를 기본 리뷰 도구로 쓰는 팀의 방식과 충돌한다                                   |
-| 클린 패스가 3회 연속 나올 때까지 반복하는 셀프 리뷰                               | `bootstrap-work-cycle`     | 라운드마다 파일 전체를 다시 읽으므로 시간과 토큰을 많이 소모한다                                             |
-| PR을 필수로 전제한 워크플로                                                       | `bootstrap-git-workflow`   | 트렁크 기반으로 개발하거나 혼자 개발하면 PR 단계가 불필요하다                                                |
-| 구현에 앞서 설계 문서를 확정하는 절차                                             | `bootstrap-git-workflow`   | 바로 구현하는 팀에게는 절차가 과하다                                                                         |
-| `--squash-before-merge --remove-source-branch` (GitLab 전용)                      | `bootstrap-git-workflow`   | GitLab MR을 열 때마다 스쿼시 머지와 소스 브랜치 삭제가 켜지므로, 원하지 않으면 설치본의 명령을 고쳐야 한다   |
-| 브랜치 이름 규칙: `<타입>/<이슈번호>-<슬러그>`(GitHub), `<타입>/<슬러그>`(GitLab) | `bootstrap-git-workflow`   | 팀의 브랜치 이름 규칙이 다르면 설치본의 형식을 고쳐야 한다                                                   |
-| `docs/` 디렉터리 분류와 what/how/why 배분                                         | `bootstrap-docs-standards` | 기존 문서 구조가 다른 팀은 조정해야 하지만, 리포지토리에 이미 있는 디렉터리 규약을 우선 따르므로 부담이 적다 |
-| architecture 문서에 why 금지                                                      | `bootstrap-docs-standards` | arc42나 ISO 42010 관행을 따르는 팀은 아키텍처 문서에 결정 근거를 넣을 수 없다                                |
-| PR/MR 체크박스 금지                                                               | `bootstrap-docs-standards` | PR/MR에서 체크리스트를 쓰는 팀은 다른 방식을 찾아야 한다                                                     |
-| 일부 도메인의 글을 다루지 않는다고 전제한 사전                                    | `bootstrap-anti-claudeism` | 그 도메인의 글에서는 정상적인 용어도 결함으로 탐지될 수 있다. 한국어를 사용하지 않는 팀에는 쓸모가 없다      |
-| 파일을 고친 턴마다 붙는 탐지 결과                                                 | `bootstrap-anti-claudeism` | 탐지 결과가 오탐일 수 있어도, 표현마다 실제 결함인지 그 자리에서 판단해야 한다                               |
-| `python3` 명령 필요 (Python 3.11 이상)                                            | `bootstrap-anti-claudeism` | 환경에 따라 `python3.exe`가 없어 훅이 실행되지 않을 수 있다                                                  |
-| auto mode의 Bash 편집 지시                                                        | `bootstrap-anti-claudeism` | `~/.claude/CLAUDE.md`에 아래 설정 절의 규칙을 추가하지 않으면, 훅이 검사할 파일을 받지 못한다                |
-| `go` 명령 필요                                                                    | `bootstrap-statusline`     | Go가 없으면 바이너리를 빌드할 수 없다                                                                        |
-| 쿼터 세그먼트는 Pro·Max 요금제 전용                                               | `bootstrap-statusline`     | 다른 요금제에서는 Claude Code가 stdin에 `rate_limits`를 넣지 않아 5h·7d 쿼터가 표시되지 않는다               |
-| CLIProxyAPI를 거친 ChatGPT 쿼터는 관리 키 필요                                    | `bootstrap-statusline`     | CLIProxyAPI에 관리 키를 설정하고 같은 키를 `CLIPROXY_MANAGEMENT_KEY`로 넘겨야 5h·7d 쿼터가 표시된다          |
+| 요소                                                | 위치                       | 미리 알아둘 점                                                                                               |
+| --------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| 서브에이전트·빌트인 리뷰 금지                       | `bootstrap-work-cycle`     | 서브에이전트나 `/code-review`를 기본 리뷰 도구로 쓰는 팀의 방식과 충돌한다                                   |
+| 클린 패스가 3회 연속 나올 때까지 반복하는 셀프 리뷰 | `bootstrap-work-cycle`     | 라운드마다 파일 전체를 다시 읽으므로 시간과 토큰을 많이 소모한다                                             |
+| PR을 필수로 전제한 워크플로                         | `bootstrap-git-workflow`   | 트렁크 기반으로 개발하거나 혼자 개발하면 PR 단계가 불필요하다                                                |
+| 구현에 앞서 설계 문서를 확정하는 절차               | `bootstrap-git-workflow`   | 바로 구현하는 팀에게는 절차가 과하다                                                                         |
+| `docs/` 디렉터리 분류와 what/how/why 배분           | `bootstrap-docs-standards` | 기존 문서 구조가 다른 팀은 조정해야 하지만, 리포지토리에 이미 있는 디렉터리 규약을 우선 따르므로 부담이 적다 |
+| architecture 문서에 why 금지                        | `bootstrap-docs-standards` | arc42나 ISO 42010 관행을 따르는 팀은 아키텍처 문서에 결정 근거를 넣을 수 없다                                |
+| PR/MR 체크박스 금지                                 | `bootstrap-docs-standards` | PR/MR에서 체크리스트를 쓰는 팀은 다른 방식을 찾아야 한다                                                     |
+| 일부 도메인의 글을 다루지 않는다고 전제한 사전      | `bootstrap-anti-claudeism` | 그 도메인의 글에서는 정상적인 용어도 결함으로 탐지될 수 있다. 한국어를 사용하지 않는 팀에는 쓸모가 없다      |
+| 파일을 고친 턴마다 붙는 탐지 결과                   | `bootstrap-anti-claudeism` | 탐지 결과가 오탐일 수 있어도, 표현마다 실제 결함인지 그 자리에서 판단해야 한다                               |
+| `python3` 명령 필요 (Python 3.11 이상)              | `bootstrap-anti-claudeism` | 환경에 따라 `python3.exe`가 없어 훅이 실행되지 않을 수 있다                                                  |
+| auto mode의 Bash 편집 지시                          | `bootstrap-anti-claudeism` | `~/.claude/CLAUDE.md`에 아래 설정 절의 규칙을 추가하지 않으면, 훅이 검사할 파일을 받지 못한다                |
+| `go` 명령 필요                                      | `bootstrap-statusline`     | Go가 없으면 바이너리를 빌드할 수 없다                                                                        |
+| 쿼터 세그먼트는 Pro·Max 요금제 전용                 | `bootstrap-statusline`     | 다른 요금제에서는 Claude Code가 stdin에 `rate_limits`를 넣지 않아 5h·7d 쿼터가 표시되지 않는다               |
+| CLIProxyAPI를 거친 ChatGPT 쿼터는 관리 키 필요      | `bootstrap-statusline`     | CLIProxyAPI에 관리 키를 설정하고 같은 키를 `CLIPROXY_MANAGEMENT_KEY`로 넘겨야 5h·7d 쿼터가 표시된다          |
 
 ## 설정
 
