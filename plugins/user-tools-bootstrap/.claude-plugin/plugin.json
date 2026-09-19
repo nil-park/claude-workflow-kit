@@ -1,0 +1,11 @@
+{
+  "name": "user-tools-bootstrap",
+  "description": "Installs personal tools that live outside any project and wires them into the user settings, starting with a Go status line binary.",
+  "author": {
+    "name": "nil-park"
+  },
+  "homepage": "https://github.com/nil-park/claude-workflow-kit",
+  "repository": "https://github.com/nil-park/claude-workflow-kit",
+  "license": "MIT",
+  "keywords": ["statusline", "go", "bootstrap", "user-settings"]
+}

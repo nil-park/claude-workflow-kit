@@ -6,7 +6,12 @@
 
 ## 플러그인 구성
 
-이 마켓플레이스에는 `project-skills-bootstrap` 플러그인 하나만 있다.
+이 마켓플레이스에는 플러그인이 둘 있다.
+
+- `project-skills-bootstrap`: 프로젝트에 스킬과 훅을 설치한다.
+- `user-tools-bootstrap`: 프로젝트와 무관하게 쓰는 개인 도구를 설치하고, 그 도구를 쓰도록 `~/.claude/settings.json`을 설정한다.
+
+### project-skills-bootstrap
 
 - 부트스트랩 스킬을 호출하면 설치할 스킬을 `.agents/skills/`에 쓰고, `.claude/skills/`에 그 디렉터리를 가리키는 심볼릭 링크를 만든다.
 - 부트스트랩 스킬은 플러그인 이름을 네임스페이스로 붙여 부른다.
@@ -26,6 +31,14 @@
 
 - 설치된 스킬 사이의 의존 관계: [docs/architecture/component-dependency.md](docs/architecture/component-dependency.md)
 - `anti-claudeism` 스킬과 훅의 동작: [docs/architecture/anti-claudeism.md](docs/architecture/anti-claudeism.md)
+
+### user-tools-bootstrap
+
+| 명령                                         | 설명                                                                                             |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `/user-tools-bootstrap:bootstrap-statusline` | statusline 바이너리를 `~/.claude/bin`에 빌드하고 `~/.claude/settings.json`의 `statusLine`을 설정 |
+
+- statusline의 출력, 입력 처리, 설치: [docs/architecture/statusline.md](docs/architecture/statusline.md)
 
 ## 다른 환경에서 쓸 때
 
@@ -51,6 +64,8 @@
 | 파일을 고친 턴마다 붙는 탐지 결과                                                 | `bootstrap-anti-claudeism` | 탐지 결과가 오탐일 수 있어도, 표현마다 실제 결함인지 그 자리에서 판단해야 한다                               |
 | `python3` 명령 필요 (Python 3.11 이상)                                            | `bootstrap-anti-claudeism` | 환경에 따라 `python3.exe`가 없어 훅이 실행되지 않을 수 있다                                                  |
 | auto mode의 Bash 편집 지시                                                        | `bootstrap-anti-claudeism` | `~/.claude/CLAUDE.md`에 아래 설정 절의 규칙을 추가하지 않으면, 훅이 검사할 파일을 받지 못한다                |
+| `go` 명령 필요                                                                    | `bootstrap-statusline`     | Go가 없으면 바이너리를 빌드할 수 없다                                                                        |
+| 쿼터 세그먼트는 Pro·Max 요금제 전용                                               | `bootstrap-statusline`     | 다른 요금제에서는 Claude Code가 stdin에 `rate_limits`를 넣지 않아 5h·7d 쿼터가 표시되지 않는다               |
 
 ## 설정
 
@@ -65,7 +80,8 @@
     }
   },
   "enabledPlugins": {
-    "project-skills-bootstrap@claude-workflow-kit": true
+    "project-skills-bootstrap@claude-workflow-kit": true,
+    "user-tools-bootstrap@claude-workflow-kit": true
   }
 }
 ```
@@ -74,6 +90,7 @@
 
 ```bash
 claude plugin install project-skills-bootstrap@claude-workflow-kit
+claude plugin install user-tools-bootstrap@claude-workflow-kit
 ```
 
 - Claude Code는 마켓플레이스의 최신 커밋에서 플러그인을 설치한다.
