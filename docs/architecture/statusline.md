@@ -72,14 +72,9 @@ Opus 5 | 145.7k (15%) ctx | $5.18 session | 8% 5h → 15:20 | 7% 7d → 09-25 07
 
 ## CLIProxyAPI 쿼터
 
-- 아래 조건을 모두 만족하면 CLIProxyAPI 관리 API(`/v0/management/auth-files`)에서 ChatGPT 구독의 5h, 7d 쿼터를 읽는다.
-  - stdin에 `rate_limits`가 없다.
-  - `model.id`가 `gpt`로 시작한다.
-  - 환경 변수 `CLIPROXY_MANAGEMENT_KEY`가 비어 있지 않다.
-- 관리 API 주소는 `CLIPROXY_URL`로 바꿀 수 있고, 기본값은 `http://127.0.0.1:8317`이다.
-- 세션 모델의 스냅샷(`model_quotas.<model.id>`)이 있으면 그것을, 없으면 자격 증명별 스냅샷을 표시한다.
-- 관리 API는 30초에 한 번까지만 호출하고, 401이나 403을 받은 키로는 다시 호출하지 않는다.
-- 조회 결과는 `~/.claude/cache/statusline-cliproxy-quota.json`에 저장하며, 관리 키와 계정 정보는 저장하지 않는다.
+- CLIProxyAPI를 거쳐 `gpt-*` 모델을 쓰는 세션에서도 ChatGPT 구독의 5h, 7d 쿼터를 Claude 세션과 같은 형식으로 표시한다.
+- 이 세션의 쿼터는 stdin의 `rate_limits` 대신 CLIProxyAPI 관리 API에서 읽는다.
+  - 설치 형태와 추가 설정은 [전제 문서](../development/statusline.md#cliproxyapi)에 있다.
 
 ## 입력 처리
 
@@ -116,4 +111,3 @@ statusline/
   - `go install`로 main의 최신 커밋을 빌드해 `~/.claude/bin/statusline`(Windows에서는 `.exe`)을 만든다.
   - `~/.claude/settings.json`의 `statusLine.command`에 그 바이너리의 절대 경로를 적고, `refreshInterval`을 `1`로 설정한다.
 - 이 스킬을 다시 부르면 바이너리를 main의 최신 커밋으로 새로 빌드한다.
-- CLIProxyAPI 쿼터에 쓰는 환경 변수 `CLIPROXY_MANAGEMENT_KEY`, `CLIPROXY_URL`은 이 스킬이 설정하지 않는다.
