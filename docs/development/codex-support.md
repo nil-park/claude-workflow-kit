@@ -7,7 +7,7 @@
 - 한 프로젝트에서 Claude Code와 Codex를 함께 쓴다.
 - Codex에서는 fluent-korean 출력 스타일을 전역 지침(`~/.codex/AGENTS.md`)으로 대신한다.
 - Codex에서는 모델이 스킬을 스스로 불러도 된다.
-- multi-session 스킬은 Claude Code에서만 쓴다.
+- multi-session과 duo-session 스킬은 Claude Code에서만 쓴다.
 
 ## 확인한 사실
 

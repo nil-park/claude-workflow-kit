@@ -14,7 +14,7 @@
 ### project-skills-bootstrap
 
 - 부트스트랩 스킬을 호출하면 설치할 스킬을 `.agents/skills/`에 쓰고, `.claude/skills/`에 그 디렉터리를 가리키는 심볼릭 링크를 만든다.
-  - Claude Code 전용인 `multi-session`은 심볼릭 링크 없이 `.claude/skills/`에 쓴다.
+  - Claude Code 전용인 `multi-session`과 `duo-session`은 심볼릭 링크 없이 `.claude/skills/`에 쓴다.
 - 부트스트랩 스킬은 플러그인 이름을 네임스페이스로 붙여 부른다.
 - GitHub용과 GitLab용 템플릿이 모두 들어 있으므로, 플랫폼마다 다른 플러그인을 고를 필요가 없다.
 - `bootstrap-anti-claudeism`은 스킬과 함께 Stop 훅을 설치하고, 그 훅을 프로젝트의 `.claude/settings.json`에 등록한다.
@@ -30,6 +30,7 @@
 | `/project-skills-bootstrap:bootstrap-git-workflow`     | 브랜치·PR/MR 워크플로 스킬을 프로젝트에 설치 (일괄 설치 미포함)                         |
 | `/project-skills-bootstrap:bootstrap-anti-claudeism`   | Claude 한국어 문체 교정 스킬과 Stop 훅을 프로젝트에 설치 (일괄 설치 미포함)             |
 | `/project-skills-bootstrap:bootstrap-multi-session`    | 여러 세션에 작업을 나눠 맡기는 오케스트레이션 스킬을 프로젝트에 설치 (일괄 설치 미포함) |
+| `/project-skills-bootstrap:bootstrap-duo-session`      | 다른 세션 하나에 리뷰를 맡기는 스킬을 프로젝트에 설치 (일괄 설치 미포함)                |
 
 - 설치된 스킬 사이의 의존 관계: [docs/architecture/component-dependency.md](docs/architecture/component-dependency.md)
 - `anti-claudeism` 스킬과 훅의 동작: [docs/architecture/anti-claudeism.md](docs/architecture/anti-claudeism.md)
@@ -65,6 +66,7 @@
 | `python3` 명령 필요 (Python 3.11 이상)              | `bootstrap-anti-claudeism` | 환경에 따라 `python3.exe`가 없어 훅이 실행되지 않을 수 있다                                                  |
 | auto mode의 Bash 편집 지시                          | `bootstrap-anti-claudeism` | `~/.claude/CLAUDE.md`에 아래 설정 절의 규칙을 추가하지 않으면, 훅이 검사할 파일을 받지 못한다                |
 | peer 세션을 여러 개 띄우는 오케스트레이션           | `bootstrap-multi-session`  | peer마다 별도 세션으로 실행되므로 세션 수에 비례해 토큰을 소모한다                                           |
+| 터미널 두 개에 세션을 하나씩 띄우는 리뷰            | `bootstrap-duo-session`    | 사용자가 터미널을 하나 더 열어 peer 세션을 직접 실행해야 한다                                                |
 | `go` 명령 필요                                      | `bootstrap-statusline`     | Go가 없으면 바이너리를 빌드할 수 없다                                                                        |
 | 쿼터 세그먼트는 Pro·Max 요금제 전용                 | `bootstrap-statusline`     | 다른 요금제에서는 Claude Code가 stdin에 `rate_limits`를 넣지 않아 5h·7d 쿼터가 표시되지 않는다               |
 | CLIProxyAPI를 거친 ChatGPT 쿼터는 관리 키 필요      | `bootstrap-statusline`     | CLIProxyAPI에 관리 키를 설정하고 같은 키를 `CLIPROXY_MANAGEMENT_KEY`로 넘겨야 5h·7d 쿼터가 표시된다          |
@@ -155,5 +157,5 @@ codex plugin add project-skills-bootstrap@claude-workflow-kit
 - 부트스트랩 스킬은 `$project-skills-bootstrap:bootstrap`처럼 `$`를 붙여 부른다.
 - Codex에는 출력 스타일이 없으므로, fluent-korean의 규칙은 `~/.codex/AGENTS.md`에 넣는다.
 - anti-claudeism 훅은 Codex에서 동작하지 않는다.
-- multi-session 스킬은 Claude Code 전용이므로 Codex에서 쓸 수 없다.
+- multi-session과 duo-session 스킬은 Claude Code 전용이므로 Codex에서 쓸 수 없다.
 - Codex 지원의 전제: [docs/development/codex-support.md](docs/development/codex-support.md)

@@ -10,6 +10,7 @@ flowchart LR
     gw["git-workflow"]
     ac["anti-claudeism"]
     ms["multi-session"]
+    du["duo-session"]
     hook{{"anti_claudeism.py"}}
   end
 
@@ -20,7 +21,14 @@ flowchart LR
   ms --> wc
   ms --> cs
   ms --> ds
+  ms --> ac
   ms -.-> sd
+  du --> gw
+  du --> wc
+  du --> cs
+  du --> ds
+  du --> ac
+  du -.-> sd
   gw -.-> wc
   gw -.-> ds
   gw -.-> sd
