@@ -23,7 +23,7 @@
 ### CLIProxyAPI
 
 - 설치 형태
-  - CLIProxyAPI v7.3.7을 `127.0.0.1:8317`에서 실행하고, `--codex-login`으로 ChatGPT 계정에 로그인했다.
+  - CLIProxyAPI `v7.3.*`이 `127.0.0.1:8317`에서 실행 중이고, `--codex-login`으로 ChatGPT 계정에 로그인되어 있다.
   - 셸 함수가 `ANTHROPIC_BASE_URL`을 이 주소로 지정하고 `gpt-*` 모델로 Claude Code를 실행한다.
 - 추가 설정
   - CLIProxyAPI 설정의 `remote-management.secret-key`에 관리 키를 넣는다.
