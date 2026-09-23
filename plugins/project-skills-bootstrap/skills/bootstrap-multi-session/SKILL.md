@@ -21,6 +21,7 @@ description: >-
 | `docs-standards`   | `.agents/skills/docs-standards/SKILL.md`   | `project-skills-bootstrap:bootstrap-docs-standards`   |
 | `coding-standards` | `.agents/skills/coding-standards/SKILL.md` | `project-skills-bootstrap:bootstrap-coding-standards` |
 | `work-cycle`       | `.agents/skills/work-cycle/SKILL.md`       | `project-skills-bootstrap:bootstrap-work-cycle`       |
+| `anti-claudeism`   | `.agents/skills/anti-claudeism/SKILL.md`   | `project-skills-bootstrap:bootstrap-anti-claudeism`   |
 | `git-workflow`     | `.agents/skills/git-workflow/SKILL.md`     | `project-skills-bootstrap:bootstrap-git-workflow`     |
 
 ## 설치
