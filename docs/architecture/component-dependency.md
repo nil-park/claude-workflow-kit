@@ -22,7 +22,7 @@ flowchart LR
   ms --> cs
   ms --> ds
   ms --> ac
-  ms -.-> sd
+  ms --> sd
   du --> gw
   du --> wc
   du --> cs
@@ -45,4 +45,7 @@ flowchart LR
   - B의 이름을 변경해도 B에 대한 A의 참조는 유효하다.
 - 설치된 스킬의 이름은 그것을 설치하는 부트스트랩 스킬의 이름에서 `bootstrap-` 접두사를 뺀 것이다.
   - `bootstrap-anti-claudeism`은 `anti-claudeism` 스킬과 `anti_claudeism.py` 훅을 함께 설치한다.
+  - `bootstrap-multi-session`은 `multi-session`, `multi-session-copilot`, `multi-session-gemini` 스킬을 설치한다.
+    - `multi-session-copilot`과 `multi-session-gemini`는 사용자가 고를 때만 설치한다.
+    - 세 스킬의 의존 관계는 다이어그램의 `multi-session`과 같다.
   - `bootstrap-fluent-korean`이 설치하는 것은 스킬이 아니라 출력 스타일이며, 이 다이어그램에 대응하는 노드가 없다.
