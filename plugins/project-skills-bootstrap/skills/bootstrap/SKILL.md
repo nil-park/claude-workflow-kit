@@ -18,7 +18,7 @@ description: >-
 | `scratch-dir`      | `.agents/skills/scratch-dir/SKILL.md`                                     | `project-skills-bootstrap:bootstrap-scratch-dir`      | 포함      |
 | `anti-claudeism`   | `.agents/skills/anti-claudeism/SKILL.md`                                  | `project-skills-bootstrap:bootstrap-anti-claudeism`   | 제외      |
 | `git-workflow`     | `.agents/skills/git-workflow/SKILL.md`                                    | `project-skills-bootstrap:bootstrap-git-workflow`     | 제외      |
-| `multi-session`    | `.claude/skills/multi-session/SKILL.md`                                   | `project-skills-bootstrap:bootstrap-multi-session`    | 제외      |
+| `multi-session`    | `.claude/skills/multi-session*/SKILL.md` 중 하나                          | `project-skills-bootstrap:bootstrap-multi-session`    | 제외      |
 | `duo-session`      | `.claude/skills/duo-session/SKILL.md`                                     | `project-skills-bootstrap:bootstrap-duo-session`      | 제외      |
 
 - 신규 설치에서 제외한 스킬은 사용자가 명시적으로 요청할 때에만 해당 부트스트랩 스킬을 불러 설치한다.
@@ -70,5 +70,9 @@ description: >-
 - `scratch-dir`: 커밋하지 않는 임시 작업 파일의 위치와 이름을 정한다.
 - `anti-claudeism`: Opus와 Sonnet 5의 한국어 문체 결함 교정 기준을 정하고, 낱말 단위의 결함을 Stop 훅으로 탐지한다.
 - `git-workflow`: 브랜치 생성과 GitHub 또는 GitLab의 PR/MR 작업 절차를 정한다.
-- `multi-session`: 여러 Claude Code 세션에 설계, 구현, 한국어 검수를 나눠 맡기는 절차를 정한다.
+- `multi-session`: 여러 peer 세션에 설계, 구현, 한국어 검수를 나눠 맡기는 절차를 정한다.
+  - peer로 쓰는 CLI마다 스킬을 하나씩 설치한다.
+    - Claude Code: `multi-session`
+    - GitHub Copilot CLI: `multi-session-copilot`
+    - Gemini CLI: `multi-session-gemini`
 - `duo-session`: 주 세션이 파일을 모두 고치고, 다른 Claude Code 세션 하나가 지적과 제안을 보내는 절차를 정한다.
