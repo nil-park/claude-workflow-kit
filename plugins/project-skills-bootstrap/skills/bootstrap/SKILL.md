@@ -71,8 +71,8 @@ description: >-
 - `anti-claudeism`: Opus와 Sonnet 5의 한국어 문체 결함 교정 기준을 정하고, 낱말 단위의 결함을 Stop 훅으로 탐지한다.
 - `git-workflow`: 브랜치 생성과 GitHub 또는 GitLab의 PR/MR 작업 절차를 정한다.
 - `multi-session`: 여러 peer 세션에 설계, 구현, 한국어 검수를 나눠 맡기는 절차를 정한다.
-  - peer로 쓰는 CLI마다 스킬을 하나씩 설치한다.
-    - Claude Code: `multi-session`
-    - GitHub Copilot CLI: `multi-session-copilot`
-    - Gemini CLI: `multi-session-gemini`
+  - peer로 쓰는 CLI마다 스킬이 따로 있다.
+    - Claude Code: `multi-session`, 기본으로 설치한다.
+    - GitHub Copilot CLI: `multi-session-copilot`, 사용자가 고를 때만 설치한다.
+    - Gemini CLI: `multi-session-gemini`, 사용자가 고를 때만 설치한다.
 - `duo-session`: 주 세션이 파일을 모두 고치고, 다른 Claude Code 세션 하나가 지적과 제안을 보내는 절차를 정한다.
