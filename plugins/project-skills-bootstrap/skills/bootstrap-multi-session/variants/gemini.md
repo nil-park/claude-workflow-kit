@@ -59,16 +59,24 @@ gemini -m gemini-3.8-flash --resume <UUID> -p "$(cat <지시 파일의 절대 �
   - 두 옵션을 함께 지정하면 Gemini CLI가 오류를 내고 종료한다.
 ````
 
+## peer-ping
+
+```text
+  - 실행 중인 호출은 새 메시지를 받지 못하므로, 그 peer의 백그라운드 작업 상태를 확인한다.
+  - 작업이 끝났으면 그 작업의 출력 파일을 `Read`로 읽어 응답으로 쓴다.
+  - 아직 실행 중이면 같은 UUID로 다시 호출하지 않고 기다린다.
+```
+
 ## compared-model
 
 ```text
 Gemini Flash
 ```
 
-## peer-model-note
+## korean-writers
 
 ```text
-
+Gemini Flash는
 ```
 
 ## peer-model
@@ -93,7 +101,9 @@ Gemini 3.8 Flash
 ## peer-report
 
 ```text
-- **결과는 최종 응답에 담아라.** 최종 응답은 사용자가 아니라 내가 받는다.
+- **보고는 최종 응답 본문에 모두 적어라.**
+  - 보고를 파일에만 남기지 마라.
+  - 보고에 필요한 명령은 끝날 때까지 기다려 출력을 확인한 뒤 회신해라.
 ```
 
 ## peer-read-note

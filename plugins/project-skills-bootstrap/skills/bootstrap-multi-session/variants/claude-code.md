@@ -32,7 +32,16 @@ Claude
 - peer는 서브 에이전트가 아니라 `ListAgents`로 확인되는 터미널에 떠 있는 다른 세션이다.
 - 너는 위 커맨드로 만든 세션(peer)에 사용자가 지시하는 내용의 조사와 리뷰, 문서 작성을 맡긴다.
 - peer에게 일을 맡길 때마다 **보고는 사용자가 아니라 나에게 보내라**는 문구를 빠뜨리지 않는다.
+- 의뢰는 `SendMessage`에 `notify_when_idle: true`를 붙여 보낸다.
+  - peer의 회신이 전달되지 않아도, peer가 일을 마치면 idle 알림이 온다.
+  - 회신 없이 idle 알림이 오면 타이머를 기다리지 않고 바로 peer를 확인한다.
 ````
+
+## peer-ping
+
+```text
+  - `SendMessage`로 그 peer에게 의뢰를 처리했는지 묻고, 처리했다면 결과를 다시 보내 달라고 한다.
+```
 
 ## compared-model
 
@@ -40,10 +49,10 @@ Claude
 Gemini Flash
 ```
 
-## peer-model-note
+## korean-writers
 
 ```text
-- Sonnet 4.6과 Opus 4.6은 한국어 문장을 잘 쓰지만 맥락 파악과 코딩 능력은 Opus 5에 미치지 못한다.
+Sonnet 4.6과 Opus 4.6은
 ```
 
 ## peer-model
