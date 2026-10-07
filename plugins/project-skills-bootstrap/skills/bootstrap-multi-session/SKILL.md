@@ -1,7 +1,7 @@
 ---
 name: bootstrap-multi-session
 description: >-
-  multi-session, multi-session-copilot, multi-session-gemini 스킬을 현재 프로젝트에 설치하거나 업데이트하고 싶을 때 부른다. Claude Code 전용이다.
+  multi-session 계열 스킬을 현재 프로젝트에 설치하거나 업데이트하고 싶을 때 부른다. Claude Code 전용이다.
 ---
 
 이 스킬이 로드될 때 시스템이 알려주는 베이스 디렉터리(`Base directory for this skill`) 아래의 공통
@@ -16,10 +16,12 @@ description: >-
 | `variants/claude-code.md` | `multi-session`         | `.claude/skills/multi-session/SKILL.md`         |
 | `variants/copilot.md`     | `multi-session-copilot` | `.claude/skills/multi-session-copilot/SKILL.md` |
 | `variants/gemini.md`      | `multi-session-gemini`  | `.claude/skills/multi-session-gemini/SKILL.md`  |
+| `variants/codex.md`       | `multi-session-codex`   | `.claude/skills/multi-session-codex/SKILL.md`   |
+| `variants/agy.md`         | `multi-session-agy`     | `.claude/skills/multi-session-agy/SKILL.md`     |
 
 ## 사전 설치 확인
 
-세 스킬은 본문에서 아래 스킬을 이름으로 참조한다. 설치 또는 업데이트를 시작하기 전에 각
+표에 있는 스킬은 본문에서 아래 스킬을 이름으로 참조한다. 설치 또는 업데이트를 시작하기 전에 각
 스킬이 프로젝트에 설치되어 있는지 확인하고, 없으면 해당 부트스트랩 스킬로 먼저 설치한다.
 
 | 스킬               | 설치 여부를 확인할 곳                      | 부트스트랩 스킬                                       |
@@ -46,11 +48,11 @@ description: >-
 
 ## 설치
 
-세 변형 중 설치본이 없는 것을 설치한다.
+표에 있는 변형 중 설치본이 없는 것을 설치한다.
 
 - `bootstrap` 스킬이 업데이트 절차로 이 스킬을 불렀다면 설치하지 않는다.
 - `multi-session`은 사용자에게 묻지 않고 설치한다.
-- `multi-session-copilot`과 `multi-session-gemini`는 설치할지 사용자에게 묻고, 사용자가 고른 것만 설치한다.
+- `multi-session`을 제외한 나머지 변형은 설치할지 사용자에게 묻고, 사용자가 고른 것만 설치한다.
 
 설치할 변형마다 아래 순서로 실행한다.
 
@@ -60,7 +62,7 @@ description: >-
 
 ## 업데이트
 
-세 변형 중 설치본이 이미 있는 것마다 실행한다.
+표에 있는 변형 중 설치본이 이미 있는 것마다 실행한다.
 
 1. 조립 절차로 내용을 만든다(템플릿).
 2. 설치본(현재 파일)을 읽는다.

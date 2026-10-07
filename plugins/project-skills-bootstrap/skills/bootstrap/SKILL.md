@@ -75,4 +75,6 @@ description: >-
     - Claude Code: `multi-session`, 기본으로 설치한다.
     - GitHub Copilot CLI: `multi-session-copilot`, 사용자가 고를 때만 설치한다.
     - Gemini CLI: `multi-session-gemini`, 사용자가 고를 때만 설치한다.
+    - Codex CLI: `multi-session-codex`, 사용자가 고를 때만 설치한다.
+    - Antigravity CLI: `multi-session-agy`, 사용자가 고를 때만 설치한다.
 - `duo-session`: 주 세션이 파일을 모두 고치고, 다른 Claude Code 세션 하나가 지적과 제안을 보내는 절차를 정한다.
