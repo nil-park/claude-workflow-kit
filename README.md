@@ -159,3 +159,13 @@ codex plugin add project-skills-bootstrap@claude-workflow-kit
 - anti-claudeism 훅은 Codex에서 동작하지 않는다.
 - multi-session과 duo-session 스킬은 Claude Code 전용이므로 Codex에서 쓸 수 없다.
 - Codex 지원의 전제: [docs/development/codex-support.md](docs/development/codex-support.md)
+
+## Antigravity(agy) 설정
+
+Antigravity CLI(`agy`)도 플러그인을 설치해 사용할 수 있다.
+
+```bash
+agy plugin install https://github.com/nil-park/claude-workflow-kit/tree/main/plugins
+```
+
+- `install` 명령은 플러그인을 처음 설치할 때뿐만 아니라, 이미 설치된 플러그인을 최신 커밋으로 업데이트할 때에도 사용한다.
