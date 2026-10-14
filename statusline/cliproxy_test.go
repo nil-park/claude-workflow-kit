@@ -96,6 +96,7 @@ func TestNeedsCLIProxyQuota(t *testing.T) {
 		want bool
 	}{
 		{statusInput{modelID: "gpt-5.6-luna"}, true},
+		{statusInput{product: productAgy, modelID: "gpt-5.6-luna"}, false},
 		{statusInput{modelID: "gpt-5.6-luna", sevenDay: window}, false},
 		{statusInput{modelID: "claude-opus-5"}, false},
 		{statusInput{}, false},

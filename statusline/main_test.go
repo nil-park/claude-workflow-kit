@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"strings"
 	"testing"
 	"time"
 )
@@ -72,6 +73,25 @@ func TestParseInputWrongTypeDropsOnlyThatField(t *testing.T) {
 	}
 	if in.fiveHour == nil || in.fiveHour.usedPercent != 19 || in.fiveHour.resetsAt != nil {
 		t.Errorf("fiveHour = %+v, want 19%% without reset time", in.fiveHour)
+	}
+}
+
+func TestParseInputNonAgyProductPreservesClaudePath(t *testing.T) {
+	raw := []byte(`{
+		"product": "claude-code",
+		"model": {"display_name": "Opus 5"},
+		"cost": {"total_cost_usd": 1.5}
+	}`)
+	in := parseInput(raw)
+	if in.product != "" {
+		t.Errorf("product = %q, want empty for Claude path", in.product)
+	}
+	if in.modelName != "Opus 5" || in.costUSD == nil || *in.costUSD != 1.5 {
+		t.Errorf("in = %+v, want parsed Claude fields", in)
+	}
+	got := render(in, time.Now())
+	if !strings.Contains(got, "Opus 5") || !strings.Contains(got, "$1.50") {
+		t.Errorf("render = %q, want Claude style with model and cost", got)
 	}
 }
 

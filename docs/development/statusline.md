@@ -39,9 +39,27 @@
 - 세션이 유휴 상태이면 이벤트가 생기지 않는다.
   - idle 세그먼트를 초 단위로 갱신하려면 `statusLine.refreshInterval`을 `1`로 설정해야 한다.
 
+### Antigravity(agy)
+
+- 두 줄 출력(`stack_with_default: true`)
+  - agy statusline은 기본 줄 아래에 한 줄을 덧붙이는 두 줄 구성만 지원한다.
+  - 기본 줄이 모델, 실행 모드, effort를 표시하므로 statusline 바이너리의 출력에서는 모델 세그먼트를 제외한다.
+- stdin 식별
+  - agy는 세션 JSON의 최상위에 `product: "antigravity"`를 전달한다.
+- 쿼터 키 구조
+  - Google AI Pro(개인) 요금제는 `gemini-5h`, `gemini-weekly`, `3p-5h`, `3p-weekly` 키를 제공하며, 잔여 비율과 초기화 시각에 실측값을 담는다.
+  - GCP 엔터프라이즈 요금제는 모델별 14개 키를 제공하며 모든 항목이 `remaining_fraction: 1`, `reset_time: 1970-01-01`로 고정된 자리표시자다.
+  - 엔터프라이즈 요금제의 모델별 쿼터 키는 관측된 값이 모두 자리표시자이므로 지원 대상에서 제외하며 세그먼트를 표시하지 않는다.
+  - 잔여 비율(`remaining_fraction`)은 0 이상 1 이하의 실수로 들어온다고 가정한다.
+  - 모델 정보가 없으면 어떤 쿼터 키를 읽어야 하는지 알 수 없으므로 쿼터 세그먼트를 표시하지 않는다.
+- 주기적 갱신 미지원과 상태 표시
+  - agy는 세션 유휴 상태에서 명령을 주기적으로 다시 실행하는 타이머(`refreshInterval`)를 지원하지 않는다.
+  - statusline은 agy 세션에서 `idle` 세그먼트를 제외하고 `agent_state` 세그먼트를 표시한다.
+  - `agent_state`는 제어 문자를 포함하지 않는 상태 식별자 문자열이라고 가정한다.
+
 ### 출력
 
-- Claude Code는 stdout의 ANSI 색상 코드를 해석해서 표시한다.
+- Claude Code와 agy는 stdout의 ANSI 색상 코드를 해석해서 표시한다.
 
 ## 빌드와 테스트
 
