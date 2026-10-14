@@ -39,9 +39,23 @@
 - 세션이 유휴 상태이면 이벤트가 생기지 않는다.
   - idle 세그먼트를 초 단위로 갱신하려면 `statusLine.refreshInterval`을 `1`로 설정해야 한다.
 
+### Antigravity(agy)
+
+- 두 줄 출력(`stack_with_default: true`)
+  - agy statusline은 기본 줄 아래에 한 줄을 덧붙이는 두 줄 구성만 지원한다.
+  - 기본 줄이 모델, 실행 모드, effort를 표시하므로 statusline 바이너리의 출력에서는 모델 세그먼트를 제외한다.
+- stdin 식별
+  - agy는 세션 JSON의 최상위에 `product: "antigravity"`를 전달한다.
+- 쿼터 키 구조
+  - Google AI Pro(개인) 요금제는 `gemini-5h`, `gemini-weekly`, `3p-5h`, `3p-weekly` 키를 제공하며 잔여 비율과 초기화 시각이 실측값으로 채워진다.
+  - GCP 엔터프라이즈 요금제는 모델별 14개 키를 제공하며 모든 항목이 `remaining_fraction: 1`, `reset_time: 1970-01-01`로 고정된 자리표시자다.
+- transcript 경로 보정
+  - Windows 환경의 agy 세션에서 `transcript_path`가 가리키는 `antigravity` 경로가 실제 파일 시스템에는 `antigravity-cli` 디렉터리에 위치할 수 있다.
+  - 파서는 원본 경로가 없으면 `antigravity`를 `antigravity-cli`로 치환한 경로를 대체 확인한다.
+
 ### 출력
 
-- Claude Code는 stdout의 ANSI 색상 코드를 해석해서 표시한다.
+- Claude Code와 agy는 stdout의 ANSI 색상 코드를 해석해서 표시한다.
 
 ## 빌드와 테스트
 

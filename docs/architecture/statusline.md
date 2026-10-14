@@ -1,9 +1,11 @@
 # statusline
 
-statusline은 Claude Code의 `statusLine` 명령으로 실행되는 Go 바이너리 하나로 이루어진다.
+statusline은 Claude Code와 Antigravity(agy)의 statusline 명령으로 실행되는 Go 바이너리 하나로 이루어진다.
 바이너리는 stdin으로 세션 JSON을 받아 stdout에 한 줄을 출력하고 종료한다.
 
 ## 출력
+
+### Claude Code
 
 ```text
 Opus 5 | 145.7k (15%) ctx | $5.18 session | 8% 5h → 15:20 | 7% 7d → 09-25 07:00 | idle 10s
@@ -24,6 +26,21 @@ Opus 5 | 145.7k (15%) ctx | $5.18 session | 8% 5h → 15:20 | 7% 7d → 09-25 07
 - 각 세그먼트는 사용하는 필드 중 하나라도 없으면 생략한다.
   - 예외로 쿼터 세그먼트는 `resets_at`이 없어도 표시하고, `→`와 시각만 생략한다.
 - `gpt`로 시작하는 모델의 stdin에 `rate_limits`가 없으면 쿼터 세그먼트의 값을 [CLIProxyAPI 쿼터](#cliproxyapi-쿼터)에서 가져온다.
+
+### agy
+
+```text
+19.5k (2%) ctx | 1% 5h → 02:31 | 1% weekly → 10-21 21:31 | idle 10s
+```
+
+- agy의 기본 줄 아래에 표시되므로 모델 세그먼트를 생략하고 아래 표의 순서로 출력한다.
+
+| 세그먼트    | stdin 필드                                                            | 예시                      | 값의 색              |
+| ----------- | --------------------------------------------------------------------- | ------------------------- | -------------------- |
+| 컨텍스트    | `context_window.total_input_tokens`, `context_window.used_percentage` | `19.5k (2%) ctx`          | 사용률 색(기본 자홍) |
+| 5h 쿼터     | `quota` 안의 5시간 창 키(`gemini-5h` 또는 `3p-5h`)                    | `1% 5h → 02:31`           | 사용률 색(기본 초록) |
+| weekly 쿼터 | `quota` 안의 주간 창 키(`gemini-weekly` 또는 `3p-weekly`)             | `1% weekly → 10-21 21:31` | 사용률 색(기본 초록) |
+| idle        | `transcript_path` 파일(또는 보정 경로)의 수정 시각                    | `idle 10s`                | 경과 시간 색         |
 
 ### 색
 
@@ -53,10 +70,20 @@ Opus 5 | 145.7k (15%) ctx | $5.18 session | 8% 5h → 15:20 | 7% 7d → 09-25 07
 
 ### 쿼터
 
-- 리셋 시각은 `resets_at`(Unix epoch 초)을 로컬 타임존으로 바꿔 표시한다.
-  - 5h: `HH:MM` (예: `03:30`)
-  - 7d: `MM-DD HH:MM` (예: `09-25 17:00`)
+- Claude Code
+  - 리셋 시각은 `resets_at`(Unix epoch 초)을 로컬 타임존으로 바꿔 표시한다.
+    - 5h: `HH:MM` (예: `03:30`)
+    - 7d: `MM-DD HH:MM` (예: `09-25 17:00`)
   - 시는 24시간제로 표기하고, 모든 필드는 두 자리로 맞추어 빈자리를 0으로 채운다.
+- agy
+  - 모델 이름(`model.id` 또는 `model.display_name`)의 시작 문자열에 따라 키를 선택한다.
+    - `"Gemini"`로 시작하면 `gemini-5h`와 `gemini-weekly`를 선택한다.
+    - `"Gemini"`로 시작하지 않으면 `3p-5h`와 `3p-weekly`를 선택한다.
+  - 사용률은 `(1 - remaining_fraction) * 100`을 짝수 쪽으로 반올림한 정수로 표시한다.
+  - 리셋 시각은 `reset_time`(ISO 8601 UTC)을 로컬 타임존으로 바꿔 표시한다.
+    - 5h: `HH:MM` (예: `03:30`)
+    - weekly: `MM-DD HH:MM` (예: `09-25 17:00`)
+  - 키가 없거나 `remaining_fraction`이 1이고 `reset_time`이 `1970-01-01`인 항목은 생략한다.
 
 ### idle
 
@@ -68,6 +95,7 @@ Opus 5 | 145.7k (15%) ctx | $5.18 session | 8% 5h → 15:20 | 7% 7d → 09-25 07
 | 1시간 이상          | `2h15m` | 빨강 |
 
 - 경과 시간은 transcript 파일의 수정 시각부터 현재까지다.
+- agy 세션에서 `transcript_path` 파일이 없으면 경로 안의 `antigravity`를 `antigravity-cli`로 치환한 경로를 확인한다.
 - transcript 파일이 없으면 세그먼트를 생략한다.
 
 ## CLIProxyAPI 쿼터
@@ -79,6 +107,7 @@ Opus 5 | 145.7k (15%) ctx | $5.18 session | 8% 5h → 15:20 | 7% 7d → 09-25 07
 ## 입력 처리
 
 - stdin 전체를 UTF-8 JSON으로 파싱한다.
+- 최상위 `product` 필드가 `"antigravity"`이면 agy 세션으로 판별하고, 그렇지 않으면 Claude Code 세션으로 판별한다.
 - 문법이 틀린 JSON이나 빈 입력을 받으면 stdin을 쓰는 세그먼트를 모두 생략한다.
 - 필드의 타입이 틀리면 그 필드만 없는 것으로 보고, 나머지 필드는 그대로 사용한다.
 - 세그먼트 하나를 만들다 panic이 발생하면 그 세그먼트만 생략한다.
