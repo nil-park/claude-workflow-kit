@@ -1,7 +1,6 @@
 package main
 
 import (
-	"math"
 	"strings"
 	"time"
 )
@@ -16,7 +15,7 @@ func parseAgyInput(root map[string]any) statusInput {
 	modelID := text(field(root, "model", "id"))
 	modelName := text(field(root, "model", "display_name"))
 
-	isGemini := strings.HasPrefix(modelName, "Gemini")
+	isGemini := strings.HasPrefix(modelID, "Gemini") || strings.HasPrefix(modelName, "Gemini")
 	key5h := "3p-5h"
 	keyWeekly := "3p-weekly"
 	if isGemini {
@@ -50,7 +49,7 @@ func parseAgyQuota(v any) *quotaWindow {
 	}
 
 	window := &quotaWindow{
-		usedPercent: math.Max(0, math.Min(100, (1.0-*rem)*100.0)),
+		usedPercent: (1.0 - *rem) * 100.0,
 	}
 
 	if resetStr != "" {

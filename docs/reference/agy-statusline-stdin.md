@@ -34,6 +34,8 @@ Antigravity(agy)가 `statusline` 명령의 stdin으로 넘기는 JSON의 필드 
 | `vcs.type`           | 문자열 | `"git"`                       | 버전 관리 시스템 종류                    |
 | `plan_tier`          | 문자열 | `"Google AI Pro"`             | 요금제 식별자 또는 이름                  |
 
+- 실측 픽스처에서 `model.id`와 `model.display_name`은 같은 문자열 값을 갖는다.
+
 ### 작업 공간
 
 | 필드                    | 타입   | 실측 예시 | 설명                                |

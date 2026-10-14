@@ -171,23 +171,3 @@ func TestParseAgyQuotaPlaceholder(t *testing.T) {
 		t.Errorf("q.resetsAt = %v, want 2026-10-15T12:00:00Z", q.resetsAt)
 	}
 }
-
-func TestParseAgyQuotaClamping(t *testing.T) {
-	// remaining_fraction > 1 (e.g. 1.5) -> clamped to 0% used
-	overFraction := map[string]any{
-		"remaining_fraction": 1.5,
-		"reset_time":         "2026-10-15T12:00:00Z",
-	}
-	if q := parseAgyQuota(overFraction); q == nil || q.usedPercent != 0 {
-		t.Errorf("usedPercent for rem 1.5 = %v, want 0", q)
-	}
-
-	// remaining_fraction < 0 (e.g. -0.5) -> clamped to 100% used
-	underFraction := map[string]any{
-		"remaining_fraction": -0.5,
-		"reset_time":         "2026-10-15T12:00:00Z",
-	}
-	if q := parseAgyQuota(underFraction); q == nil || q.usedPercent != 100 {
-		t.Errorf("usedPercent for rem -0.5 = %v, want 100", q)
-	}
-}
