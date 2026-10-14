@@ -1,9 +1,9 @@
 {
   "cwd": "C:\\Users\\user\\projects\\my-project",
-  "session_id": "ee0a58cd-505e-494b-ba37-3563343d17c5",
-  "conversation_id": "ee0a58cd-505e-494b-ba37-3563343d17c5",
+  "session_id": "00000000-0000-4000-8000-000000000001",
+  "conversation_id": "00000000-0000-4000-8000-000000000001",
   "conversation_title": "General Discussion",
-  "transcript_path": "C:\\Users\\user\\.gemini\\antigravity\\brain\\ee0a58cd-505e-494b-ba37-3563343d17c5\\.system_generated\\logs\\transcript.jsonl",
+  "transcript_path": "C:\\Users\\user\\.gemini\\antigravity\\brain\\00000000-0000-4000-8000-000000000001\\.system_generated\\logs\\transcript.jsonl",
   "model": {
     "id": "Gemini 3.8 Flash (Medium)",
     "display_name": "Gemini 3.8 Flash (Medium)",

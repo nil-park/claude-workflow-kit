@@ -62,7 +62,6 @@ func parseInput(raw []byte) statusInput {
 		return parseAgyInput(root)
 	}
 	return statusInput{
-		product:        text(field(root, "product")),
 		modelID:        text(field(root, "model", "id")),
 		modelName:      text(field(root, "model", "display_name")),
 		inputTokens:    number(field(root, "context_window", "total_input_tokens")),

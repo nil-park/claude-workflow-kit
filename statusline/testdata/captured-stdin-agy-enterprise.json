@@ -1,9 +1,9 @@
 {
   "cwd": "/home/user/projects/my-project",
-  "session_id": "7b4fa9ce-4511-43d9-8cff-dc615586a4b6",
-  "conversation_id": "7b4fa9ce-4511-43d9-8cff-dc615586a4b6",
+  "session_id": "00000000-0000-4000-8000-000000000002",
+  "conversation_id": "00000000-0000-4000-8000-000000000002",
   "conversation_title": "General Discussion",
-  "transcript_path": "/home/user/.gemini/antigravity/brain/7b4fa9ce-4511-43d9-8cff-dc615586a4b6/.system_generated/logs/transcript.jsonl",
+  "transcript_path": "/home/user/.gemini/antigravity/brain/00000000-0000-4000-8000-000000000002/.system_generated/logs/transcript.jsonl",
   "model": {
     "id": "Gemini 4 Argon (Medium)",
     "display_name": "Gemini 4 Argon (Medium)",
