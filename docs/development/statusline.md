@@ -49,9 +49,9 @@
 - 쿼터 키 구조
   - Google AI Pro(개인) 요금제는 `gemini-5h`, `gemini-weekly`, `3p-5h`, `3p-weekly` 키를 제공하며, 잔여 비율과 초기화 시각에 실측값을 담는다.
   - GCP 엔터프라이즈 요금제는 모델별 14개 키를 제공하며 모든 항목이 `remaining_fraction: 1`, `reset_time: 1970-01-01`로 고정된 자리표시자다.
-- transcript 경로 보정
-  - Windows 환경의 agy 세션에서 `transcript_path`가 가리키는 `antigravity` 경로가 실제 파일 시스템에는 `antigravity-cli` 디렉터리에 위치할 수 있다.
-  - 파서는 원본 경로가 없으면 `antigravity`를 `antigravity-cli`로 치환한 경로를 대신 확인한다.
+- 주기적 갱신 미지원과 상태 표시
+  - agy는 세션 유휴 상태에서 명령을 주기적으로 다시 실행하는 타이머(`refreshInterval`)를 지원하지 않는다.
+  - statusline은 agy 세션에서 `idle` 세그먼트를 제외하고 `agent_state` 세그먼트를 표시한다.
 
 ### 출력
 
