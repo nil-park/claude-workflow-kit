@@ -6,18 +6,21 @@ description: >-
 disable-model-invocation: true
 ---
 
-## 1. CLI 환경 감지
+## 1. CLI 환경 및 기존 경로 감지
 
-어느 환경에서 실행하든 `claude`와 `agy` CLI의 설치 여부를 각각 확인한다.
+어느 환경에서 실행하든 `claude`와 `agy` CLI의 설치 여부와 기존 설정 파일의 `statusLine.command` 경로를 각각 확인한다.
 
 - `claude`: `which claude`(또는 Windows의 `where.exe claude`)가 성공하거나 `~/.claude/` 디렉터리가 있는지 확인한다.
+  - 설정 파일(`~/.claude/settings.json`)이 있으면 `statusLine.command`에 지정된 기존 바이너리 경로를 확인한다.
 - `agy`: `which agy`(또는 Windows의 `where.exe agy`)가 성공하거나 `~/.gemini/antigravity-cli/` 디렉터리가 있는지 확인한다.
+  - 설정 파일(`~/.gemini/antigravity-cli/settings.json`)이 있으면 `statusLine.command`에 지정된 기존 바이너리 경로를 확인한다.
 
 ## 2. 바이너리 빌드 디렉터리 확인
 
-감지된 환경에 맞춰 바이너리를 둘 디렉터리를 사용자에게 묻고 상의하여 결정한다.
+감지된 환경과 기존 경로를 바탕으로 바이너리를 둘 디렉터리를 사용자에게 묻고 상의하여 결정한다.
 
-- 설치 후보 경로:
+- 기존에 설정된 유효한 바이너리 경로가 있으면 그 디렉터리를 우선 제안한다.
+- 기존 설정이 없거나 변경을 원할 경우 후보 경로:
   - `~/.claude/bin` (Claude Code 중심 환경)
   - `~/.gemini/antigravity-cli/bin` (Antigravity 중심 환경)
   - `~/.local/bin` (공통 사용자 바이너리 환경)
@@ -33,9 +36,13 @@ disable-model-invocation: true
 GOBIN=<bin-dir의 절대 경로> go install github.com/nil-park/claude-workflow-kit/statusline@latest
 ```
 
-- 바이너리의 절대 경로를 파악한다. 경로 구분자는 항상 슬래시(`/`)로 표기한다.
+- 새로 빌드된 바이너리의 절대 경로를 파악한다. 경로 구분자는 항상 슬래시(`/`)로 표기한다.
 
-## 4. 설정 파일 등록
+## 4. 기존 바이너리 정리
+
+- 1단계에서 확인한 기존 바이너리 경로가 이번에 새로 빌드한 경로와 다르고, 해당 파일이 디스크에 실제로 존재하면 사용자와 상의하여 이전 바이너리 파일을 삭제해 정리한다.
+
+## 5. 설정 파일 등록
 
 1단계에서 확인된 도구의 설정 파일에 statusline을 등록한다. 둘 다 설치되어 있으면 양쪽 모두에 등록한다.
 
@@ -73,7 +80,7 @@ GOBIN=<bin-dir의 절대 경로> go install github.com/nil-park/claude-workflow-
 
 - `stack_with_default`가 `true`여야 agy 기본 줄 아래에 두 줄 구성으로 덧붙여진다.
 
-## 5. 결과 보고
+## 6. 결과 보고
 
-- 바이너리가 빌드된 위치와 어느 CLI(Claude Code, Antigravity)의 설정 파일에 등록했는지 보고한다.
+- 바이너리가 빌드된 위치, 정리한 이전 파일, 그리고 어느 CLI(Claude Code, Antigravity)의 설정 파일에 등록했는지 보고한다.
 - 이 스킬을 다시 부르면 바이너리를 main의 최신 커밋으로 새로 빌드한다고 안내한다.
