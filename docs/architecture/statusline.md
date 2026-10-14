@@ -142,7 +142,9 @@ statusline/
 ## 설치
 
 - `user-tools-bootstrap` 플러그인의 `bootstrap-statusline` 스킬은 아래 순서로 statusline을 설치한다.
-  - `go install`로 main의 최신 커밋을 빌드해 `~/.claude/bin/statusline`(Windows에서는 `.exe`)을 만든다.
+  - 환경에 `claude`와 `agy` CLI가 설치되어 있는지 감지한다.
+  - 바이너리를 설치할 디렉터리(`~/.claude/bin`, `~/.gemini/antigravity-cli/bin`, `~/.local/bin` 등)를 사용자와 상의하여 결정한다.
+  - `go install`로 main의 최신 커밋을 빌드해 결정된 디렉터리에 바이너리를 만든다.
   - 환경에 `claude` CLI가 설치되어 있으면 `~/.claude/settings.json`의 `statusLine.command`에 바이너리의 절대 경로를 적고 `refreshInterval`을 `1`로 설정한다.
   - 환경에 `agy` CLI가 설치되어 있으면 `~/.gemini/antigravity-cli/settings.json`의 `statusLine.command`에 바이너리의 절대 경로를 적고 `enabled: true`, `stack_with_default: true`로 설정한다.
   - 두 CLI가 모두 설치되어 있으면 양쪽 설정 파일에 모두 등록한다.
