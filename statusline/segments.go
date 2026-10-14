@@ -107,3 +107,13 @@ func formatElapsed(seconds int) string {
 	}
 	return fmt.Sprintf("%ds", seconds)
 }
+
+func segState(state string) string {
+	if state == "" {
+		return ""
+	}
+	if state == "working" {
+		return green + "working" + reset
+	}
+	return defaultFg + state + reset
+}

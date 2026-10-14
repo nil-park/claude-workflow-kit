@@ -3,7 +3,6 @@ package main
 import (
 	"math"
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -30,6 +29,9 @@ func TestParseInputAgyPersonal(t *testing.T) {
 	}
 	if in.costUSD != nil {
 		t.Errorf("costUSD = %v, want nil", in.costUSD)
+	}
+	if in.agentState != "working" {
+		t.Errorf("agentState = %q, want %q", in.agentState, "working")
 	}
 	if in.fiveHour == nil {
 		t.Fatal("fiveHour is nil, want gemini-5h parsed")
@@ -63,6 +65,9 @@ func TestParseInputAgyEnterprise(t *testing.T) {
 
 	if in.product != "antigravity" {
 		t.Errorf("product = %q, want %q", in.product, "antigravity")
+	}
+	if in.agentState != "idle" {
+		t.Errorf("agentState = %q, want %q", in.agentState, "idle")
 	}
 	if in.fiveHour != nil {
 		t.Errorf("fiveHour = %+v, want nil (omitted placeholder)", in.fiveHour)
@@ -104,6 +109,7 @@ func TestRenderAgy(t *testing.T) {
 		contextPercent: new(1.857),
 		fiveHour:       &quotaWindow{usedPercent: 1.19, resetsAt: &reset5h},
 		sevenDay:       &quotaWindow{usedPercent: 0.73, resetsAt: &resetWeekly},
+		agentState:     "working",
 	}
 
 	got := render(in, time.Now())
@@ -113,39 +119,27 @@ func TestRenderAgy(t *testing.T) {
 		t.Errorf("renderAgy should not contain model or session cost: %q", got)
 	}
 
-	// Must contain context and quota with "weekly" label.
+	// Must contain context, quota with "weekly" label, and working state in green.
 	want := "\x1b[0;35m19.5k (2%)\x1b[0m \x1b[0;90mctx\x1b[0m" +
 		" \x1b[0;90m|\x1b[0m \x1b[0;32m1%\x1b[0m \x1b[0;90m5h\x1b[0m \x1b[0;90m→\x1b[0m \x1b[0;39m02:31\x1b[0m" +
-		" \x1b[0;90m|\x1b[0m \x1b[0;32m1%\x1b[0m \x1b[0;90mweekly\x1b[0m \x1b[0;90m→\x1b[0m \x1b[0;39m10-21 21:31\x1b[0m"
+		" \x1b[0;90m|\x1b[0m \x1b[0;32m1%\x1b[0m \x1b[0;90mweekly\x1b[0m \x1b[0;90m→\x1b[0m \x1b[0;39m10-21 21:31\x1b[0m" +
+		" \x1b[0;90m|\x1b[0m \x1b[0;32mworking\x1b[0m"
 	if got != want {
 		t.Errorf("renderAgy =\n%q\nwant\n%q", got, want)
 	}
 }
 
-func TestAgyTranscriptPathFallback(t *testing.T) {
-	tempDir := t.TempDir()
-
-	// Simulate transcript file residing in "antigravity-cli" rather than "antigravity".
-	cliDir := filepath.Join(tempDir, "antigravity-cli", "logs")
-	if err := os.MkdirAll(cliDir, 0o755); err != nil {
-		t.Fatal(err)
+func TestSegState(t *testing.T) {
+	if got := segState(""); got != "" {
+		t.Errorf("segState(\"\") = %q, want empty", got)
 	}
-	targetFile := filepath.Join(cliDir, "transcript.jsonl")
-	if err := os.WriteFile(targetFile, []byte("log"), 0o644); err != nil {
-		t.Fatal(err)
+	if got := segState("working"); got != green+"working"+reset {
+		t.Errorf("segState(\"working\") = %q, want green working", got)
 	}
-
-	// Original path pointing to "antigravity".
-	origPath := filepath.Join(tempDir, "antigravity", "logs", "transcript.jsonl")
-
-	resolved := resolveAgyTranscriptPath(origPath)
-	if resolved != targetFile {
-		t.Errorf("resolveAgyTranscriptPath = %q, want %q", resolved, targetFile)
+	if got := segState("idle"); got != defaultFg+"idle"+reset {
+		t.Errorf("segState(\"idle\") = %q, want defaultFg idle", got)
 	}
-
-	// When neither exists, fallback returns original path.
-	nonExistent := filepath.Join(tempDir, "other", "antigravity", "transcript.jsonl")
-	if got := resolveAgyTranscriptPath(nonExistent); got != nonExistent {
-		t.Errorf("resolveAgyTranscriptPath on non-existent = %q, want %q", got, nonExistent)
+	if got := segState("authenticating"); got != defaultFg+"authenticating"+reset {
+		t.Errorf("segState(\"authenticating\") = %q, want defaultFg authenticating", got)
 	}
 }

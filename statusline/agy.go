@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 	"strings"
 	"time"
 )
@@ -30,7 +29,7 @@ func parseAgyInput(root map[string]any) statusInput {
 		contextPercent: number(field(root, "context_window", "used_percentage")),
 		fiveHour:       parseAgyQuota(field(root, "quota", key5h)),
 		sevenDay:       parseAgyQuota(field(root, "quota", keyWeekly)),
-		transcriptPath: resolveAgyTranscriptPath(text(field(root, "transcript_path"))),
+		agentState:     text(field(root, "agent_state")),
 	}
 }
 
@@ -59,18 +58,4 @@ func parseAgyQuota(v any) *quotaWindow {
 		}
 	}
 	return window
-}
-
-func resolveAgyTranscriptPath(path string) string {
-	if path == "" {
-		return ""
-	}
-	if info, err := os.Stat(path); err == nil && info.Mode().IsRegular() {
-		return path
-	}
-	alt := strings.Replace(path, "antigravity", "antigravity-cli", 1)
-	if info, err := os.Stat(alt); err == nil && info.Mode().IsRegular() {
-		return alt
-	}
-	return path
 }
