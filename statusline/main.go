@@ -21,6 +21,7 @@ type quotaWindow struct {
 }
 
 type statusInput struct {
+	product        string
 	modelID        string
 	modelName      string
 	inputTokens    *float64
@@ -53,7 +54,11 @@ func parseInput(raw []byte) statusInput {
 	if err := json.Unmarshal(raw, &root); err != nil && !errors.As(err, &typeErr) {
 		return statusInput{}
 	}
+	if isAgy(root) {
+		return parseAgyInput(root)
+	}
 	return statusInput{
+		product:        text(field(root, "product")),
 		modelID:        text(field(root, "model", "id")),
 		modelName:      text(field(root, "model", "display_name")),
 		inputTokens:    number(field(root, "context_window", "total_input_tokens")),
@@ -106,14 +111,33 @@ func number(v any) *float64 {
 }
 
 func render(in statusInput, now time.Time) string {
-	segments := []func() string{
+	if in.product == "antigravity" {
+		return renderAgy(in, now)
+	}
+	return renderClaude(in, now)
+}
+
+func renderClaude(in statusInput, now time.Time) string {
+	return joinSegments([]func() string{
 		func() string { return segModel(in.modelName) },
 		func() string { return segContext(in.inputTokens, in.contextPercent) },
 		func() string { return segCost(in.costUSD) },
 		func() string { return segQuota(in.fiveHour, "5h", "15:04") },
 		func() string { return segQuota(in.sevenDay, "7d", "01-02 15:04") },
 		func() string { return segIdle(in.transcriptPath, now) },
-	}
+	})
+}
+
+func renderAgy(in statusInput, now time.Time) string {
+	return joinSegments([]func() string{
+		func() string { return segContext(in.inputTokens, in.contextPercent) },
+		func() string { return segQuota(in.fiveHour, "5h", "15:04") },
+		func() string { return segQuota(in.sevenDay, "weekly", "01-02 15:04") },
+		func() string { return segIdle(in.transcriptPath, now) },
+	})
+}
+
+func joinSegments(segments []func() string) string {
 	var shown []string
 	for _, segment := range segments {
 		if s := safe(segment); s != "" {
