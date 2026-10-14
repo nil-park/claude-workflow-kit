@@ -112,8 +112,8 @@ func number(v any) *float64 {
 }
 
 func render(in statusInput, now time.Time) string {
-	if in.product == "antigravity" {
-		return renderAgy(in, now)
+	if in.product == productAgy {
+		return renderAgy(in)
 	}
 	return renderClaude(in, now)
 }
@@ -129,7 +129,7 @@ func renderClaude(in statusInput, now time.Time) string {
 	})
 }
 
-func renderAgy(in statusInput, now time.Time) string {
+func renderAgy(in statusInput) string {
 	return joinSegments([]func() string{
 		func() string { return segContext(in.inputTokens, in.contextPercent) },
 		func() string { return segQuota(in.fiveHour, "5h", "15:04") },

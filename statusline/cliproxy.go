@@ -55,7 +55,7 @@ func cliproxySourceFromEnv() (cliproxySource, bool) {
 }
 
 func needsCLIProxyQuota(in statusInput) bool {
-	return in.product != "antigravity" && in.fiveHour == nil && in.sevenDay == nil && strings.HasPrefix(in.modelID, "gpt")
+	return in.product != productAgy && in.fiveHour == nil && in.sevenDay == nil && strings.HasPrefix(in.modelID, "gpt")
 }
 
 // withCLIProxyQuota never lets a proxy failure cost the other segments, so a

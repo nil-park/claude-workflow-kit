@@ -1,19 +1,22 @@
 package main
 
 import (
+	"math"
 	"strings"
 	"time"
 )
 
+const productAgy = "antigravity"
+
 func isAgy(root map[string]any) bool {
-	return text(field(root, "product")) == "antigravity"
+	return text(field(root, "product")) == productAgy
 }
 
 func parseAgyInput(root map[string]any) statusInput {
 	modelID := text(field(root, "model", "id"))
 	modelName := text(field(root, "model", "display_name"))
 
-	isGemini := strings.HasPrefix(modelID, "Gemini") || strings.HasPrefix(modelName, "Gemini")
+	isGemini := strings.HasPrefix(modelName, "Gemini")
 	key5h := "3p-5h"
 	keyWeekly := "3p-weekly"
 	if isGemini {
@@ -22,7 +25,7 @@ func parseAgyInput(root map[string]any) statusInput {
 	}
 
 	return statusInput{
-		product:        "antigravity",
+		product:        productAgy,
 		modelID:        modelID,
 		modelName:      modelName,
 		inputTokens:    number(field(root, "context_window", "total_input_tokens")),
@@ -40,15 +43,14 @@ func parseAgyQuota(v any) *quotaWindow {
 	}
 
 	resetStr := text(field(v, "reset_time"))
-	resetSec := number(field(v, "reset_in_seconds"))
 
-	// Placeholder quotas (remaining_fraction: 1 with 1970 reset or 0 seconds) are omitted.
-	if *rem == 1.0 && (resetStr == "1970-01-01T00:00:00Z" || (resetSec != nil && *resetSec == 0)) {
+	// Placeholder quotas (remaining_fraction: 1 with 1970 reset) are omitted.
+	if *rem == 1.0 && resetStr == "1970-01-01T00:00:00Z" {
 		return nil
 	}
 
 	window := &quotaWindow{
-		usedPercent: (1.0 - *rem) * 100.0,
+		usedPercent: math.Max(0, math.Min(100, (1.0-*rem)*100.0)),
 	}
 
 	if resetStr != "" {

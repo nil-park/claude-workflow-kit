@@ -143,3 +143,51 @@ func TestSegState(t *testing.T) {
 		t.Errorf("segState(\"authenticating\") = %q, want gray authenticating", got)
 	}
 }
+
+func TestParseAgyQuotaPlaceholder(t *testing.T) {
+	// Case 1: remaining_fraction == 1 with 1970 reset_time is treated as placeholder and returns nil.
+	placeholder := map[string]any{
+		"remaining_fraction": 1.0,
+		"reset_time":         "1970-01-01T00:00:00Z",
+	}
+	if q := parseAgyQuota(placeholder); q != nil {
+		t.Errorf("parseAgyQuota(placeholder) = %+v, want nil", q)
+	}
+
+	// Case 2: remaining_fraction == 1 with a future reset_time is a real unused quota (usedPercent: 0).
+	realZeroUsed := map[string]any{
+		"remaining_fraction": 1.0,
+		"reset_time":         "2026-10-15T12:00:00Z",
+		"reset_in_seconds":   3600.0,
+	}
+	q := parseAgyQuota(realZeroUsed)
+	if q == nil {
+		t.Fatal("parseAgyQuota(realZeroUsed) = nil, want valid quota")
+	}
+	if q.usedPercent != 0 {
+		t.Errorf("q.usedPercent = %v, want 0", q.usedPercent)
+	}
+	if q.resetsAt == nil || q.resetsAt.UTC().Format(time.RFC3339) != "2026-10-15T12:00:00Z" {
+		t.Errorf("q.resetsAt = %v, want 2026-10-15T12:00:00Z", q.resetsAt)
+	}
+}
+
+func TestParseAgyQuotaClamping(t *testing.T) {
+	// remaining_fraction > 1 (e.g. 1.5) -> clamped to 0% used
+	overFraction := map[string]any{
+		"remaining_fraction": 1.5,
+		"reset_time":         "2026-10-15T12:00:00Z",
+	}
+	if q := parseAgyQuota(overFraction); q == nil || q.usedPercent != 0 {
+		t.Errorf("usedPercent for rem 1.5 = %v, want 0", q)
+	}
+
+	// remaining_fraction < 0 (e.g. -0.5) -> clamped to 100% used
+	underFraction := map[string]any{
+		"remaining_fraction": -0.5,
+		"reset_time":         "2026-10-15T12:00:00Z",
+	}
+	if q := parseAgyQuota(underFraction); q == nil || q.usedPercent != 100 {
+		t.Errorf("usedPercent for rem -0.5 = %v, want 100", q)
+	}
+}
