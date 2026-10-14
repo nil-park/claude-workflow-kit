@@ -136,10 +136,10 @@ func TestSegState(t *testing.T) {
 	if got := segState("working"); got != green+"working"+reset {
 		t.Errorf("segState(\"working\") = %q, want green working", got)
 	}
-	if got := segState("idle"); got != defaultFg+"idle"+reset {
-		t.Errorf("segState(\"idle\") = %q, want defaultFg idle", got)
+	if got := segState("idle"); got != gray+"idle"+reset {
+		t.Errorf("segState(\"idle\") = %q, want gray idle", got)
 	}
-	if got := segState("authenticating"); got != defaultFg+"authenticating"+reset {
-		t.Errorf("segState(\"authenticating\") = %q, want defaultFg authenticating", got)
+	if got := segState("authenticating"); got != gray+"authenticating"+reset {
+		t.Errorf("segState(\"authenticating\") = %q, want gray authenticating", got)
 	}
 }

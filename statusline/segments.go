@@ -115,5 +115,5 @@ func segState(state string) string {
 	if state == "working" {
 		return green + "working" + reset
 	}
-	return defaultFg + state + reset
+	return gray + state + reset
 }
