@@ -69,10 +69,10 @@ func TestParseInputAgyEnterprise(t *testing.T) {
 		t.Errorf("agentState = %q, want %q", in.agentState, "idle")
 	}
 	if in.fiveHour != nil {
-		t.Errorf("fiveHour = %+v, want nil (enterprise keys not queried)", in.fiveHour)
+		t.Errorf("fiveHour = %+v, want nil (keys absent in enterprise fixture)", in.fiveHour)
 	}
 	if in.sevenDay != nil {
-		t.Errorf("sevenDay = %+v, want nil (enterprise keys not queried)", in.sevenDay)
+		t.Errorf("sevenDay = %+v, want nil (keys absent in enterprise fixture)", in.sevenDay)
 	}
 }
 
@@ -155,13 +155,21 @@ func TestSegState(t *testing.T) {
 }
 
 func TestParseAgyQuotaPlaceholder(t *testing.T) {
-	// Case 1: remaining_fraction == 1 with 1970 reset_time is treated as placeholder and returns nil.
-	placeholder := map[string]any{
-		"remaining_fraction": 1.0,
-		"reset_time":         "1970-01-01T00:00:00Z",
+	// Case 1: remaining_fraction == 1 with 1970 reset_time is treated as placeholder and returns nil,
+	// regardless of RFC3339 representation variations (offset, fractional seconds).
+	placeholderRepresentations := []string{
+		"1970-01-01T00:00:00Z",
+		"1970-01-01T00:00:00+00:00",
+		"1970-01-01T00:00:00.000Z",
 	}
-	if q := parseAgyQuota(placeholder); q != nil {
-		t.Errorf("parseAgyQuota(placeholder) = %+v, want nil", q)
+	for _, resetStr := range placeholderRepresentations {
+		placeholder := map[string]any{
+			"remaining_fraction": 1.0,
+			"reset_time":         resetStr,
+		}
+		if q := parseAgyQuota(placeholder); q != nil {
+			t.Errorf("parseAgyQuota(reset_time: %q) = %+v, want nil", resetStr, q)
+		}
 	}
 
 	// Case 2: remaining_fraction == 1 with a future reset_time is a real unused quota (usedPercent: 0).

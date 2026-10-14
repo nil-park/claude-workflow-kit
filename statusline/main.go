@@ -1,5 +1,8 @@
 // Command statusline renders the status line for Claude Code and Antigravity
-// from the session JSON written to stdin.
+// from the session JSON written to stdin, taking the quota from CLIProxyAPI
+// when a gpt-* session's stdin has none:
+// - Claude Code: model | context usage | session cost | 5h quota | 7d quota | idle.
+// - Antigravity: context usage | 5h quota | weekly quota | agent_state.
 package main
 
 import (
