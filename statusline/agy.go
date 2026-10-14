@@ -15,12 +15,16 @@ func parseAgyInput(root map[string]any) statusInput {
 	modelID := text(field(root, "model", "id"))
 	modelName := text(field(root, "model", "display_name"))
 
-	isGemini := strings.HasPrefix(modelID, "Gemini") || strings.HasPrefix(modelName, "Gemini")
-	key5h := "3p-5h"
-	keyWeekly := "3p-weekly"
-	if isGemini {
-		key5h = "gemini-5h"
-		keyWeekly = "gemini-weekly"
+	var fiveHour, sevenDay *quotaWindow
+	if modelID != "" || modelName != "" {
+		key5h := "3p-5h"
+		keyWeekly := "3p-weekly"
+		if strings.HasPrefix(modelID, "Gemini") || strings.HasPrefix(modelName, "Gemini") {
+			key5h = "gemini-5h"
+			keyWeekly = "gemini-weekly"
+		}
+		fiveHour = parseAgyQuota(field(root, "quota", key5h))
+		sevenDay = parseAgyQuota(field(root, "quota", keyWeekly))
 	}
 
 	return statusInput{
@@ -29,8 +33,8 @@ func parseAgyInput(root map[string]any) statusInput {
 		modelName:      modelName,
 		inputTokens:    number(field(root, "context_window", "total_input_tokens")),
 		contextPercent: number(field(root, "context_window", "used_percentage")),
-		fiveHour:       parseAgyQuota(field(root, "quota", key5h)),
-		sevenDay:       parseAgyQuota(field(root, "quota", keyWeekly)),
+		fiveHour:       fiveHour,
+		sevenDay:       sevenDay,
 		agentState:     text(field(root, "agent_state")),
 	}
 }
@@ -41,22 +45,20 @@ func parseAgyQuota(v any) *quotaWindow {
 		return nil
 	}
 
+	var resetAt *time.Time
 	resetStr := text(field(v, "reset_time"))
-
-	// Placeholder quotas (remaining_fraction: 1 with 1970 reset) are omitted.
-	if *rem == 1.0 && resetStr == "1970-01-01T00:00:00Z" {
-		return nil
-	}
-
-	window := &quotaWindow{
-		usedPercent: (1.0 - *rem) * 100.0,
-	}
-
 	if resetStr != "" {
 		if t, err := time.Parse(time.RFC3339, resetStr); err == nil {
+			if *rem == 1.0 && t.Unix() <= 0 {
+				return nil
+			}
 			local := t.Local()
-			window.resetsAt = &local
+			resetAt = &local
 		}
 	}
-	return window
+
+	return &quotaWindow{
+		usedPercent: (1.0 - *rem) * 100.0,
+		resetsAt:    resetAt,
+	}
 }
