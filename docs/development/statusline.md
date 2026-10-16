@@ -48,10 +48,11 @@
   - agy는 세션 JSON의 최상위에 `product: "antigravity"`를 전달한다.
 - 쿼터 키 구조
   - Google AI Pro(개인) 요금제는 `gemini-5h`, `gemini-weekly`, `3p-5h`, `3p-weekly` 키를 제공하며, 잔여 비율과 초기화 시각에 실측값을 담는다.
-  - Google AI Pro 요금제는 Argon 모델의 사용량을 `gemini-argon-wtu-weekly` 키의 주간 한도에만 반영하며, Argon 모델에는 5시간 한도가 없다.
+  - Google AI Pro 요금제는 Argon 모델의 사용량을 `gemini-argon-wtu-weekly` 키의 주간 한도에만 반영한다.
+    - Argon 모델에는 5시간 한도가 없다.
     - 이 키는 Argon이 아닌 모델을 쓰는 세션의 stdin에도 함께 들어온다.
   - Google AI Pro 외의 요금제는 `gemini-argon-wtu-weekly` 키를 제공하지 않는다고 가정한다.
-    - 이 요금제들은 Argon 모델의 사용량을 Gemini 그룹 한도(`gemini-5h`, `gemini-weekly`)에 포함한다.
+    - 이런 요금제는 Argon 모델의 사용량을 Gemini 그룹 한도(`gemini-5h`, `gemini-weekly`)에 합산한다.
   - GCP 엔터프라이즈 요금제는 모델별 14개 키를 제공하며 모든 항목이 `remaining_fraction: 1`, `reset_time: 1970-01-01`로 고정된 자리표시자다.
   - 엔터프라이즈 요금제의 모델별 쿼터 키는 관측된 값이 모두 자리표시자이므로 지원 대상에서 제외하며 세그먼트를 표시하지 않는다.
   - 잔여 비율(`remaining_fraction`)은 0 이상 1 이하의 실수로 들어온다고 가정한다.
