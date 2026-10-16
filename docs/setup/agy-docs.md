@@ -17,7 +17,7 @@ curl -sL --compressed https://antigravity.google/docs/rules.md -o .refs/agy-rule
 
 | 주제         | URL                                              | 볼 때                                                |
 | ------------ | ------------------------------------------------ | ---------------------------------------------------- |
-| 규칙         | https://antigravity.google/docs/rules.md         | `.agents/rules/`나 `AGENTS.md`를 고칠 때             |
+| 규칙         | https://antigravity.google/docs/rules.md         | `AGENTS.md`를 고칠 때                                |
 | 스킬         | https://antigravity.google/docs/skills.md        | 스킬 디렉터리 구조나 프런트매터를 확인할 때          |
 | 훅           | https://antigravity.google/docs/hooks.md         | `hooks.json`의 위치, 이벤트, 입출력 필드를 확인할 때 |
 | 플러그인     | https://antigravity.google/docs/plugins.md       | 플러그인 구조와 설치 절차를 확인할 때                |
