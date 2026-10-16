@@ -12,7 +12,7 @@
 curl -sL --create-dirs https://code.claude.com/docs/en/hooks.md -o .spec-docs/claude-hooks-original-$(date +%y%m%d).md
 ```
 
-받은 파일은 `.spec-docs/` 아래에 둔다. 파일명 끝의 `YYMMDD`가 확인 시점이다.
+`curl`로 받은 원문은 `.spec-docs/` 디렉터리에 저장한다. 파일명 끝의 `YYMMDD`가 확인 시점이다.
 
 `.spec-docs/`에 받은 지 15일이 지나지 않은 원문이 있으면, 사용자가 다시 받으라고 지시하기 전에는 새로 받지 않고 그 파일을 읽는다.
 
