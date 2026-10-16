@@ -34,6 +34,7 @@ type statusInput struct {
 	sevenDay       *quotaWindow
 	transcriptPath string
 	agentState     string
+	sessionID      string
 }
 
 func main() {
@@ -137,6 +138,7 @@ func renderAgy(in statusInput) string {
 		func() string { return segQuota(in.fiveHour, "5h", "15:04") },
 		func() string { return segQuota(in.sevenDay, "weekly", "01-02 15:04") },
 		func() string { return segState(in.agentState) },
+		func() string { return segSessionID(in.sessionID) },
 	})
 }
 

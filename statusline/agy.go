@@ -42,6 +42,7 @@ func parseAgyInput(root map[string]any) statusInput {
 		fiveHour:       fiveHour,
 		sevenDay:       sevenDay,
 		agentState:     text(field(root, "agent_state")),
+		sessionID:      text(field(root, "conversation_id")),
 	}
 }
 
