@@ -58,19 +58,19 @@ func run(args []string, stdout, stderr io.Writer) int {
 }
 
 func newFlagSet(name string, stderr io.Writer) *flag.FlagSet {
-	fs := flag.NewFlagSet(name, flag.ContinueOnError)
-	fs.SetOutput(stderr)
-	return fs
+	flags := flag.NewFlagSet(name, flag.ContinueOnError)
+	flags.SetOutput(stderr)
+	return flags
 }
 
 // parseFlags rejects leftover arguments so a mistyped flag value is not
 // silently dropped.
-func parseFlags(fs *flag.FlagSet, args []string) error {
-	if err := fs.Parse(args); err != nil {
+func parseFlags(flags *flag.FlagSet, args []string) error {
+	if err := flags.Parse(args); err != nil {
 		return err
 	}
-	if fs.NArg() > 0 {
-		return fmt.Errorf("unexpected argument %q", fs.Arg(0))
+	if flags.NArg() > 0 {
+		return fmt.Errorf("unexpected argument %q", flags.Arg(0))
 	}
 	return nil
 }
