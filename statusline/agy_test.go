@@ -32,6 +32,9 @@ func TestParseInputAgyPersonal(t *testing.T) {
 	if in.agentState != "working" {
 		t.Errorf("agentState = %q, want %q", in.agentState, "working")
 	}
+	if in.sessionID != "00000000-0000-4000-8000-000000000001" {
+		t.Errorf("sessionID = %q, want conversation_id", in.sessionID)
+	}
 	if in.fiveHour == nil {
 		t.Fatal("fiveHour is nil, want gemini-5h parsed")
 	}
@@ -190,6 +193,7 @@ func TestRenderAgy(t *testing.T) {
 		fiveHour:       &quotaWindow{usedPercent: 1.19, resetsAt: &reset5h},
 		sevenDay:       &quotaWindow{usedPercent: 0.73, resetsAt: &resetWeekly},
 		agentState:     "working",
+		sessionID:      "cd5e6efd-6ae7-4519-9ec8-bab59cd271f7",
 	}
 
 	got := render(in, time.Now())
@@ -197,7 +201,8 @@ func TestRenderAgy(t *testing.T) {
 	want := "\x1b[0;35m19.5k (2%)\x1b[0m \x1b[0;90mctx\x1b[0m" +
 		" \x1b[0;90m|\x1b[0m \x1b[0;32m1%\x1b[0m \x1b[0;90m5h\x1b[0m \x1b[0;90m→\x1b[0m \x1b[0;39m02:31\x1b[0m" +
 		" \x1b[0;90m|\x1b[0m \x1b[0;32m1%\x1b[0m \x1b[0;90mweekly\x1b[0m \x1b[0;90m→\x1b[0m \x1b[0;39m10-21 21:31\x1b[0m" +
-		" \x1b[0;90m|\x1b[0m \x1b[0;32mworking\x1b[0m"
+		" \x1b[0;90m|\x1b[0m \x1b[0;32mworking\x1b[0m" +
+		" \x1b[0;90m|\x1b[0m \x1b[0;90mcd5e6efd\x1b[0m"
 	if got != want {
 		t.Errorf("renderAgy =\n%q\nwant\n%q", got, want)
 	}

@@ -117,3 +117,13 @@ func segState(state string) string {
 	}
 	return gray + state + reset
 }
+
+func segSessionID(id string) string {
+	if id == "" {
+		return ""
+	}
+	if len(id) > 8 {
+		id = id[:8]
+	}
+	return gray + id + reset
+}
