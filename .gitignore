@@ -1,6 +1,9 @@
 # scratch dir for gh --body-file payloads
 /.refs/
 
+# personal Claude Code settings
+/.claude/settings.local.json
+
 # crash dumps a dying Git Bash leaves behind
 *.stackdump
 
