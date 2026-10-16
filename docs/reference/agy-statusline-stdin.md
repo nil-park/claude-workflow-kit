@@ -9,17 +9,17 @@ Antigravity(agy)가 `statusline` 명령의 stdin으로 넘기는 JSON의 필드 
 
 ### 세션
 
-| 필드                 | 타입   | 실측 예시        | 설명                |
-| -------------------- | ------ | ---------------- | ------------------- |
-| `session_id`         | 문자열 | (가림)           | 세션 식별자(UUID)   |
-| `conversation_id`    | 문자열 | (가림)           | 대화 식별자(UUID)   |
-| `conversation_title` | 문자열 | `"Network Test"` | 대화 제목           |
-| `transcript_path`    | 문자열 | (가림)           | 대화 기록 파일 경로 |
-| `cwd`                | 문자열 | (가림)           | 현재 작업 디렉터리  |
-| `version`            | 문자열 | `"1.3.5"`        | agy CLI 버전        |
-| `product`            | 문자열 | `"antigravity"`  | 제품 식별자         |
-| `email`              | 문자열 | (가림)           | 사용자 계정 이메일  |
-| `terminal_width`     | 숫자   | `80`             | 터미널 가로 폭      |
+| 필드                 | 타입   | 실측 예시        | 설명                                      |
+| -------------------- | ------ | ---------------- | ----------------------------------------- |
+| `session_id`         | 문자열 | (가림)           | 세션 식별자(UUID)                         |
+| `conversation_id`    | 문자열 | (가림)           | 대화 식별자(UUID). 첫 턴 전에는 빈 문자열 |
+| `conversation_title` | 문자열 | `"Network Test"` | 대화 제목                                 |
+| `transcript_path`    | 문자열 | (가림)           | 대화 기록 파일 경로                       |
+| `cwd`                | 문자열 | (가림)           | 현재 작업 디렉터리                        |
+| `version`            | 문자열 | `"1.3.5"`        | agy CLI 버전                              |
+| `product`            | 문자열 | `"antigravity"`  | 제품 식별자                               |
+| `email`              | 문자열 | (가림)           | 사용자 계정 이메일                        |
+| `terminal_width`     | 숫자   | `80`             | 터미널 가로 폭                            |
 
 ### 모델과 실행 상태
 

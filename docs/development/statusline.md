@@ -61,6 +61,8 @@
   - agy는 세션 유휴 상태에서 명령을 주기적으로 다시 실행하는 타이머(`refreshInterval`)를 지원하지 않는다.
   - statusline은 agy 세션에서 `idle` 세그먼트를 제외하고 `agent_state` 세그먼트를 표시한다.
   - `agent_state`는 제어 문자를 포함하지 않는 상태 식별자 문자열이라고 가정한다.
+- 세션 ID
+  - `conversation_id`는 UUID 문자열이라고 가정한다.
 
 ### 출력
 
