@@ -30,18 +30,18 @@ Opus 5 | 145.7k (15%) ctx | $5.18 session | 8% 5h → 15:20 | 7% 7d → 09-25 07
 ### agy
 
 ```text
-19.5k (2%) ctx | 1% 5h → 02:31 | 1% weekly → 10-21 21:31 | working | cd5e6efd
+19.5k (2%) ctx | 1% 5h → 02:31 | 1% weekly → 10-21 21:31 | working | cd5e6efd-6ae7-4519-9ec8-bab59cd271f7
 ```
 
 - 아래 표의 순서로 출력한다.
 
-| 세그먼트    | stdin 필드                                                                               | 예시                      | 값의 색              |
-| ----------- | ---------------------------------------------------------------------------------------- | ------------------------- | -------------------- |
-| 컨텍스트    | `context_window.total_input_tokens`, `context_window.used_percentage`                    | `19.5k (2%) ctx`          | 사용률 색(기본 자홍) |
-| 5h 쿼터     | `quota` 안의 5시간 창 키(`gemini-5h` 또는 `3p-5h`)                                       | `1% 5h → 02:31`           | 사용률 색(기본 초록) |
-| weekly 쿼터 | `quota` 안의 주간 창 키(`gemini-argon-wtu-weekly`, `gemini-weekly`, `3p-weekly` 중 하나) | `1% weekly → 10-21 21:31` | 사용률 색(기본 초록) |
-| 상태        | `agent_state`                                                                            | `working`                 | 상태 색              |
-| 세션 ID     | `conversation_id`                                                                        | `cd5e6efd`                | 회색                 |
+| 세그먼트    | stdin 필드                                                                               | 예시                                   | 값의 색              |
+| ----------- | ---------------------------------------------------------------------------------------- | -------------------------------------- | -------------------- |
+| 컨텍스트    | `context_window.total_input_tokens`, `context_window.used_percentage`                    | `19.5k (2%) ctx`                       | 사용률 색(기본 자홍) |
+| 5h 쿼터     | `quota` 안의 5시간 창 키(`gemini-5h` 또는 `3p-5h`)                                       | `1% 5h → 02:31`                        | 사용률 색(기본 초록) |
+| weekly 쿼터 | `quota` 안의 주간 창 키(`gemini-argon-wtu-weekly`, `gemini-weekly`, `3p-weekly` 중 하나) | `1% weekly → 10-21 21:31`              | 사용률 색(기본 초록) |
+| 상태        | `agent_state`                                                                            | `working`                              | 상태 색              |
+| 세션 ID     | `conversation_id`                                                                        | `cd5e6efd-6ae7-4519-9ec8-bab59cd271f7` | 회색                 |
 
 ### 색
 
@@ -95,7 +95,7 @@ Opus 5 | 145.7k (15%) ctx | $5.18 session | 8% 5h → 15:20 | 7% 7d → 09-25 07
 
 ### 세션 ID (agy)
 
-- `conversation_id`의 앞 8자를 출력한다.
+- `conversation_id` 값을 그대로 출력한다.
 - 값이 빈 문자열이면 세그먼트를 생략한다.
 
 ### idle (Claude Code)
