@@ -8,8 +8,7 @@
 
 - [README.md](README.md) — big-picture overview; read first. Describes major features only, so don't assume a feature is missing just because a newly added one isn't listed there.
 - [docs/setup/claude-docs.md](docs/setup/claude-docs.md) — the Claude Code spec docs this repo is built on, which one covers what, and how to fetch an original instead of a summary. Fetch and read the matching one before editing a skill, a manifest, the catalog, or a hook.
-- [docs/setup/agy-docs.md](docs/setup/agy-docs.md) — the agy spec docs and how to fetch an original. Fetch and read the matching one before editing `.agents/rules/`.
-- [docs/development/agy-support.md](docs/development/agy-support.md) — how the skills reach agy as always-on rules, and the limits that shape them.
+- [docs/setup/agy-docs.md](docs/setup/agy-docs.md) — the agy spec docs and how to fetch an original. Fetch and read the matching one before editing anything agy loads.
 
 ## Language
 
