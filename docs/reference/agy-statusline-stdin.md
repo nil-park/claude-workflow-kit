@@ -2,7 +2,7 @@
 
 Antigravity(agy)가 `statusline` 명령의 stdin으로 넘기는 JSON의 필드 목록이다.
 
-- 관측 조건: Antigravity 1.3.5, Google AI Pro(개인) 및 GCP 엔터프라이즈 요금제, Windows 및 Linux, 2026-10
+- 관측 조건: Antigravity 1.3.5와 1.4.0, Google AI Pro(개인) 및 GCP 엔터프라이즈 요금제, Windows 및 Linux, 2026-10
 - 로컬 경로와 식별자는 값을 가렸다.
 
 ## 관측된 필드
@@ -68,5 +68,7 @@ Antigravity(agy)가 `statusline` 명령의 stdin으로 넘기는 JSON의 필드 
 
 #### 요금제별 관측 키
 
-- Google AI Pro(개인): `gemini-5h`, `gemini-weekly`, `3p-5h`, `3p-weekly`
+- Google AI Pro(개인): `gemini-5h`, `gemini-weekly`, `3p-5h`, `3p-weekly`, `gemini-argon-wtu-weekly`
+  - `gemini-argon-wtu-weekly`는 agy 1.4.0에서 관측했다.
+  - Argon 모델로 턴을 진행하는 동안 `gemini-argon-wtu-weekly`의 잔여 비율만 줄고, `gemini-5h`와 `gemini-weekly`는 그대로였다.
 - GCP 엔터프라이즈: 모델별 14개 키(`gemini-3.1-pro-high`, `gemini-4-argon-medium` 등)
