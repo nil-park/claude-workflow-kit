@@ -1,6 +1,9 @@
 # scratch dir for gh --body-file payloads
 /.refs/
 
+# spec doc originals fetched per docs/setup/
+/.spec-docs/
+
 # personal Claude Code settings
 /.claude/settings.local.json
 
