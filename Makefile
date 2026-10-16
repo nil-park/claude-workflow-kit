@@ -7,7 +7,9 @@ BG_BLUE := \033[44m
 BG_PINK := \033[45m
 RESET := \033[0m
 
-.PHONY: format test statusline
+.PHONY: format test statusline duo-relay
+
+GO_MODULES := statusline duo-relay
 
 # 고치면서 검사한다. 확장자별 파일이 없어도 오류 없이 넘어간다.
 format:
@@ -22,11 +24,11 @@ format:
 	@echo -e "\n$(BG_PINK)$(FG_WHITE)$(FG_BOLD) pytest $(RESET)\n"
 	@uv run pytest
 	@echo -e "\n$(BG_GREEN)$(FG_WHITE)$(FG_BOLD) gofmt -w $(RESET)\n"
-	@gofmt -w statusline
+	@gofmt -w $(GO_MODULES)
 	@echo -e "\n$(BG_YELLOW)$(FG_BLACK)$(FG_BOLD) go vet $(RESET)\n"
-	@cd statusline && go vet ./...
+	@for m in $(GO_MODULES); do (cd $$m && go vet ./...) || exit 1; done
 	@echo -e "\n$(BG_PINK)$(FG_WHITE)$(FG_BOLD) go test $(RESET)\n"
-	@cd statusline && go test ./...
+	@for m in $(GO_MODULES); do (cd $$m && go test ./...) || exit 1; done
 	@echo -e "\n$(BG_GREEN)$(FG_WHITE)$(FG_BOLD) claude plugin validate $(RESET)\n"
 	@claude plugin validate .
 
@@ -39,14 +41,18 @@ test:
 	@echo -e "\n$(BG_PINK)$(FG_WHITE)$(FG_BOLD) pytest $(RESET)\n"
 	@uv run pytest
 	@echo -e "\n$(BG_GREEN)$(FG_WHITE)$(FG_BOLD) gofmt -l $(RESET)\n"
-	@unformatted="$$(gofmt -l statusline)"; if [ -n "$$unformatted" ]; then echo "$$unformatted"; exit 1; fi
+	@unformatted="$$(gofmt -l $(GO_MODULES))"; if [ -n "$$unformatted" ]; then echo "$$unformatted"; exit 1; fi
 	@echo -e "\n$(BG_YELLOW)$(FG_BLACK)$(FG_BOLD) go vet $(RESET)\n"
-	@cd statusline && go vet ./...
+	@for m in $(GO_MODULES); do (cd $$m && go vet ./...) || exit 1; done
 	@echo -e "\n$(BG_PINK)$(FG_WHITE)$(FG_BOLD) go test $(RESET)\n"
-	@cd statusline && go test ./...
+	@for m in $(GO_MODULES); do (cd $$m && go test ./...) || exit 1; done
 	@echo -e "\n$(BG_GREEN)$(FG_WHITE)$(FG_BOLD) claude plugin validate $(RESET)\n"
 	@claude plugin validate .
 
 # build/statusline을 빌드한다. Windows에서는 go env GOEXE가 .exe 확장자를 붙인다.
 statusline:
 	@cd statusline && go build -o "../build/statusline$$(go env GOEXE)" .
+
+# duo-relay를 ~/.local/bin에 설치한다.
+duo-relay:
+	@cd duo-relay && go build -o "$(HOME)/.local/bin/duo-relay$$(go env GOEXE)" .
