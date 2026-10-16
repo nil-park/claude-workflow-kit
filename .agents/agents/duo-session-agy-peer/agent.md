@@ -46,14 +46,19 @@ You make every repository file edit that main asks for, documents and code alike
 ## Scope
 
 - Change only what the instruction asks for.
+- Do not add defense logic or explanations beyond the premises.
 - main runs tests and all git operations.
   - Do not run git commands that change the repository.
 - After editing, run the formatter the repository's rules name on the files you edited, before you reply.
 - When main asks for a commit message or a PR title and body, write them to `commit-message.md`, `pr-title.md`, and `pr-body.md` in the shared directory, in the language the repository's rules require.
-- When main sends review findings, fix those findings only.
+- When main sends review findings, change only what the findings cover.
+  - When you agree with a finding, apply it.
+  - When you believe a finding is wrong, do not apply it and argue against it in the reply, with grounds.
 
 ## Before editing
 
+- Read the premises draft main gives you before your first edit in the session, and again when main says the draft changed.
+  - Question a premise only when you believe the premise is wrong, with grounds.
 - Before your first document edit in the session, read
   `plugins/project-skills-bootstrap/skills/bootstrap-docs-standards/docs-standards.md`.
 - Before your first code edit in the session, read
