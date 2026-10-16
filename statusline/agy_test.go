@@ -76,6 +76,67 @@ func TestParseInputAgyEnterprise(t *testing.T) {
 	}
 }
 
+func TestParseInputAgyArgonPro(t *testing.T) {
+	raw, err := os.ReadFile("testdata/captured-stdin-agy-argon.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	in := parseInput(raw)
+
+	if in.fiveHour != nil {
+		t.Errorf("fiveHour = %+v, want nil (Argon has no 5h window on Pro)", in.fiveHour)
+	}
+	if in.sevenDay == nil {
+		t.Fatal("sevenDay is nil, want gemini-argon-wtu-weekly parsed")
+	}
+	// remaining_fraction: 0.6514423 -> used: ~34.85577%
+	if math.Abs(in.sevenDay.usedPercent-34.85577) > 1e-4 {
+		t.Errorf("sevenDay.usedPercent = %f, want ~34.85577", in.sevenDay.usedPercent)
+	}
+	if in.sevenDay.resetsAt == nil || in.sevenDay.resetsAt.UTC().Format(time.RFC3339) != "2026-10-23T12:35:28Z" {
+		t.Errorf("sevenDay.resetsAt = %v, want 2026-10-23T12:35:28Z", in.sevenDay.resetsAt)
+	}
+}
+
+func TestParseInputAgyArgonWithoutArgonBucket(t *testing.T) {
+	raw := []byte(`{
+		"product": "antigravity",
+		"model": {"id": "Gemini 4 Argon (Medium)", "display_name": "Gemini 4 Argon (Medium)"},
+		"quota": {
+			"gemini-5h": {"remaining_fraction": 0.8, "reset_time": "2026-10-14T18:00:00Z"},
+			"gemini-weekly": {"remaining_fraction": 0.9, "reset_time": "2026-10-21T18:00:00Z"}
+		}
+	}`)
+	in := parseInput(raw)
+
+	if in.fiveHour == nil || math.Abs(in.fiveHour.usedPercent-20.0) > 1e-4 {
+		t.Fatalf("fiveHour = %+v, want gemini-5h at 20%% used", in.fiveHour)
+	}
+	if in.sevenDay == nil || math.Abs(in.sevenDay.usedPercent-10.0) > 1e-4 {
+		t.Fatalf("sevenDay = %+v, want gemini-weekly at 10%% used", in.sevenDay)
+	}
+}
+
+func TestParseInputAgyFlashIgnoresArgonBucket(t *testing.T) {
+	raw := []byte(`{
+		"product": "antigravity",
+		"model": {"id": "Gemini 3.8 Flash (Medium)", "display_name": "Gemini 3.8 Flash (Medium)"},
+		"quota": {
+			"gemini-5h": {"remaining_fraction": 0.8, "reset_time": "2026-10-14T18:00:00Z"},
+			"gemini-weekly": {"remaining_fraction": 0.9, "reset_time": "2026-10-21T18:00:00Z"},
+			"gemini-argon-wtu-weekly": {"remaining_fraction": 0.5, "reset_time": "2026-10-23T12:00:00Z"}
+		}
+	}`)
+	in := parseInput(raw)
+
+	if in.fiveHour == nil || math.Abs(in.fiveHour.usedPercent-20.0) > 1e-4 {
+		t.Fatalf("fiveHour = %+v, want gemini-5h at 20%% used", in.fiveHour)
+	}
+	if in.sevenDay == nil || math.Abs(in.sevenDay.usedPercent-10.0) > 1e-4 {
+		t.Fatalf("sevenDay = %+v, want gemini-weekly at 10%% used", in.sevenDay)
+	}
+}
+
 func TestParseInputAgy3PModel(t *testing.T) {
 	raw := []byte(`{
 		"product": "antigravity",

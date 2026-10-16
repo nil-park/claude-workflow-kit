@@ -16,15 +16,21 @@ func parseAgyInput(root map[string]any) statusInput {
 	modelName := text(field(root, "model", "display_name"))
 
 	var fiveHour, sevenDay *quotaWindow
-	if modelID != "" || modelName != "" {
-		key5h := "3p-5h"
-		keyWeekly := "3p-weekly"
-		if strings.HasPrefix(modelID, "Gemini") || strings.HasPrefix(modelName, "Gemini") {
-			key5h = "gemini-5h"
-			keyWeekly = "gemini-weekly"
-		}
-		fiveHour = parseAgyQuota(field(root, "quota", key5h))
-		sevenDay = parseAgyQuota(field(root, "quota", keyWeekly))
+	quota := field(root, "quota")
+	argonWeekly := field(quota, "gemini-argon-wtu-weekly")
+	isGemini := strings.HasPrefix(modelID, "Gemini") || strings.HasPrefix(modelName, "Gemini")
+	isArgon := strings.Contains(modelID, "Argon") || strings.Contains(modelName, "Argon")
+	switch {
+	case modelID == "" && modelName == "":
+	case isArgon && argonWeekly != nil:
+		// Google AI Pro bills Argon to its own weekly bucket, with no 5-hour window.
+		sevenDay = parseAgyQuota(argonWeekly)
+	case isGemini:
+		fiveHour = parseAgyQuota(field(quota, "gemini-5h"))
+		sevenDay = parseAgyQuota(field(quota, "gemini-weekly"))
+	default:
+		fiveHour = parseAgyQuota(field(quota, "3p-5h"))
+		sevenDay = parseAgyQuota(field(quota, "3p-weekly"))
 	}
 
 	return statusInput{
