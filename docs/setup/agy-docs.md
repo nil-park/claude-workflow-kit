@@ -8,10 +8,12 @@
 응답은 gzip으로 압축되어 온다. 그래서 `curl`에 `--compressed`를 붙인다.
 
 ```bash
-curl -sL --compressed https://antigravity.google/docs/rules.md -o .refs/agy-rules-original-$(date +%y%m%d).md
+curl -sL --compressed --create-dirs https://antigravity.google/docs/rules.md -o .spec-docs/agy-rules-original-$(date +%y%m%d).md
 ```
 
-받은 파일은 `.refs/` 아래에 저장한다. 파일명 끝의 `YYMMDD`가 확인 시점이다.
+받은 파일은 `.spec-docs/` 아래에 저장한다. 파일명 끝의 `YYMMDD`가 확인 시점이다.
+
+`.spec-docs/`에 받은 지 15일이 지나지 않은 원문이 있으면, 사용자가 다시 받으라고 지시하기 전에는 새로 받지 않고 그 파일을 읽는다.
 
 ## 문서 목록
 

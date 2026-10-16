@@ -9,10 +9,12 @@
 답변뿐이라 문서에 있는 필드가 없다고 나올 수 있다. 원문을 보려면 `curl`로 받는다.
 
 ```bash
-curl -sL https://code.claude.com/docs/en/hooks.md -o .refs/hooks-original-$(date +%y%m%d).md
+curl -sL --create-dirs https://code.claude.com/docs/en/hooks.md -o .spec-docs/claude-hooks-original-$(date +%y%m%d).md
 ```
 
-받은 파일은 `.refs/` 아래에 둔다. 파일명 끝의 `YYMMDD`가 확인 시점이다.
+받은 파일은 `.spec-docs/` 아래에 둔다. 파일명 끝의 `YYMMDD`가 확인 시점이다.
+
+`.spec-docs/`에 받은 지 15일이 지나지 않은 원문이 있으면, 사용자가 다시 받으라고 지시하기 전에는 새로 받지 않고 그 파일을 읽는다.
 
 ## 문서 목록
 

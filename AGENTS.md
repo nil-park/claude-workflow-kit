@@ -7,8 +7,8 @@
 ## Required Reading
 
 - [README.md](README.md) — big-picture overview; read first. Describes major features only, so don't assume a feature is missing just because a newly added one isn't listed there.
-- [docs/setup/claude-docs.md](docs/setup/claude-docs.md) — the Claude Code spec docs this repo is built on, which one covers what, and how to fetch an original instead of a summary. Fetch and read the matching one before editing a skill, a manifest, the catalog, or a hook.
-- [docs/setup/agy-docs.md](docs/setup/agy-docs.md) — the agy spec docs and how to fetch an original. Fetch and read the matching one before editing anything agy loads.
+- [docs/setup/claude-docs.md](docs/setup/claude-docs.md) — the Claude Code spec docs this repo is built on, which one covers what, and how to fetch an original instead of a summary. Read the original of the matching one before editing a skill, a manifest, the catalog, or a hook; the doc says when to fetch it again.
+- [docs/setup/agy-docs.md](docs/setup/agy-docs.md) — the agy spec docs and how to fetch an original. Read the original of the matching one before editing anything agy loads; the doc says when to fetch it again.
 
 ## Language
 

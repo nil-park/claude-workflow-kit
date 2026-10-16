@@ -9,7 +9,7 @@ Codex에서 쓰거나 Codex 호환성을 확인할 때 이 문서들을 참조�
 문서는 페이지 URL 끝에 `.md`를 붙인 주소에서 마크다운 원문을 제공한다.
 
 ```bash
-curl -sL https://developers.openai.com/codex/hooks.md -o .refs/codex-hooks-original-$(date +%y%m%d).md
+curl -sL --create-dirs https://developers.openai.com/codex/hooks.md -o .spec-docs/codex-hooks-original-$(date +%y%m%d).md
 ```
 
 ## 문서 목록
