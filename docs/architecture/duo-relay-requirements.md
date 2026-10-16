@@ -1,4 +1,4 @@
-# duo-relay
+# duo-relay 요구사항
 
 duo-relay는 서로 다른 터미널에서 실행 중인 대화형 CLI 세션 두 개가 메시지를 주고받게 하는 CLI다.
 
