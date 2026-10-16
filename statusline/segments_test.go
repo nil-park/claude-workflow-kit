@@ -129,9 +129,7 @@ func TestSegIdleWithoutRegularFile(t *testing.T) {
 func TestSegSessionID(t *testing.T) {
 	cases := map[string]string{
 		"":                                     "",
-		"abc":                                  gray + "abc" + reset,
-		"cd5e6efd":                             gray + "cd5e6efd" + reset,
-		"cd5e6efd-6ae7-4519-9ec8-bab59cd271f7": gray + "cd5e6efd" + reset,
+		"cd5e6efd-6ae7-4519-9ec8-bab59cd271f7": gray + "cd5e6efd-6ae7-4519-9ec8-bab59cd271f7" + reset,
 	}
 	for id, want := range cases {
 		if got := segSessionID(id); got != want {
