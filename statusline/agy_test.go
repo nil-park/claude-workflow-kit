@@ -202,7 +202,7 @@ func TestRenderAgy(t *testing.T) {
 		" \x1b[0;90m|\x1b[0m \x1b[0;32m1%\x1b[0m \x1b[0;90m5h\x1b[0m \x1b[0;90m→\x1b[0m \x1b[0;39m02:31\x1b[0m" +
 		" \x1b[0;90m|\x1b[0m \x1b[0;32m1%\x1b[0m \x1b[0;90mweekly\x1b[0m \x1b[0;90m→\x1b[0m \x1b[0;39m10-21 21:31\x1b[0m" +
 		" \x1b[0;90m|\x1b[0m \x1b[0;32mworking\x1b[0m" +
-		" \x1b[0;90m|\x1b[0m \x1b[0;90mcd5e6efd\x1b[0m"
+		" \x1b[0;90m|\x1b[0m \x1b[0;90mcd5e6efd-6ae7-4519-9ec8-bab59cd271f7\x1b[0m"
 	if got != want {
 		t.Errorf("renderAgy =\n%q\nwant\n%q", got, want)
 	}
