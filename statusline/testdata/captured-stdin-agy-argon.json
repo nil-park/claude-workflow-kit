@@ -1,0 +1,70 @@
+{
+  "cwd": "C:\\Users\\user\\projects\\my-project",
+  "session_id": "00000000-0000-4000-8000-000000000003",
+  "conversation_id": "00000000-0000-4000-8000-000000000003",
+  "conversation_title": "Network Connection Test",
+  "transcript_path": "C:\\Users\\user\\.gemini\\antigravity\\brain\\00000000-0000-4000-8000-000000000003\\.system_generated\\logs\\transcript.jsonl",
+  "model": {
+    "id": "Gemini 4 Argon (Medium)",
+    "display_name": "Gemini 4 Argon (Medium)",
+    "effort": "medium"
+  },
+  "workspace": {
+    "current_dir": "C:\\Users\\user\\projects\\my-project",
+    "project_dir": "C:\\Users\\user\\projects\\my-project"
+  },
+  "version": "1.4.0",
+  "context_window": {
+    "total_input_tokens": 46083,
+    "total_output_tokens": 906,
+    "context_window_size": 1048576,
+    "used_percentage": 4.394817352294922,
+    "remaining_percentage": 95.60518264770508,
+    "current_usage": {
+      "input_tokens": 2334,
+      "output_tokens": 45,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 32001
+    }
+  },
+  "exceeds_200k_tokens": false,
+  "product": "antigravity",
+  "quota": {
+    "3p-5h": {
+      "remaining_fraction": 1,
+      "reset_time": "2026-10-16T18:49:29Z",
+      "reset_in_seconds": 17674
+    },
+    "3p-weekly": {
+      "remaining_fraction": 0.7137,
+      "reset_time": "2026-10-21T12:41:24Z",
+      "reset_in_seconds": 427589
+    },
+    "gemini-5h": {
+      "remaining_fraction": 0.966618,
+      "reset_time": "2026-10-16T17:36:26Z",
+      "reset_in_seconds": 13291
+    },
+    "gemini-argon-wtu-weekly": {
+      "remaining_fraction": 0.6514423,
+      "reset_time": "2026-10-23T12:35:28Z",
+      "reset_in_seconds": 600033
+    },
+    "gemini-weekly": {
+      "remaining_fraction": 0.9904623,
+      "reset_time": "2026-10-23T12:36:26Z",
+      "reset_in_seconds": 600091
+    }
+  },
+  "agent_state": "idle",
+  "vcs": {
+    "type": "git"
+  },
+  "cycle_mode": "accept-edits",
+  "sandbox": {
+    "enabled": false
+  },
+  "plan_tier": "Google AI Pro",
+  "email": "user@example.com",
+  "terminal_width": 121
+}

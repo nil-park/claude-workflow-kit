@@ -35,12 +35,12 @@ Opus 5 | 145.7k (15%) ctx | $5.18 session | 8% 5h → 15:20 | 7% 7d → 09-25 07
 
 - 아래 표의 순서로 출력한다.
 
-| 세그먼트    | stdin 필드                                                            | 예시                      | 값의 색              |
-| ----------- | --------------------------------------------------------------------- | ------------------------- | -------------------- |
-| 컨텍스트    | `context_window.total_input_tokens`, `context_window.used_percentage` | `19.5k (2%) ctx`          | 사용률 색(기본 자홍) |
-| 5h 쿼터     | `quota` 안의 5시간 창 키(`gemini-5h` 또는 `3p-5h`)                    | `1% 5h → 02:31`           | 사용률 색(기본 초록) |
-| weekly 쿼터 | `quota` 안의 주간 창 키(`gemini-weekly` 또는 `3p-weekly`)             | `1% weekly → 10-21 21:31` | 사용률 색(기본 초록) |
-| 상태        | `agent_state`                                                         | `working`                 | 상태 색              |
+| 세그먼트    | stdin 필드                                                                               | 예시                      | 값의 색              |
+| ----------- | ---------------------------------------------------------------------------------------- | ------------------------- | -------------------- |
+| 컨텍스트    | `context_window.total_input_tokens`, `context_window.used_percentage`                    | `19.5k (2%) ctx`          | 사용률 색(기본 자홍) |
+| 5h 쿼터     | `quota` 안의 5시간 창 키(`gemini-5h` 또는 `3p-5h`)                                       | `1% 5h → 02:31`           | 사용률 색(기본 초록) |
+| weekly 쿼터 | `quota` 안의 주간 창 키(`gemini-argon-wtu-weekly`, `gemini-weekly`, `3p-weekly` 중 하나) | `1% weekly → 10-21 21:31` | 사용률 색(기본 초록) |
+| 상태        | `agent_state`                                                                            | `working`                 | 상태 색              |
 
 ### 색
 
@@ -76,9 +76,10 @@ Opus 5 | 145.7k (15%) ctx | $5.18 session | 8% 5h → 15:20 | 7% 7d → 09-25 07
     - 7d: `MM-DD HH:MM` (예: `09-25 17:00`)
   - 시는 24시간제로 표기하고, 모든 필드는 두 자리로 맞추어 빈자리를 0으로 채운다.
 - agy
-  - 모델 이름(`model.id` 또는 `model.display_name`)의 시작 문자열에 따라 키를 선택한다.
+  - 모델 이름(`model.id` 또는 `model.display_name`)과 `quota`에 있는 키에 따라, 아래 순서로 처음 맞는 규칙을 적용한다.
+    - `"Argon"`을 포함하고 `gemini-argon-wtu-weekly` 키가 있으면, weekly 쿼터에 그 키를 쓰고 5h 쿼터는 생략한다.
     - `"Gemini"`로 시작하면 `gemini-5h`와 `gemini-weekly`를 선택한다.
-    - `"Gemini"`로 시작하지 않으면 `3p-5h`와 `3p-weekly`를 선택한다.
+    - 그 밖에는 `3p-5h`와 `3p-weekly`를 선택한다.
   - 사용률은 `(1 - remaining_fraction) * 100`을 짝수 쪽으로 반올림한 정수로 표시한다.
   - 리셋 시각은 `reset_time`(ISO 8601 UTC)을 로컬 타임존으로 바꿔 표시한다.
     - 5h: `HH:MM` (예: `03:30`)
