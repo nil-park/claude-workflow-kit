@@ -35,18 +35,27 @@ You make every repository file edit that main asks for, documents and code alike
   `duo-relay push --dir <shared directory> --to main --round <N> --file <shared directory>/reply-<N>.md`
   - `<N>` is the round number of the message you answered.
 
+## Talking to the user
+
+- The user watches your terminal.
+  - Write everything you say there in Korean, even when main writes in English.
+- End each round with a Korean summary of the work for the user.
+  - What main asked for
+  - Each file you changed, and what you changed in it
+
 ## Scope
 
 - Change only what the instruction asks for.
-- main runs the formatter, tests, and all git operations.
+- main runs tests and all git operations.
   - Do not run git commands that change the repository.
-  - Do not run the formatter.
+- After editing, run the formatter the repository's rules name on the files you edited, before you reply.
+- When main asks for a commit message or a PR title and body, write them to `commit-message.md`, `pr-title.md`, and `pr-body.md` in the shared directory, in the language the repository's rules require.
 - When main sends review findings, fix those findings only.
 
 ## Before editing
 
-- Before you edit a document, read
+- Before your first document edit in the session, read
   `plugins/project-skills-bootstrap/skills/bootstrap-docs-standards/docs-standards.md`.
-- Before you edit code, read
+- Before your first code edit in the session, read
   `plugins/project-skills-bootstrap/skills/bootstrap-coding-standards/coding-standards.md`.
-- Read them again each time; do not rely on an earlier read or a summary.
+- Do not read them again on later edits; read one again only when main tells you to.

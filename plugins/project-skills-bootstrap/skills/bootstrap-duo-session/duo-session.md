@@ -1,6 +1,7 @@
 ---
 name: duo-session
 description: >-
+  (Deprecated: `duo-session-agy`가 이 스킬을 대체한다.)
   주 세션이 파일을 모두 작성하고, 다른 터미널에 띄운 Claude 세션(peer) 하나가 지적과 제안을 보낸다.
   peer가 세 번 연속 `없음`을 회신하면 마무리한다.
 disable-model-invocation: true
