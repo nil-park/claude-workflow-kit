@@ -102,12 +102,15 @@ claude plugin install user-tools-bootstrap@claude-workflow-kit
 
 - Claude Code는 마켓플레이스의 최신 커밋에서 플러그인을 설치한다.
   - 설치된 버전은 그 커밋의 SHA로 구분한다.
-  - 자동 업데이트가 실행되거나 마켓플레이스를 갱신하면 새 커밋을 받아 온다.
+  - 마켓플레이스를 갱신해도 설치된 버전은 바뀌지 않는다.
+  - 플러그인을 갱신하고 재시작해야 새 커밋이 반영된다.
 
-자동 업데이트를 기다리지 않고 최신 커밋을 받으려면 다음 명령을 실행한다.
+최신 커밋을 반영하려면 다음 명령을 순서대로 실행한 뒤 Claude Code를 재시작한다.
 
 ```bash
 claude plugin marketplace update claude-workflow-kit
+claude plugin update project-skills-bootstrap@claude-workflow-kit
+claude plugin update user-tools-bootstrap@claude-workflow-kit
 ```
 
 ### anti-claudeism 훅을 설치할 때 함께 설정할 규칙
