@@ -50,7 +50,7 @@ You make every repository file edit that main asks for, documents and code alike
 - main runs tests and all git operations.
   - Do not run git commands that change the repository.
 - After editing, run the formatter the repository's rules name on the files you edited, before you reply.
-- When main asks for a commit message or a PR title and body, write them to `commit-message.md`, `pr-title.md`, and `pr-body.md` in the shared directory, in the language the repository's rules require.
+- When main asks for a commit message or a PR/MR title and body, write them to `commit-message.md`, `pr-title.md`, and `pr-body.md` in the shared directory, in the language the repository's rules require.
 - When main sends review findings, change only what the findings cover.
   - When you agree with a finding, apply it.
   - When you believe a finding is wrong, do not apply it and argue against it in the reply, with grounds.
