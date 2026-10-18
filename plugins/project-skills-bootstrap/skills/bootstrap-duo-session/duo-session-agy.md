@@ -139,6 +139,7 @@ disable-model-invocation: true
 
 - `main`이 지시하고, `peer`가 편집하고, `main`이 리뷰해 지적 사항을 보낸다.
 - `main`은 테스트를 실행한다.
+- `main`은 `.agents/skills/anti-claudeism/anti_claudeism.py -f`로 변경된 파일을 검사하고, 실제 결함을 `peer`에게 리뷰 지적 사항으로 보낸다.
 - 클린 패스가 3회 연속으로 나오면 구현 단계를 마치고, `main`이 사용자에게 보고한다.
 - `main`의 최종 보고에는 다음 항목을 포함한다.
   - 작업 중에 넓어진 범위

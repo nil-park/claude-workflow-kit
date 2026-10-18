@@ -29,6 +29,7 @@ flowchart LR
   dua --> ds
   dua --> ac
   dua --> sd
+  dua --> hook
   du --> gw
   du --> wc
   du --> cs
