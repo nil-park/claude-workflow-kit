@@ -105,6 +105,9 @@ disable-model-invocation: true
 - 매번 리뷰하기 직전에 `docs-standards`, `coding-standards`, `anti-claudeism`의 원문을 다시 읽는다.
   - 이전에 읽은 기억에 의존하지 않는다.
 - 변경된 파일을 모두 처음부터 끝까지 읽고 `git diff`를 확인한다.
+- `.agents/skills/anti-claudeism/anti_claudeism.py -f`로 변경된 파일을 검사한다.
+  - 공유 디렉터리에 `commit-message.md`, `pr-title.md`, `pr-body.md`가 작성되어 있으면 함께 검사한다.
+  - 실제 결함은 `peer`에게 리뷰 지적 사항으로 보낸다.
 - 작업 범위·전제 문서와 설계 문서는 `main`의 영문 초안에서 뜻이 달라진 곳이 있는지도 함께 확인한다.
 
 ## 작업 범위·전제 문서와 설계 문서

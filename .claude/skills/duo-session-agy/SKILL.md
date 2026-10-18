@@ -9,4 +9,8 @@ disable-model-invocation: true
 이 저장소는 `duo-session-agy` 스킬의 배포 원본을 직접 보유하고 있다. 따라서 사본을 두지
 않고 원본 템플릿을 그대로 참조한다. 내용을 고칠 때에는 아래 원본 파일만 수정한다.
 
+원본 템플릿에 적힌 `.agents/skills/anti-claudeism/anti_claudeism.py` 경로는 이 저장소에서
+`plugins/project-skills-bootstrap/skills/bootstrap-anti-claudeism/anti_claudeism.py`로
+읽는다.
+
 @plugins/project-skills-bootstrap/skills/bootstrap-duo-session/duo-session-agy.md
