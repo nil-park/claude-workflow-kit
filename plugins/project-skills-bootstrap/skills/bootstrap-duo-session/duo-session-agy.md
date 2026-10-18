@@ -17,11 +17,11 @@ disable-model-invocation: true
 
 - `peer`는 한국어 문서와 코드를 가리지 않고 리포지토리의 모든 파일을 편집한다.
   - 파일을 편집한 뒤에는 포매터를 실행한다.
-  - 커밋 메시지와 PR 제목·본문도 작성한다.
+  - 커밋 메시지와 PR/MR 제목·본문도 작성한다.
 - `main`은 나머지 작업을 모두 맡는다.
   - 작업 범위·전제 문서와 설계 문서의 영문 초안 작성
   - 리뷰, diff 확인, 테스트
-  - `git`과 `gh` 명령 실행(커밋, 브랜치, PR)
+  - `git`과 `gh` 또는 `glab` 명령 실행(커밋, 브랜치, PR/MR)
 - `main`은 리포지토리 파일에 한국어를 직접 쓰지 않는다.
   - 한국어 문장이 어색하면 `main`은 지적 사항으로 적어 `peer`에 돌려보낸다.
 - `main`은 `peer`에 보내는 모든 메시지를 영어로 쓴다.
@@ -32,7 +32,7 @@ disable-model-invocation: true
   - `project-slug`: 리포지토리 루트의 절대 경로에서 경로 구분자와 `:`를 `-`로 바꾼 값(예: `C:\Git\my-repo` → `C--Git-my-repo`)
 - `main`은 듀오 세션을 시작할 때 공유 디렉터리를 비우며, 디렉터리가 없으면 새로 만든다.
 - `main`은 공유 디렉터리의 `instruction-<N>.md`에 메시지 본문을 쓰고, `peer`는 `reply-<N>.md`에 회신을 쓴다.
-- `peer`는 공유 디렉터리의 `commit-message.md`에 커밋 메시지를 쓰고, `pr-title.md`와 `pr-body.md`에 PR 제목과 본문을 쓴다.
+- `peer`는 공유 디렉터리의 `commit-message.md`에 커밋 메시지를 쓰고, `pr-title.md`와 `pr-body.md`에 PR/MR 제목과 본문을 쓴다.
 
 ## 사전 점검
 
@@ -150,12 +150,13 @@ disable-model-invocation: true
   - `peer`의 반론에 따라 `main`이 철회한 지적 사항과 `peer`의 근거
   - 실행한 검증과 건너뛴 검증
 
-## 커밋과 PR
+## 커밋과 PR/MR
 
 - `main`은 커밋하기 직전에 `peer`에게 커밋 메시지 작성을 요청한다.
   - `peer`는 공유 디렉터리의 `commit-message.md`에 커밋 메시지를 쓴다.
-- `main`은 PR을 열거나 수정할 때 `peer`에게 PR 제목과 본문 작성을 요청한다.
-  - `peer`는 공유 디렉터리의 `pr-title.md`와 `pr-body.md`에 PR 제목과 본문을 쓴다.
+- `main`은 PR/MR을 열거나 수정할 때 `peer`에게 PR/MR 제목과 본문 작성을 요청한다.
+  - `peer`는 공유 디렉터리의 `pr-title.md`와 `pr-body.md`에 PR/MR 제목과 본문을 쓴다.
 - `main`은 무엇이 어떻게 바뀌었는지와 그 이유를 영어로 전달하고, `peer`는 리포지토리 규칙이 정한 언어로 본문을 작성한다.
 - `main`은 이 파일들도 리포지토리 파일과 같은 방식으로 리뷰해 지적 사항을 돌려보낸다.
-- 리뷰가 끝나면 `main`은 이 파일들을 넘겨 `git commit -F`, `gh pr create --body-file`, `gh pr edit --body-file` 명령을 실행한다.
+- 리뷰가 끝나면 `main`은 커밋 메시지 파일을 `git commit -F`에 넘긴다.
+  - PR/MR을 열거나 수정할 때에는 제목과 본문 파일을 `git-workflow`가 안내하는 명령에 넘긴다.
