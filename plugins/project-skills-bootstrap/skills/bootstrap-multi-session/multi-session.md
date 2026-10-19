@@ -32,7 +32,8 @@ disable-model-invocation: true
   {{peer-ping}}
   - 확인한 뒤 타이머를 다시 건다.
   - 두 번째 타이머도 응답 없이 끝나면 사용자에게 알린다.
-- 응답을 받은 뒤에 끝난 타이머는 무시한다.
+- peer의 응답을 받으면 기다리던 타이머를 `TaskStop`으로 중단한다.
+  - 타이머를 걸 때 `run_in_background`가 반환한 태스크 ID를 넘긴다.
 
 ## 역할
 
