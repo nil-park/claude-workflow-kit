@@ -20,14 +20,14 @@ var endpointKeys = []string{
 func runRegister(args []string, stdout, stderr io.Writer, getenv func(string) string) error {
 	flags := newFlagSet("register", stderr)
 	dir := flags.String("dir", "", "shared directory")
-	role := flags.String("role", "", "main or peer")
+	role := flags.String("role", "", "session name")
 	if err := parseFlags(flags, args); err != nil {
 		return err
 	}
 	if err := checkDir(*dir); err != nil {
 		return err
 	}
-	if err := checkRole("role", *role); err != nil {
+	if err := checkSessionName("role", *role); err != nil {
 		return err
 	}
 	endpoint := make(map[string]string, len(endpointKeys))

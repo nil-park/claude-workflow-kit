@@ -19,7 +19,7 @@ const pollInterval = 200 * time.Millisecond
 func runWait(args []string, stdout, stderr io.Writer) (int, error) {
 	flags := newFlagSet("wait", stderr)
 	dir := flags.String("dir", "", "shared directory")
-	role := flags.String("role", "", "main or peer")
+	role := flags.String("role", "", "session name")
 	round := flags.Int("round", 0, "round number")
 	timeout := flags.Int("timeout", 0, "seconds to wait")
 	if err := parseFlags(flags, args); err != nil {
@@ -28,7 +28,7 @@ func runWait(args []string, stdout, stderr io.Writer) (int, error) {
 	if err := checkDir(*dir); err != nil {
 		return exitError, err
 	}
-	if err := checkRole("role", *role); err != nil {
+	if err := checkSessionName("role", *role); err != nil {
 		return exitError, err
 	}
 	if err := checkRound(*round); err != nil {

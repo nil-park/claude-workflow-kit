@@ -1,5 +1,5 @@
-// Command duo-relay relays messages between a Claude Code main session and an
-// agy peer session through a shared directory.
+// Command duo-relay relays messages between two CLI sessions through a shared
+// directory.
 //
 // Subcommands:
 // - register: records the agy session's endpoint for direct notices.
@@ -25,9 +25,9 @@ const (
 )
 
 const usage = `usage:
-  duo-relay register --dir <dir> --role <main|peer>
-  duo-relay push --dir <dir> --to <main|peer> --round <N> --file <body file>
-  duo-relay wait --dir <dir> --role <main|peer> --round <N> --timeout <seconds>`
+  duo-relay register --dir <dir> --role <name>
+  duo-relay push --dir <dir> --to <name> --round <N> --file <body file>
+  duo-relay wait --dir <dir> --role <name> --round <N> --timeout <seconds>`
 
 func main() {
 	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
@@ -82,11 +82,24 @@ func checkDir(dir string) error {
 	return nil
 }
 
-func checkRole(flagName, role string) error {
-	if role != "main" && role != "peer" {
-		return fmt.Errorf("--%s must be main or peer: %q", flagName, role)
+func checkSessionName(flagName, name string) error {
+	if !validSessionName(name) {
+		return fmt.Errorf("--%s must be non-empty and contain only lowercase ASCII letters, digits, and '-': %q", flagName, name)
 	}
 	return nil
+}
+
+func validSessionName(name string) bool {
+	if name == "" {
+		return false
+	}
+	for i := 0; i < len(name); i++ {
+		c := name[i]
+		if (c < 'a' || c > 'z') && (c < '0' || c > '9') && c != '-' {
+			return false
+		}
+	}
+	return true
 }
 
 func checkRound(round int) error {
