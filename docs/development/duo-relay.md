@@ -8,6 +8,10 @@
 - agy 세션의 접속 정보
   - 대화형 agy 세션은 자기가 실행하는 셸 명령에 `ANTIGRAVITY_CONVERSATION_ID`, `ANTIGRAVITY_LS_ADDRESS`, `ANTIGRAVITY_CSRF_TOKEN`을 넣어 준다(agy 1.4.0, 2026-10 실측).
   - 공식 문서에는 이 환경 변수와 `agy agentapi` 하위 명령이 없다.
+- agy에서 agy로 보내는 직접 알림(agy 1.4.2, 2026-10-20 실측)
+  - 대화형 agy 세션 두 개는 각자 자체 언어 서버를 띄운다.
+  - agy 세션 안에서 실행한 `push`는 endpoint 값으로 보내는 쪽의 `ANTIGRAVITY_*` 변수를 덮어써서 받는 세션에 알림을 전달한다.
+  - 받는 쪽은 알림을 `sender=<보내는 쪽의 대화 ID>`로 기록한다.
 - Claude Code 세션을 깨우는 방법
   - 백그라운드 명령이 끝나면 유휴 세션이 새 턴을 시작한다.
     - 공식 문서에는 이 동작이 명시되어 있지 않다(2026-10 실측).

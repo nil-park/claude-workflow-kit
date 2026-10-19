@@ -16,10 +16,15 @@ func TestRunRejectsBadArguments(t *testing.T) {
 		{},
 		{"unknown"},
 		{"push", "--dir", ".", "--to", "peer", "--round", "1", "--file", body},
-		{"push", "--dir", dir, "--to", "other", "--round", "1", "--file", body},
 		{"push", "--dir", dir, "--to", "peer", "--round", "0", "--file", body},
 		{"push", "--dir", dir, "--to", "peer", "--round", "1", "--file", body, "extra"},
 		{"wait", "--dir", dir, "--role", "main", "--round", "1", "--timeout", "0"},
+	}
+	for _, badName := range []string{"", "Main", "a_b", "a/b", "..", "a b"} {
+		cases = append(cases,
+			[]string{"push", "--dir", dir, "--to", badName, "--round", "1", "--file", body},
+			[]string{"wait", "--dir", dir, "--role", badName, "--round", "1", "--timeout", "1"},
+		)
 	}
 	for _, args := range cases {
 		if code := run(args, io.Discard, io.Discard); code != exitError {

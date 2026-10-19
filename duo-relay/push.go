@@ -17,7 +17,7 @@ const notifyTimeout = 30 * time.Second
 func runPush(args []string, stderr io.Writer) error {
 	flags := newFlagSet("push", stderr)
 	dir := flags.String("dir", "", "shared directory")
-	to := flags.String("to", "", "main or peer")
+	to := flags.String("to", "", "session name")
 	round := flags.Int("round", 0, "round number")
 	file := flags.String("file", "", "message body file")
 	if err := parseFlags(flags, args); err != nil {
@@ -26,7 +26,7 @@ func runPush(args []string, stderr io.Writer) error {
 	if err := checkDir(*dir); err != nil {
 		return err
 	}
-	if err := checkRole("to", *to); err != nil {
+	if err := checkSessionName("to", *to); err != nil {
 		return err
 	}
 	if err := checkRound(*round); err != nil {

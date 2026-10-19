@@ -54,11 +54,11 @@ func readFile(t *testing.T, path string) string {
 func TestPushWithoutEndpointOnlyWritesFile(t *testing.T) {
 	calls := stubNotify(t, nil)
 	dir := t.TempDir()
-	args := []string{"--dir", dir, "--to", "main", "--round", "7", "--file", writeBody(t, "회신 본문")}
+	args := []string{"--dir", dir, "--to", "claude", "--round", "7", "--file", writeBody(t, "회신 본문")}
 	if err := runPush(args, io.Discard); err != nil {
 		t.Fatal(err)
 	}
-	if got := readFile(t, filepath.Join(dir, "round-007-to-main.md")); got != "회신 본문" {
+	if got := readFile(t, filepath.Join(dir, "round-007-to-claude.md")); got != "회신 본문" {
 		t.Errorf("message = %q", got)
 	}
 	if len(*calls) != 0 {
