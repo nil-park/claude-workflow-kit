@@ -7,9 +7,9 @@ BG_BLUE := \033[44m
 BG_PINK := \033[45m
 RESET := \033[0m
 
-.PHONY: format test statusline duo-relay
+.PHONY: format test statusline duo-relay agy-compaction-hook
 
-GO_MODULES := statusline duo-relay
+GO_MODULES := statusline duo-relay agy-compaction-hook
 
 # 고치면서 검사한다. 확장자별 파일이 없어도 오류 없이 넘어간다.
 format:
@@ -56,3 +56,7 @@ statusline:
 # duo-relay를 ~/.local/bin에 설치한다.
 duo-relay:
 	@cd duo-relay && go build -o "$(HOME)/.local/bin/duo-relay$$(go env GOEXE)" .
+
+# agy-compaction-hook을 ~/.local/bin에 설치한다.
+agy-compaction-hook:
+	@cd agy-compaction-hook && go build -o "$(HOME)/.local/bin/agy-compaction-hook$$(go env GOEXE)" .

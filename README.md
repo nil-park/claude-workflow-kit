@@ -9,7 +9,7 @@
 이 마켓플레이스에는 플러그인이 둘 있다.
 
 - `project-skills-bootstrap`: 프로젝트에 스킬과 훅을 설치한다.
-- `user-tools-bootstrap`: 프로젝트와 무관하게 쓰는 개인 도구를 설치하고, 그 도구를 쓰도록 `~/.claude/settings.json`을 설정한다.
+- `user-tools-bootstrap`: 프로젝트와 무관하게 쓰는 개인 도구를 설치하고, 그 도구를 쓰도록 `~/.claude/settings.json` 또는 `~/.gemini/config/hooks.json`을 설정한다.
 
 ### project-skills-bootstrap
 
@@ -37,11 +37,13 @@
 
 ### user-tools-bootstrap
 
-| 명령                                         | 설명                                                                                             |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `/user-tools-bootstrap:bootstrap-statusline` | statusline 바이너리를 `~/.claude/bin`에 빌드하고 `~/.claude/settings.json`의 `statusLine`을 설정 |
+| 명령                                                  | 설명                                                                                             |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `/user-tools-bootstrap:bootstrap-statusline`          | statusline 바이너리를 `~/.claude/bin`에 빌드하고 `~/.claude/settings.json`의 `statusLine`을 설정 |
+| `/user-tools-bootstrap:bootstrap-agy-compaction-hook` | agy-compaction-hook 바이너리를 빌드하고 `~/.gemini/config/hooks.json`에 훅을 등록                |
 
 - statusline의 출력, 입력 처리, 설치: [docs/architecture/statusline.md](docs/architecture/statusline.md)
+- agy-compaction-hook의 등록, 실행 흐름, 출력: [docs/architecture/agy-compaction-hook.md](docs/architecture/agy-compaction-hook.md)
 
 ## 다른 환경에서 쓸 때
 
