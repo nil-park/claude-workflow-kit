@@ -4,6 +4,7 @@
 
 - `peer`는 커스텀 에이전트 `duo-session-agy-peer`로 실행한다.
 - 두 세션은 [duo-relay](duo-relay.md)로 메시지를 주고받는다.
+- duo-relay를 호출할 때 `main`은 세션 이름 `claude`를, `peer`는 `agy`를 쓴다.
 
 ## 역할
 
@@ -27,8 +28,8 @@
   - 경로에는 타임스탬프가 없으며, 프로젝트에서는 실행할 때마다 같은 경로를 쓴다.
 - `main`은 세션을 시작할 때 디렉터리를 비우며, 디렉터리가 없으면 새로 만든다.
 - duo-relay가 만드는 파일 외에 `main`과 `peer`가 공유 디렉터리에 추가하는 파일은 다음과 같다.
-  - `instruction-<N>.md`: `main`이 `push --to peer`에 넘기는 지시문 본문
-  - `reply-<N>.md`: `peer`가 `push --to main`에 넘기는 회신 본문
+  - `instruction-<N>.md`: `main`이 `push --to agy`에 넘기는 지시문 본문
+  - `reply-<N>.md`: `peer`가 `push --to claude`에 넘기는 회신 본문
   - `commit-message.md`: `peer`가 작성하는 커밋 메시지
   - `pr-title.md`: `peer`가 작성하는 PR/MR 제목
   - `pr-body.md`: `peer`가 작성하는 PR/MR 본문

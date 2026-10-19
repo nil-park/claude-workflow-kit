@@ -4,28 +4,33 @@ duo-relay는 [duo-relay 요구사항](../requirements/duo-relay.md)을 구현하
 
 ## 지원 범위
 
-- Claude Code 세션이 주 세션(`main`)을, agy 세션이 peer 세션(`peer`)을 맡는 조합 하나만 지원한다.
+- 지원하는 조합은 다음과 같다.
+  - `Claude Code ↔ agy`
+  - `agy ↔ agy`
+- `Claude Code ↔ Claude Code`는 지원하지 않는다.
+- 호출자가 각 세션에 세션 이름을 붙이며, duo-relay는 이 값에 의미를 부여하지 않는다.
 
 ```mermaid
 sequenceDiagram
-  participant M as Claude Code (main)
+  participant M as Claude Code (claude)
   participant D as duo-relay
   participant R as 공유 디렉터리
-  participant P as agy (peer)
+  participant P as agy (agy)
 
-  P->>D: register --role peer
+  P->>D: register --role agy
   D->>R: 접속 정보 쓰기
-  M->>D: push --to peer
+  M->>D: push --to agy
   D->>R: 요청 파일 쓰기
   D-->>P: 직접 알림 (agy agentapi send-message)
-  M->>D: wait --role main (백그라운드)
-  P->>D: push --to main
+  M->>D: wait --role claude (백그라운드)
+  P->>D: push --to claude
   D->>R: 회신 파일 쓰기
   D-->>M: wait가 회신을 출력하고 종료
 ```
 
 - agy 세션은 `register`로 접속 정보를 남긴 뒤, 요청을 받을 때마다 직접 알림으로 깨어난다.
 - Claude Code 세션은 요청을 보낸 뒤 `wait`를 백그라운드로 실행하고, `wait`가 끝날 때 깨어난다.
+- agy와 agy의 조합에서는 두 세션 모두 `register`를 실행하고, 어느 쪽도 `wait`를 실행하지 않는다.
 
 ## 요구사항 충족 방식
 
@@ -59,11 +64,13 @@ sequenceDiagram
 
 | 파일                       | 내용                                                | 쓰는 하위 명령 |
 | -------------------------- | --------------------------------------------------- | -------------- |
-| `endpoint-<role>.json`     | 직접 알림을 받는 세션의 접속 정보                   | `register`     |
-| `round-<NNN>-to-<role>.md` | `<role>` 세션에 보내는 `<NNN>` 라운드의 메시지 본문 | `push`         |
-| `wait-<role>.pid`          | `<role>` 세션에서 실행 중인 `wait` 프로세스의 PID   | `wait`         |
+| `endpoint-<name>.json`     | 직접 알림을 받는 세션의 접속 정보                   | `register`     |
+| `round-<NNN>-to-<name>.md` | `<name>` 세션에 보내는 `<NNN>` 라운드의 메시지 본문 | `push`         |
+| `wait-<name>.pid`          | `<name>` 세션에서 실행 중인 `wait` 프로세스의 PID   | `wait`         |
 
-- `<role>`은 `main` 또는 `peer`다.
+- `<name>`은 세션 이름이며, 영문 소문자, 숫자, `-`로 이루어진 1자 이상의 문자열이다.
+- 공유 디렉터리를 함께 쓰는 두 세션은 서로 다른 세션 이름을 쓴다.
+- 규칙에 어긋나는 세션 이름을 넘기면 하위 명령은 종료 코드 1로 실패한다.
 - `<NNN>`은 라운드 번호를 세 자리로 맞추고 빈자리를 0으로 채운 값이다(예: `007`).
 - 파일은 같은 디렉터리의 임시 파일에 쓴 뒤 이름을 바꿔 완성한다.
 
@@ -72,44 +79,44 @@ sequenceDiagram
 ### `register`
 
 ```text
-duo-relay register --dir <공유 디렉터리> --role <main|peer>
+duo-relay register --dir <공유 디렉터리> --role <세션 이름>
 ```
 
 - agy 세션이 셸 명령으로 실행한다.
-- `register`는 자기 프로세스가 agy 세션에서 물려받은 아래 환경 변수 셋을 읽어 `endpoint-<role>.json`에 쓴다.
+- `register`는 자기 프로세스가 agy 세션에서 물려받은 아래 환경 변수 셋을 읽어 `endpoint-<name>.json`에 쓴다.
   - `ANTIGRAVITY_CONVERSATION_ID`
   - `ANTIGRAVITY_LS_ADDRESS`
   - `ANTIGRAVITY_CSRF_TOKEN`
-- `endpoint-<role>.json`이 이미 있으면 덮어쓴다.
+- `endpoint-<name>.json`이 이미 있으면 덮어쓴다.
 - 셋 중 하나라도 비어 있으면 파일을 쓰지 않고 실패한다.
 - 성공하면 대화 ID를 stdout에 출력한다.
 
 ### `push`
 
 ```text
-duo-relay push --dir <공유 디렉터리> --to <main|peer> --round <N> --file <본문 파일>
+duo-relay push --dir <공유 디렉터리> --to <세션 이름> --round <N> --file <본문 파일>
 ```
 
-- `<본문 파일>`의 내용을 `round-<NNN>-to-<to>.md`로 쓴다.
+- `<본문 파일>`의 내용을 `round-<NNN>-to-<name>.md`로 쓴다.
   - 같은 이름의 파일이 있으면 덮어쓴다.
-- `endpoint-<to>.json`이 있으면 받는 세션에 직접 알림을 보낸다.
+- `endpoint-<name>.json`이 있으면 받는 세션에 직접 알림을 보낸다.
   - endpoint의 접속 정보를 환경 변수로 넘겨 `agy agentapi send-message <대화 ID> <알림>`을 실행한다.
   - 알림에는 메시지 파일의 절대 경로를 적는다.
   - `agy`가 실패하면 그 출력을 stderr에 옮기고 실패한다.
-- `endpoint-<to>.json`이 없으면 파일만 쓰고 끝난다.
+- `endpoint-<name>.json`이 없으면 파일만 쓰고 끝난다.
 
 ### `wait`
 
 ```text
-duo-relay wait --dir <공유 디렉터리> --role <main|peer> --round <N> --timeout <초>
+duo-relay wait --dir <공유 디렉터리> --role <세션 이름> --round <N> --timeout <초>
 ```
 
 - 백그라운드 대기로 깨어나는 세션에서 백그라운드 명령으로 실행한다.
-- 시작할 때 `wait-<role>.pid`의 프로세스가 살아 있으면 대기하지 않고 끝난다.
-- 그렇지 않으면 자기 PID를 `wait-<role>.pid`에 쓰고 `round-<NNN>-to-<role>.md`가 생길 때까지 기다린다.
+- 시작할 때 `wait-<name>.pid`의 프로세스가 살아 있으면 대기하지 않고 끝난다.
+- 그렇지 않으면 자기 PID를 `wait-<name>.pid`에 쓰고 `round-<NNN>-to-<name>.md`가 생길 때까지 기다린다.
 - 파일이 생기면 그 내용을 stdout에 출력한다.
 - `--timeout`으로 받은 시간 안에 파일이 생기지 않으면 타임아웃 안내를 stdout에 출력하고 끝난다.
-- 끝날 때는 어느 경우든 자기가 쓴 `wait-<role>.pid`를 지운다.
+- 끝날 때는 어느 경우든 자기가 쓴 `wait-<name>.pid`를 지운다.
 
 ## 종료 코드
 
