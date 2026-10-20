@@ -28,7 +28,7 @@
   - `.claude/skills/<name>/SKILL.md`는 한 줄짜리 `@` 참조로 템플릿을 가리킨다.
   - 스킬 본문과 `agent.md` 안의 `@` 참조는 펼쳐지지 않는다.
 - 이 리포지토리의 `agent.md`는 템플릿과 한 곳이 다르다.
-  - `peer`가 세션에서 문서나 코드를 처음 편집할 때 `plugins/` 아래의 `docs-standards`와 `coding-standards` 템플릿을 직접 읽도록 지시한다.
+  - `peer`가 세션에서 문서, 코드, 한국어 텍스트를 처음 편집할 때 `plugins/` 아래의 `docs-standards`, `coding-standards`, `anti-claudeism` 템플릿을 직접 읽도록 지시한다.
   - 심볼릭 링크가 동작하는 환경에서는 이 차이가 필요하지 않다.
 
 ## 검증 방법

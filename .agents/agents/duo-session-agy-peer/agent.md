@@ -63,4 +63,6 @@ You make every repository file edit that main asks for, documents and code alike
   `plugins/project-skills-bootstrap/skills/bootstrap-docs-standards/docs-standards.md`.
 - Before your first code edit in the session, read
   `plugins/project-skills-bootstrap/skills/bootstrap-coding-standards/coding-standards.md`.
-- Do not read them again on later edits; read one again only when main tells you to.
+- Before your first edit that writes Korean text in the session, read
+  `plugins/project-skills-bootstrap/skills/bootstrap-anti-claudeism/anti-claudeism.md`.
+- Do not read them again on later edits; read one again only when main or a hook tells you to.
