@@ -102,8 +102,13 @@ disable-model-invocation: true
 
 ## 리뷰
 
-- 매번 리뷰하기 직전에 `docs-standards`, `coding-standards`, `anti-claudeism`의 원문을 다시 읽는다.
-  - 이전에 읽은 기억에 의존하지 않는다.
+- 리뷰하기 직전에 대상 텍스트를 `docs-standards`, `coding-standards`, `anti-claudeism` 원문의 해당 조항과 대조한다.
+  - 라운드 기록, 이전 턴의 정리, 컨텍스트 압축 요약 등의 요약본으로 원문을 대신하지 않는다.
+  - 컨텍스트 윈도우에 전문이 이미 올라와 있으면 그 내용을 원문으로 인정한다.
+  - 다음 경우에만 도구로 해당 파일을 다시 읽는다.
+    - 이번 세션에서 해당 파일의 전문을 아직 읽지 않았을 때
+    - 컨텍스트가 압축되었을 때
+    - 훅이 다시 읽으라고 지시했을 때
 - 변경된 파일을 모두 처음부터 끝까지 읽고 `git diff`를 확인한다.
 - `.agents/skills/anti-claudeism/anti_claudeism.py -f`로 변경된 파일을 검사한다.
   - 공유 디렉터리에 `commit-message.md`, `pr-title.md`, `pr-body.md`가 작성되어 있으면 함께 검사한다.
