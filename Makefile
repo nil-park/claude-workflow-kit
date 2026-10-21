@@ -7,9 +7,9 @@ BG_BLUE := \033[44m
 BG_PINK := \033[45m
 RESET := \033[0m
 
-.PHONY: format test statusline duo-relay agy-compaction-hook
+.PHONY: format test statusline duo-relay agy-compaction-hook claude-queue
 
-GO_MODULES := statusline duo-relay agy-compaction-hook
+GO_MODULES := statusline duo-relay agy-compaction-hook claude-queue
 
 # 고치면서 검사한다. 확장자별 파일이 없어도 오류 없이 넘어간다.
 format:
@@ -60,3 +60,7 @@ duo-relay:
 # agy-compaction-hook을 ~/.local/bin에 설치한다.
 agy-compaction-hook:
 	@cd agy-compaction-hook && go build -o "$(HOME)/.local/bin/agy-compaction-hook$$(go env GOEXE)" .
+
+# claude-queue를 ~/.local/bin에 설치한다.
+claude-queue:
+	@cd claude-queue && go build -o "$(HOME)/.local/bin/claude-queue$$(go env GOEXE)" .
