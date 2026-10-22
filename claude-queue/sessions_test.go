@@ -120,3 +120,26 @@ func TestProcessMatchesComparesStartTime(t *testing.T) {
 		t.Error("processMatches(self, wrong start) = true, want false")
 	}
 }
+
+func TestProcStatStart(t *testing.T) {
+	const stat = "680 (claude (worker)) S 0 680 680 34816 680 4194560 289527 64595 153 1510 1522 319 55 165 20 0 17 0 11306 5811212288\n"
+	if got, ok := procStatStart(stat); !ok || got != "11306" {
+		t.Errorf("procStatStart() = %q, %v; want 11306, true", got, ok)
+	}
+	const exact22Fields = "680 (claude) S 0 680 680 34816 680 4194560 289527 64595 153 1510 1522 319 55 165 20 0 17 0 11306\n"
+	if got, ok := procStatStart(exact22Fields); !ok || got != "11306" {
+		t.Errorf("procStatStart(exact22Fields) = %q, %v; want 11306, true", got, ok)
+	}
+	for _, bad := range []string{
+		"",
+		"680 claude S",
+		"680 (claude)",
+		"680 (claude)S 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 11306",
+		"680 (claude) S 0 1 2",
+		"680 (claude) S 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 \n",
+	} {
+		if got, ok := procStatStart(bad); ok {
+			t.Errorf("procStatStart(%q) = %q, true; want false", bad, got)
+		}
+	}
+}
