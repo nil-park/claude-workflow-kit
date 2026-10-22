@@ -14,7 +14,7 @@
 ### project-skills-bootstrap
 
 - 부트스트랩 스킬을 호출하면 설치할 스킬을 `.agents/skills/`에 쓰고, `.claude/skills/`에 그 디렉터리를 가리키는 심볼릭 링크를 만든다.
-  - Claude Code 전용인 `multi-session` 계열 스킬, `duo-session-agy`, `duo-session`은 심볼릭 링크 없이 `.claude/skills/`에 쓴다.
+  - Claude Code 전용인 `multi-session` 계열 스킬과 `duo-session-agy`는 심볼릭 링크 없이 `.claude/skills/`에 쓴다.
 - 부트스트랩 스킬은 플러그인 이름을 네임스페이스로 붙여 부른다.
 - GitHub용과 GitLab용 템플릿이 모두 들어 있으므로, 플랫폼마다 다른 플러그인을 고를 필요가 없다.
 - `bootstrap-anti-claudeism`은 스킬과 함께 Stop 훅을 설치하고, 그 훅을 프로젝트의 `.claude/settings.json`에 등록한다.
@@ -165,7 +165,7 @@ codex plugin add project-skills-bootstrap@claude-workflow-kit
 - 부트스트랩 스킬은 `$project-skills-bootstrap:bootstrap`처럼 `$`를 붙여 부른다.
 - Codex에는 출력 스타일이 없으므로, fluent-korean의 규칙은 `~/.codex/AGENTS.md`에 넣는다.
 - anti-claudeism 훅은 Codex에서 동작하지 않는다.
-- multi-session, duo-session-agy, duo-session 스킬은 Claude Code 전용이므로 Codex에서 쓸 수 없다.
+- multi-session과 duo-session-agy 스킬은 Claude Code 전용이므로 Codex에서 쓸 수 없다.
 - Codex 지원의 전제: [docs/development/codex-support.md](docs/development/codex-support.md)
 
 ## Antigravity(agy) 설정
