@@ -4,6 +4,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"strconv"
@@ -18,9 +19,12 @@ func processAlive(pid int) bool {
 	return err == nil || errors.Is(err, syscall.EPERM)
 }
 
-// processStart runs ps with the same locale and time zone Claude Code uses,
-// so the output matches procStart byte for byte.
+// processStart reads the proc(5) starttime field on Linux, and falls back to
+// ps with the locale and time zone Claude Code uses on macOS.
 func processStart(pid int) (string, bool) {
+	if raw, err := os.ReadFile(fmt.Sprintf("/proc/%d/stat", pid)); err == nil {
+		return procStatStart(string(raw))
+	}
 	cmd := exec.Command("ps", "-o", "lstart=", "-p", strconv.Itoa(pid))
 	cmd.Env = append(os.Environ(), "LC_ALL=C", "TZ=UTC")
 	out, err := cmd.Output()

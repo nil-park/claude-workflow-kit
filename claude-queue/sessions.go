@@ -62,6 +62,21 @@ func processMatches(pid int, procStart string) bool {
 	return !ok || start == procStart
 }
 
+// procStatStart extracts field 22 (starttime) after the last ')' of comm,
+// matching how Claude Code parses /proc/<pid>/stat on Linux.
+func procStatStart(stat string) (string, bool) {
+	end := strings.LastIndexByte(stat, ')')
+	if end < 0 || end+2 >= len(stat) || stat[end+1] != ' ' {
+		return "", false
+	}
+	fields := strings.Split(stat[end+2:], " ")
+	if len(fields) <= 19 {
+		return "", false
+	}
+	start := strings.TrimRight(fields[19], "\r\n")
+	return start, start != ""
+}
+
 // liveSessions returns the reachable sessions sorted by name, then pid.
 func liveSessions() ([]session, error) {
 	dir, err := sessionsDir()
