@@ -11,7 +11,6 @@ flowchart LR
     ac["anti-claudeism"]
     ms["multi-session"]
     dua["duo-session-agy"]
-    du["duo-session"]
     hook{{"anti_claudeism.py"}}
   end
 
@@ -30,12 +29,6 @@ flowchart LR
   dua --> ac
   dua --> sd
   dua --> hook
-  du --> gw
-  du --> wc
-  du --> cs
-  du --> ds
-  du --> ac
-  du -.-> sd
   gw -.-> wc
   gw -.-> ds
   gw -.-> sd
