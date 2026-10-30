@@ -104,36 +104,42 @@ func checkFromName(name string) error {
 }
 
 func readBody(given map[string]bool, message, file string, handshake bool) (string, error) {
-	sources := 0
-	for _, name := range []string{"message", "file", "handshake"} {
-		if given[name] {
-			sources++
-		}
+	if given["message"] && given["file"] {
+		return "", errors.New("pass at most one of --message and --file")
 	}
-	if sources != 1 || (given["handshake"] && !handshake) {
-		return "", errors.New("pass exactly one of --message, --file, and --handshake")
+	hasMsg := given["message"] || given["file"]
+	if !hasMsg && !handshake {
+		return "", errors.New("pass --handshake, --message, or --file")
 	}
+	var parts []string
 	if handshake {
 		if given["from"] {
 			return "", errors.New("--handshake cannot be combined with --from")
 		}
-		return handshakeBody()
-	}
-	body := message
-	if given["file"] {
-		raw, err := os.ReadFile(file)
+		hs, err := handshakeBody()
 		if err != nil {
 			return "", err
 		}
-		if !utf8.Valid(raw) {
-			return "", fmt.Errorf("%s is not valid UTF-8", file)
+		parts = append(parts, hs)
+	}
+	if hasMsg {
+		body := message
+		if given["file"] {
+			raw, err := os.ReadFile(file)
+			if err != nil {
+				return "", err
+			}
+			if !utf8.Valid(raw) {
+				return "", fmt.Errorf("%s is not valid UTF-8", file)
+			}
+			body = string(raw)
 		}
-		body = string(raw)
+		if strings.TrimSpace(body) == "" {
+			return "", errors.New("message body is empty")
+		}
+		parts = append(parts, body)
 	}
-	if strings.TrimSpace(body) == "" {
-		return "", errors.New("message body is empty")
-	}
-	return body, nil
+	return strings.Join(parts, "\n\n"), nil
 }
 
 // deliver gives up after timeout because a receiver that never reads would
