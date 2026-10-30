@@ -1,6 +1,7 @@
 ---
 name: duo-session-agy
 description: >-
+  [Deprecated: duo-session으로 대체되어 더는 권장하지 않는다]
   main(이 Claude Code 세션)이 지시하고 리뷰하며, 다른 터미널의 agy 세션(peer)이 리포지토리 파일을 모두 편집한다.
   두 세션은 duo-relay로 메시지를 주고받는다.
 disable-model-invocation: true
