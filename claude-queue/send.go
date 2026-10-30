@@ -21,9 +21,10 @@ const (
 func runSend(args []string, stdout, stderr io.Writer) error {
 	flags := newFlagSet("send", stderr)
 	to := flags.String("to", "", "session name or pid")
-	from := flags.String("from", defaultFrom, "sender name shown to the session (agy address inside agy)")
+	from := flags.String("from", defaultFrom, "sender name shown to the session (agy-<id> inside agy)")
 	message := flags.String("message", "", "message body")
 	file := flags.String("file", "", "path of a file holding the message body")
+	handshake := flags.Bool("handshake", false, "send an agy reply handshake message")
 	if err := parseFlags(flags, args); err != nil {
 		return err
 	}
@@ -31,15 +32,12 @@ func runSend(args []string, stdout, stderr io.Writer) error {
 		return errors.New("--to is required")
 	}
 	given := givenFlags(flags)
-	sender, err := resolveFrom(given, *from)
+	body, err := readBody(given, *message, *file, *handshake)
 	if err != nil {
 		return err
 	}
+	sender := resolveFrom(given, *from)
 	if err := checkFromName(sender); err != nil {
-		return err
-	}
-	body, err := readBody(given, *message, *file)
-	if err != nil {
 		return err
 	}
 	sessions, err := liveSessions()
@@ -81,26 +79,15 @@ func givenFlags(flags *flag.FlagSet) map[string]bool {
 	return given
 }
 
-// resolveFrom fails instead of falling back to defaultFrom when agy session
-// variables are incomplete, because the receiver could not reply to defaultFrom.
-func resolveFrom(given map[string]bool, from string) (string, error) {
+func resolveFrom(given map[string]bool, from string) string {
 	if given["from"] {
-		return from, nil
+		return from
 	}
 	id := os.Getenv("ANTIGRAVITY_CONVERSATION_ID")
 	if id == "" {
-		return defaultFrom, nil
+		return defaultFrom
 	}
-	addr := os.Getenv("ANTIGRAVITY_LS_ADDRESS")
-	i := strings.LastIndexByte(addr, ':')
-	if i < 0 || i+1 >= len(addr) {
-		return "", errors.New("ANTIGRAVITY_LS_ADDRESS has no port")
-	}
-	token := os.Getenv("ANTIGRAVITY_CSRF_TOKEN")
-	if token == "" {
-		return "", errors.New("ANTIGRAVITY_CSRF_TOKEN is empty")
-	}
-	return strings.ToLower(fmt.Sprintf("agy-%s-p%s-%s", id, addr[i+1:], token)), nil
+	return agyFrom(id)
 }
 
 func checkFromName(name string) error {
@@ -116,25 +103,43 @@ func checkFromName(name string) error {
 	return nil
 }
 
-func readBody(given map[string]bool, message, file string) (string, error) {
-	if given["message"] == given["file"] {
-		return "", errors.New("pass exactly one of --message and --file")
+func readBody(given map[string]bool, message, file string, handshake bool) (string, error) {
+	if given["message"] && given["file"] {
+		return "", errors.New("pass at most one of --message and --file")
 	}
-	body := message
-	if given["file"] {
-		raw, err := os.ReadFile(file)
+	hasMsg := given["message"] || given["file"]
+	if !hasMsg && !handshake {
+		return "", errors.New("pass --handshake, --message, or --file")
+	}
+	var parts []string
+	if handshake {
+		if given["from"] {
+			return "", errors.New("--handshake cannot be combined with --from")
+		}
+		hs, err := handshakeBody()
 		if err != nil {
 			return "", err
 		}
-		if !utf8.Valid(raw) {
-			return "", fmt.Errorf("%s is not valid UTF-8", file)
+		parts = append(parts, hs)
+	}
+	if hasMsg {
+		body := message
+		if given["file"] {
+			raw, err := os.ReadFile(file)
+			if err != nil {
+				return "", err
+			}
+			if !utf8.Valid(raw) {
+				return "", fmt.Errorf("%s is not valid UTF-8", file)
+			}
+			body = string(raw)
 		}
-		body = string(raw)
+		if strings.TrimSpace(body) == "" {
+			return "", errors.New("message body is empty")
+		}
+		parts = append(parts, body)
 	}
-	if strings.TrimSpace(body) == "" {
-		return "", errors.New("message body is empty")
-	}
-	return body, nil
+	return strings.Join(parts, "\n\n"), nil
 }
 
 // deliver gives up after timeout because a receiver that never reads would
