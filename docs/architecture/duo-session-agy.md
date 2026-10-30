@@ -2,6 +2,7 @@
 
 `duo-session-agy`는 Claude Code 세션(`main`)이 작업을 지시하고 대화형 agy 세션(`peer`)이 작업을 수행하는 Claude Code 스킬이다.
 
+- 이 스킬은 [duo-session](duo-session.md)으로 대체되어 더는 권장하지 않는(deprecated) 스킬이다.
 - `peer`는 커스텀 에이전트 `duo-session-agy-peer`로 실행한다.
 - 두 세션은 [duo-relay](duo-relay.md)로 메시지를 주고받는다.
 
