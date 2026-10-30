@@ -20,7 +20,7 @@ const (
 
 const usage = `usage:
   claude-queue list
-  claude-queue send --to <name|pid> [--from <name>] (--message <text> | --file <path>)`
+  claude-queue send --to <name|pid> [--from <name>] (--message <text> | --file <path> | --handshake)`
 
 func main() {
 	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))

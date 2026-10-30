@@ -97,15 +97,15 @@ func TestSendWithoutKeyFileOmitsAuthLine(t *testing.T) {
 
 func TestSendFromAgyEnv(t *testing.T) {
 	t.Setenv("ANTIGRAVITY_CONVERSATION_ID", "AbC-123")
-	t.Setenv("ANTIGRAVITY_LS_ADDRESS", "127.0.0.1:42100")
-	t.Setenv("ANTIGRAVITY_CSRF_TOKEN", "ToKeN-9")
+	t.Setenv("ANTIGRAVITY_LS_ADDRESS", "")
+	t.Setenv("ANTIGRAVITY_CSRF_TOKEN", "")
 
 	for _, tc := range []struct {
 		name string
 		args []string
 		want string
 	}{
-		{"default_from_env", []string{"send", "--to", "8", "--message", "hi"}, "agy-abc-123-p42100-token-9"},
+		{"default_from_env", []string{"send", "--to", "8", "--message", "hi"}, "agy-abc-123"},
 		{"explicit_from_wins", []string{"send", "--to", "8", "--from", "explicit-peer", "--message", "hi"}, "explicit-peer"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -122,24 +122,6 @@ func TestSendFromAgyEnv(t *testing.T) {
 				t.Errorf("run(%q) delivered %v, want from %q", tc.args, lines, tc.want)
 			}
 		})
-	}
-
-	dir := t.TempDir()
-	socket := filepath.Join(dir, "8.sock")
-	writeJSON(t, filepath.Join(dir, "8.json"), registration(8, "worker", "/w", socket))
-	stubSessions(t, dir, 8)
-	listenInbox(t, socket)
-	for _, env := range []map[string]string{
-		{"ANTIGRAVITY_LS_ADDRESS": "127.0.0.1", "ANTIGRAVITY_CSRF_TOKEN": "tok"},
-		{"ANTIGRAVITY_LS_ADDRESS": "127.0.0.1:", "ANTIGRAVITY_CSRF_TOKEN": "tok"},
-		{"ANTIGRAVITY_LS_ADDRESS": "127.0.0.1:42100", "ANTIGRAVITY_CSRF_TOKEN": ""},
-	} {
-		for k, v := range env {
-			t.Setenv(k, v)
-		}
-		if code := run([]string{"send", "--to", "8", "--message", "hi"}, io.Discard, io.Discard); code != exitError {
-			t.Errorf("run with %v = %d, want %d", env, code, exitError)
-		}
 	}
 }
 
@@ -177,6 +159,10 @@ func TestRunRejectsBadArguments(t *testing.T) {
 		{"send", "--message", "hi"},
 		{"send", "--to", "worker"},
 		{"send", "--to", "worker", "--message", "hi", "--file", invalidUTF8},
+		{"send", "--to", "worker", "--message", "hi", "--handshake"},
+		{"send", "--to", "worker", "--file", invalidUTF8, "--handshake"},
+		{"send", "--to", "worker", "--from", "agy-peer", "--handshake"},
+		{"send", "--to", "worker", "--handshake=false"},
 		{"send", "--to", "worker", "--message", ""},
 		{"send", "--to", "worker", "--message", " \n"},
 		{"send", "--to", "worker", "--file", invalidUTF8},
