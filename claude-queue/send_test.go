@@ -67,7 +67,15 @@ func TestSendDeliversToUnixSocket(t *testing.T) {
 	}
 }
 
+func clearAgyEnv(t *testing.T) {
+	t.Helper()
+	t.Setenv("ANTIGRAVITY_CONVERSATION_ID", "")
+	t.Setenv("ANTIGRAVITY_LS_ADDRESS", "")
+	t.Setenv("ANTIGRAVITY_CSRF_TOKEN", "")
+}
+
 func TestSendWithoutKeyFileOmitsAuthLine(t *testing.T) {
+	clearAgyEnv(t)
 	dir := t.TempDir()
 	socket := filepath.Join(dir, "8.sock")
 	writeJSON(t, filepath.Join(dir, "8.json"), registration(8, "worker", "/w", socket))
@@ -87,9 +95,58 @@ func TestSendWithoutKeyFileOmitsAuthLine(t *testing.T) {
 	}
 }
 
+func TestSendFromAgyEnv(t *testing.T) {
+	t.Setenv("ANTIGRAVITY_CONVERSATION_ID", "AbC-123")
+	t.Setenv("ANTIGRAVITY_LS_ADDRESS", "127.0.0.1:42100")
+	t.Setenv("ANTIGRAVITY_CSRF_TOKEN", "ToKeN-9")
+
+	for _, tc := range []struct {
+		name string
+		args []string
+		want string
+	}{
+		{"default_from_env", []string{"send", "--to", "8", "--message", "hi"}, "agy-abc-123-p42100-token-9"},
+		{"explicit_from_wins", []string{"send", "--to", "8", "--from", "explicit-peer", "--message", "hi"}, "explicit-peer"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			dir := t.TempDir()
+			socket := filepath.Join(dir, "8.sock")
+			writeJSON(t, filepath.Join(dir, "8.json"), registration(8, "worker", "/w", socket))
+			stubSessions(t, dir, 8)
+			received := listenInbox(t, socket)
+			if code := run(tc.args, io.Discard, io.Discard); code != exitOK {
+				t.Fatalf("run(%q) = %d, want %d", tc.args, code, exitOK)
+			}
+			lines := decodeLines(t, waitReceived(t, received))
+			if len(lines) != 1 || lines[0]["from"] != tc.want {
+				t.Errorf("run(%q) delivered %v, want from %q", tc.args, lines, tc.want)
+			}
+		})
+	}
+
+	dir := t.TempDir()
+	socket := filepath.Join(dir, "8.sock")
+	writeJSON(t, filepath.Join(dir, "8.json"), registration(8, "worker", "/w", socket))
+	stubSessions(t, dir, 8)
+	listenInbox(t, socket)
+	for _, env := range []map[string]string{
+		{"ANTIGRAVITY_LS_ADDRESS": "127.0.0.1", "ANTIGRAVITY_CSRF_TOKEN": "tok"},
+		{"ANTIGRAVITY_LS_ADDRESS": "127.0.0.1:", "ANTIGRAVITY_CSRF_TOKEN": "tok"},
+		{"ANTIGRAVITY_LS_ADDRESS": "127.0.0.1:42100", "ANTIGRAVITY_CSRF_TOKEN": ""},
+	} {
+		for k, v := range env {
+			t.Setenv(k, v)
+		}
+		if code := run([]string{"send", "--to", "8", "--message", "hi"}, io.Discard, io.Discard); code != exitError {
+			t.Errorf("run with %v = %d, want %d", env, code, exitError)
+		}
+	}
+}
+
 // The worker session accepts every connection, so a case that slipped past
 // its check would be delivered and exit 0.
 func TestRunRejectsBadArguments(t *testing.T) {
+	clearAgyEnv(t)
 	dir := t.TempDir()
 	socket := filepath.Join(dir, "9.sock")
 	writeJSON(t, filepath.Join(dir, "9.json"), registration(9, "worker", "/w", socket))
