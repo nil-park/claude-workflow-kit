@@ -23,8 +23,8 @@
 
 ## 메시지 흐름
 
-- 시작할 때 `main`은 공유 디렉터리 경로, `instruction-1.md` 경로, 회신받을 `main`의 이름을 적은 영문 한 줄을 사용자에게 건넨다.
-  - 사용자는 이 문구를 `peer`에 붙여 넣는다.
+- 시작할 때 `main`은 공유 디렉터리 경로, `instruction-1.md` 경로, 회신받을 `main`의 이름을 첫 프롬프트로 넣어 `peer`를 시작하는 `agy --agent duo-session-peer -i "..."` 명령을 사용자에게 건넨다.
+  - `peer`가 이미 실행 중이면 사용자는 같은 영문 한 줄을 `peer`에 붙여 넣는다.
 - `peer`가 `main`에 보내는 첫 회신과 `peer` 재시작 후의 첫 회신에는 `--handshake`가 붙는다.
   - `main`은 핸드셰이크에 담긴 세 가지 `ANTIGRAVITY_*` 값을 하네스 스크래치패드에 기록한다.
 - 라운드마다 `main`은 `instruction-<N>.md` 경로를 적은 한 줄 메시지를 `agy agentapi send-message`로 보낸다.
