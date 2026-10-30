@@ -64,13 +64,12 @@ disable-model-invocation: true
 
 ## 시작
 
-1. `peer`가 실행 중이 아니면 다른 터미널에서 `agy --agent duo-session-peer`로 `peer`를 시작해 달라고 사용자에게 요청한다.
-2. `claude-queue list`를 실행해 `CWD`가 리포지토리 루트인 세션을 찾아 `main` 자신의 이름을 확인한다.
+1. `claude-queue list`를 실행해 `CWD`가 리포지토리 루트인 세션을 찾아 `main` 자신의 이름을 확인한다.
    - 해당 세션이 없거나 둘 이상이면 사용자에게 묻는다.
-3. 공유 디렉터리에 `instruction-1.md`를 쓴다.
-4. `main`은 `peer`에 붙여 넣을 다음 영문 한 줄을 사용자에게 건넨다.
-   `Your shared directory is <shared directory>. Follow <shared directory>/instruction-1.md and reply to <main name>.`
-5. `peer`의 첫 회신에는 핸드셰이크가 함께 온다.
+2. 공유 디렉터리에 `instruction-1.md`를 쓴다.
+3. `peer`가 실행 중이 아니면 다른 터미널에서 실행할 다음 명령을 사용자에게 건네고, 이미 실행 중이면 큰따옴표 안의 영문 한 줄을 `peer`에 붙여 넣도록 사용자에게 건넨다.
+   `agy --agent duo-session-peer -i "Your shared directory is <shared directory>. Follow <shared directory>/instruction-1.md and reply to <main name>."`
+4. `peer`의 첫 회신에는 핸드셰이크가 함께 온다.
    - 핸드셰이크에 담긴 세 가지 `ANTIGRAVITY_*` 값을 하네스 스크래치패드에 기록한다.
 
 ## 라운드 진행
@@ -81,7 +80,7 @@ disable-model-invocation: true
 4. `reply-<N>.md`를 읽고 `peer`의 변경 사항을 리뷰한 뒤 지적 사항을 다음 라운드로 보낸다.
    - 지적이 없는 라운드는 클린 패스로 센다.
 
-- 사용자가 `peer`를 다시 시작하면, 시작 4단계의 문구에서 지시문 파일 이름을 현재 라운드 파일로 바꿔 사용자에게 다시 건넨다.
+- `peer`를 다시 시작해야 할 때는 시작 3단계에서 `instruction-1.md`를 현재 라운드의 지시문 파일 이름으로 바꿔, 아직 다시 시작하지 않았으면 명령을 건네고 사용자가 이미 다시 시작했으면 큰따옴표 안의 영문 한 줄을 건넨다.
   - `peer`는 새 핸드셰이크를 보내며, `main`은 스크래치패드에 기록해 둔 값을 새 값으로 바꾼다.
 
 ## 지시문 작성
