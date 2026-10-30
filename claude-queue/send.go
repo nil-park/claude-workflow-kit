@@ -21,7 +21,7 @@ const (
 func runSend(args []string, stdout, stderr io.Writer) error {
 	flags := newFlagSet("send", stderr)
 	to := flags.String("to", "", "session name or pid")
-	from := flags.String("from", defaultFrom, "sender name shown to the session")
+	from := flags.String("from", defaultFrom, "sender name shown to the session (agy address inside agy)")
 	message := flags.String("message", "", "message body")
 	file := flags.String("file", "", "path of a file holding the message body")
 	if err := parseFlags(flags, args); err != nil {
@@ -30,10 +30,15 @@ func runSend(args []string, stdout, stderr io.Writer) error {
 	if *to == "" {
 		return errors.New("--to is required")
 	}
-	if err := checkFromName(*from); err != nil {
+	given := givenFlags(flags)
+	sender, err := resolveFrom(given, *from)
+	if err != nil {
 		return err
 	}
-	body, err := readBody(flags, *message, *file)
+	if err := checkFromName(sender); err != nil {
+		return err
+	}
+	body, err := readBody(given, *message, *file)
 	if err != nil {
 		return err
 	}
@@ -57,7 +62,7 @@ func runSend(args []string, stdout, stderr io.Writer) error {
 	if err != nil {
 		return err
 	}
-	payload, err := inboxPayload(token, *from, body, msgID)
+	payload, err := inboxPayload(token, sender, body, msgID)
 	if err != nil {
 		return err
 	}
@@ -66,6 +71,36 @@ func runSend(args []string, stdout, stderr io.Writer) error {
 	}
 	fmt.Fprintln(stdout, msgID)
 	return nil
+}
+
+// givenFlags uses flags.Visit so an explicit empty value such as --message ""
+// counts as given instead of as missing.
+func givenFlags(flags *flag.FlagSet) map[string]bool {
+	given := map[string]bool{}
+	flags.Visit(func(f *flag.Flag) { given[f.Name] = true })
+	return given
+}
+
+// resolveFrom fails instead of falling back to defaultFrom when agy session
+// variables are incomplete, because the receiver could not reply to defaultFrom.
+func resolveFrom(given map[string]bool, from string) (string, error) {
+	if given["from"] {
+		return from, nil
+	}
+	id := os.Getenv("ANTIGRAVITY_CONVERSATION_ID")
+	if id == "" {
+		return defaultFrom, nil
+	}
+	addr := os.Getenv("ANTIGRAVITY_LS_ADDRESS")
+	i := strings.LastIndexByte(addr, ':')
+	if i < 0 || i+1 >= len(addr) {
+		return "", errors.New("ANTIGRAVITY_LS_ADDRESS has no port")
+	}
+	token := os.Getenv("ANTIGRAVITY_CSRF_TOKEN")
+	if token == "" {
+		return "", errors.New("ANTIGRAVITY_CSRF_TOKEN is empty")
+	}
+	return strings.ToLower(fmt.Sprintf("agy-%s-p%s-%s", id, addr[i+1:], token)), nil
 }
 
 func checkFromName(name string) error {
@@ -81,11 +116,7 @@ func checkFromName(name string) error {
 	return nil
 }
 
-// readBody uses flags.Visit so an explicit --message "" counts as given and
-// is rejected as empty instead of as missing.
-func readBody(flags *flag.FlagSet, message, file string) (string, error) {
-	given := map[string]bool{}
-	flags.Visit(func(f *flag.Flag) { given[f.Name] = true })
+func readBody(given map[string]bool, message, file string) (string, error) {
 	if given["message"] == given["file"] {
 		return "", errors.New("pass exactly one of --message and --file")
 	}
