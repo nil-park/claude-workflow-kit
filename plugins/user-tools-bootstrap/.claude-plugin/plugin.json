@@ -1,11 +1,19 @@
 {
   "name": "user-tools-bootstrap",
-  "description": "Installs personal tools that live outside any project and wires them into the user settings, including a Go status line binary and an Antigravity compaction hook.",
+  "description": "Installs personal tools that live outside any project and wires them into the user environment, including a Go status line binary, an Antigravity compaction hook, and the claude-message Antigravity skill (with claude-queue).",
   "author": {
     "name": "nil-park"
   },
   "homepage": "https://github.com/nil-park/claude-workflow-kit",
   "repository": "https://github.com/nil-park/claude-workflow-kit",
   "license": "MIT",
-  "keywords": ["statusline", "go", "bootstrap", "user-settings", "agy", "hooks"]
+  "keywords": [
+    "statusline",
+    "go",
+    "bootstrap",
+    "user-settings",
+    "agy",
+    "hooks",
+    "claude-queue"
+  ]
 }

@@ -13,7 +13,7 @@
     {
       "name": "user-tools-bootstrap",
       "source": "./plugins/user-tools-bootstrap",
-      "description": "Installs personal tools that live outside any project. The statusline skill builds the Go status line binary into ~/.claude/bin with go install and points statusLine in the user settings at it. The agy-compaction-hook skill builds the Go compaction hook binary with go install and registers it in ~/.gemini/config/hooks.json. Invoking either skill again rebuilds the binary from the latest main."
+      "description": "Installs personal tools that live outside any project. The statusline skill builds the Go status line binary into ~/.claude/bin with go install and points statusLine in the user settings at it. The agy-compaction-hook skill builds the Go compaction hook binary with go install and registers it in ~/.gemini/config/hooks.json. Invoking either of those two skills again rebuilds its binary from the latest main. The claude-message skill installs an Antigravity skill of the same name at ~/.gemini/antigravity-cli/skills/claude-message/SKILL.md and builds claude-queue with go install only when it is not already on PATH."
     }
   ]
 }
