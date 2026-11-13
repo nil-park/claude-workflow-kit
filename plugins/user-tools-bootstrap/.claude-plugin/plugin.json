@@ -1,6 +1,6 @@
 {
   "name": "user-tools-bootstrap",
-  "description": "Installs personal tools that live outside any project and wires them into the user environment, including a Go status line binary, an Antigravity compaction hook, and the claude-message Antigravity skill (with claude-queue).",
+  "description": "Installs personal tools that live outside any project and wires them into the user environment, including a Go status line binary, an Antigravity compaction hook, the claude-message Antigravity skill (with claude-queue), and the copilot-message Claude Code skill (with copilot-queue).",
   "author": {
     "name": "nil-park"
   },
@@ -14,6 +14,7 @@
     "user-settings",
     "agy",
     "hooks",
-    "claude-queue"
+    "claude-queue",
+    "copilot"
   ]
 }
