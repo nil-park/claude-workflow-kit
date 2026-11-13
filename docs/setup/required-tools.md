@@ -10,4 +10,3 @@
 | `python3` | 훅 스크립트 실행. 3.11 이상. 훅을 설치한 프로젝트에도 같은 이름으로 필요하다                             | `python3 --version` |
 | `uv`      | 훅 스크립트의 린트·타입 검사·테스트(`ruff`, `pyright`, `pytest`)를 돌린다                                | `uv --version`      |
 | `go`      | statusline, claude-queue의 빌드와 테스트(`make statusline`, `make claude-queue`, `make test`). 1.27 이상 | `go version`        |
-| `eza`     | 세션 시작 시 프로젝트 구조 트리 확인 (`eza --tree --git-ignore -a --ignore-glob='.git' .`)               | `eza --version`     |
