@@ -3,7 +3,7 @@ name: bootstrap
 description: >-
   docs-standards, coding-standards, work-cycle, fluent-korean, scratch-dir 스킬을
   현재 프로젝트에 한 번에 설치하거나, 이 플러그인으로 설치한 스킬을 한 번에 업데이트하고
-  싶을 때 부른다. anti-claudeism, git-workflow, multi-session, duo-session, duo-session-agy는
+  싶을 때 부른다. anti-claudeism, git-workflow, multi-session, duo-session은
   새로 설치하지 않고, 설치되어 있을 때 업데이트만 한다.
 ---
 
@@ -20,13 +20,12 @@ description: >-
 | `git-workflow`     | `.agents/skills/git-workflow/SKILL.md`                                    | `project-skills-bootstrap:bootstrap-git-workflow`     | 제외      |
 | `multi-session`    | `.claude/skills/multi-session*/SKILL.md` 중 하나                          | `project-skills-bootstrap:bootstrap-multi-session`    | 제외      |
 | `duo-session`      | `.claude/skills/duo-session/SKILL.md`                                     | `project-skills-bootstrap:bootstrap-duo-session`      | 제외      |
-| `duo-session-agy`  | `.claude/skills/duo-session-agy/SKILL.md`                                 | `project-skills-bootstrap:bootstrap-duo-session`      | 제외      |
 
 - 신규 설치에서 제외한 스킬은 사용자가 명시적으로 요청할 때에만 해당 부트스트랩 스킬을 불러 설치한다.
 
 ## 설치 여부 판정
 
-가장 먼저 위 표의 열한 스킬이 각각 설치되어 있는지 확인한다.
+가장 먼저 위 표의 아홉 스킬이 각각 설치되어 있는지 확인한다.
 
 - 하나도 설치되어 있지 않으면 신규 설치 절차를 실행한다.
 - 하나라도 설치되어 있으면 업데이트 절차를 실행한다.
@@ -40,7 +39,6 @@ description: >-
 
 1. 설치된 스킬의 부트스트랩 스킬만 표의 순서대로 불러 업데이트 절차를 실행한다.
    - `fluent-korean`은 마켓플레이스의 `autoUpdate`로 갱신되므로 부르지 않는다.
-   - `duo-session`과 `duo-session-agy`가 둘 다 설치되어 있으면 `bootstrap-duo-session`은 한 번만 부른다.
    - 설치되지 않은 스킬은 신규 설치 포함 여부와 상관없이 설치하지 않는다.
 2. 결과를 보고할 때 설치되지 않은 스킬을 안내한다.
 
@@ -80,4 +78,3 @@ description: >-
     - Codex CLI: `multi-session-codex`, 사용자가 고를 때만 설치한다.
     - Antigravity CLI: `multi-session-agy`, 사용자가 고를 때만 설치한다.
 - `duo-session`: 주 세션(Claude Code)이 지시하고 리뷰하며, agy 세션이 리포지토리의 모든 파일을 편집하고 `claude-queue`와 `agy agentapi send-message`로 메시지를 주고받는 절차를 정한다.
-- `duo-session-agy`: [Deprecated: `duo-session`으로 대체되어 더는 권장하지 않는다] 주 세션(Claude Code)이 지시하고 리뷰하며, agy 세션이 리포지토리의 모든 파일을 편집하는 절차를 정한다.

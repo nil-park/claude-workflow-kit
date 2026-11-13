@@ -11,7 +11,6 @@ flowchart LR
     ac["anti-claudeism"]
     ms["multi-session"]
     du["duo-session"]
-    dua["duo-session-agy"]
     hook{{"anti_claudeism.py"}}
   end
 
@@ -30,12 +29,6 @@ flowchart LR
   du --> ac
   du --> sd
   du --> hook
-  dua --> gw
-  dua --> cs
-  dua --> ds
-  dua --> ac
-  dua --> sd
-  dua --> hook
   gw -.-> wc
   gw -.-> ds
   gw -.-> sd
@@ -57,5 +50,4 @@ flowchart LR
     - 모든 변형의 의존 관계는 다이어그램의 `multi-session`과 같다.
     - CLI별 스킬 목록은 [사용자 가이드](../../plugins/project-skills-bootstrap/skills/bootstrap/SKILL.md#사용자-가이드)에 있다.
   - `bootstrap-duo-session`은 `duo-session` 스킬과 커스텀 에이전트 정의 `duo-session-peer`를 설치한다.
-    - deprecated된 `duo-session-agy` 스킬과 커스텀 에이전트 정의 `duo-session-agy-peer`도 설치할 수 있다.
   - `bootstrap-fluent-korean`이 설치하는 것은 스킬이 아니라 출력 스타일이며, 이 다이어그램에 대응하는 노드가 없다.
