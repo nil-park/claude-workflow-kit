@@ -4,7 +4,6 @@
 
 - `peer`는 커스텀 에이전트 `duo-session-peer`로 실행한다.
 - `peer`에서 `main`으로는 `claude-queue send`로 메시지를 보내고, `main`에서 `peer`로는 핸드셰이크가 전달한 값을 설정해 `agy agentapi send-message`로 메시지를 보낸다.
-- 기존 [duo-session-agy](duo-session-agy.md)는 `duo-session`으로 대체되어 더는 권장하지 않는(deprecated) 스킬이다.
 
 ## 역할
 

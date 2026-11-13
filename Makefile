@@ -7,9 +7,9 @@ BG_BLUE := \033[44m
 BG_PINK := \033[45m
 RESET := \033[0m
 
-.PHONY: format test statusline duo-relay agy-compaction-hook claude-queue
+.PHONY: format test statusline agy-compaction-hook claude-queue
 
-GO_MODULES := statusline duo-relay agy-compaction-hook claude-queue
+GO_MODULES := statusline agy-compaction-hook claude-queue
 
 # 고치면서 검사한다. 확장자별 파일이 없어도 오류 없이 넘어간다.
 format:
@@ -52,10 +52,6 @@ test:
 # build/statusline을 빌드한다. Windows에서는 go env GOEXE가 .exe 확장자를 붙인다.
 statusline:
 	@cd statusline && go build -o "../build/statusline$$(go env GOEXE)" .
-
-# duo-relay를 ~/.local/bin에 설치한다.
-duo-relay:
-	@cd duo-relay && go build -o "$(HOME)/.local/bin/duo-relay$$(go env GOEXE)" .
 
 # agy-compaction-hook을 ~/.local/bin에 설치한다.
 agy-compaction-hook:
