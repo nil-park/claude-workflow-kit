@@ -37,11 +37,12 @@
 
 ### user-tools-bootstrap
 
-| 명령                                                  | 설명                                                                                                     |
-| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `/user-tools-bootstrap:bootstrap-statusline`          | statusline 바이너리를 `~/.claude/bin`에 빌드하고 `~/.claude/settings.json`의 `statusLine`을 설정         |
-| `/user-tools-bootstrap:bootstrap-agy-compaction-hook` | agy-compaction-hook 바이너리를 빌드하고 `~/.gemini/config/hooks.json`에 훅을 등록                        |
-| `/user-tools-bootstrap:bootstrap-claude-message`      | `claude-message` agy 스킬을 `~/.gemini/antigravity-cli/skills/`에 설치하고, `claude-queue`가 없으면 빌드 |
+| 명령                                                  | 설명                                                                                                                 |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `/user-tools-bootstrap:bootstrap-statusline`          | statusline 바이너리를 `~/.claude/bin`에 빌드하고 `~/.claude/settings.json`의 `statusLine`을 설정                     |
+| `/user-tools-bootstrap:bootstrap-agy-compaction-hook` | agy-compaction-hook 바이너리를 빌드하고 `~/.gemini/config/hooks.json`에 훅을 등록                                    |
+| `/user-tools-bootstrap:bootstrap-claude-message`      | `claude-message` agy 스킬을 `~/.gemini/antigravity-cli/skills/`에 설치하고, `claude-queue`가 없으면 빌드             |
+| `/user-tools-bootstrap:bootstrap-copilot-queue`       | `copilot-message` Claude Code 스킬을 `~/.claude/skills/`에 설치하고, `copilot-queue`와 필요 시 `claude-queue`를 빌드 |
 
 - statusline의 출력, 입력 처리, 설치: [docs/architecture/statusline.md](docs/architecture/statusline.md)
 - agy-compaction-hook의 등록, 실행 흐름, 출력: [docs/architecture/agy-compaction-hook.md](docs/architecture/agy-compaction-hook.md)
