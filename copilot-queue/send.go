@@ -40,7 +40,7 @@ func runSend(args []string, stdout, stderr io.Writer) error {
 	if err != nil {
 		return err
 	}
-	msgID, err := sendPrompt(*port, wrapBody(*from, body), rpcTimeout)
+	msgID, err := sendPrompt(*port, wrapBody(*from, body), displayPrompt(*from, body), rpcTimeout)
 	if err != nil {
 		return err
 	}
@@ -106,4 +106,8 @@ func readBody(given map[string]bool, message, file string, handshake bool, from 
 func wrapBody(from, body string) string {
 	escaped := strings.ReplaceAll(body, "</cross-session-message", `<\/cross-session-message`)
 	return fmt.Sprintf("<cross-session-message from=\"%s\">\n%s\n</cross-session-message>", from, escaped)
+}
+
+func displayPrompt(from, body string) string {
+	return fmt.Sprintf("[%s] %s", from, body)
 }

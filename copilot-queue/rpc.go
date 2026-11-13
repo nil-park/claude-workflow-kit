@@ -41,7 +41,7 @@ type rpcError struct {
 // sendPrompt connects to the Copilot UI server, checks protocolVersion and the
 // foreground session, and delivers prompt without retrying because
 // session.send is not idempotent.
-func sendPrompt(port int, prompt string, timeout time.Duration) (string, error) {
+func sendPrompt(port int, prompt, displayPrompt string, timeout time.Duration) (string, error) {
 	addr := fmt.Sprintf("127.0.0.1:%d", port)
 	conn, err := net.DialTimeout("tcp", addr, timeout)
 	if err != nil {
@@ -75,11 +75,13 @@ func sendPrompt(port int, prompt string, timeout time.Duration) (string, error) 
 	}
 
 	sendParams := struct {
-		SessionID string `json:"sessionId"`
-		Prompt    string `json:"prompt"`
+		SessionID     string `json:"sessionId"`
+		Prompt        string `json:"prompt"`
+		DisplayPrompt string `json:"displayPrompt"`
 	}{
-		SessionID: fgRes.SessionID,
-		Prompt:    prompt,
+		SessionID:     fgRes.SessionID,
+		Prompt:        prompt,
+		DisplayPrompt: displayPrompt,
 	}
 	var sendRes struct {
 		MessageID string `json:"messageId"`

@@ -117,6 +117,10 @@ func TestSendSuccessAndRequestOrder(t *testing.T) {
 	if !strings.HasPrefix(prompt, "<cross-session-message from=\"main-1\">\n") || !strings.Contains(prompt, "hello") {
 		t.Fatalf("unexpected prompt: %q", prompt)
 	}
+	wantDisplay := "[main-1] " + handshakeBody("main-1", port) + "\n\nhello"
+	if gotDisplay, _ := seen[2].Params["displayPrompt"].(string); gotDisplay != wantDisplay {
+		t.Fatalf("displayPrompt:\ngot:  %q\nwant: %q", gotDisplay, wantDisplay)
+	}
 }
 
 func TestSendWrongProtocolVersion(t *testing.T) {
