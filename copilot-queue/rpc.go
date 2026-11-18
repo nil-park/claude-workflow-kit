@@ -14,11 +14,7 @@ import (
 	"time"
 )
 
-const (
-	minProtocolVersion = 3
-	maxProtocolVersion = 4
-	maxFrameBytes      = 4 << 20
-)
+const maxFrameBytes = 4 << 20
 
 type rpcRequest struct {
 	JSONRPC string `json:"jsonrpc"`
@@ -39,7 +35,7 @@ type rpcError struct {
 	Message string `json:"message"`
 }
 
-// sendPrompt connects to the Copilot UI server, checks protocolVersion and the
+// sendPrompt connects to the Copilot UI server, pings it, resolves the
 // foreground session, and delivers prompt without retrying because
 // session.send is not idempotent.
 func sendPrompt(port int, prompt, displayPrompt string, timeout time.Duration) (string, error) {
@@ -61,18 +57,15 @@ func sendPrompt(port int, prompt, displayPrompt string, timeout time.Duration) (
 	if err := callRPC(conn, reader, 1, "ping", map[string]string{"message": "ping"}, &pingRes, timeout); err != nil {
 		return "", err
 	}
-	if pingRes.ProtocolVersion < minProtocolVersion || pingRes.ProtocolVersion > maxProtocolVersion {
-		return "", fmt.Errorf("unexpected Copilot protocolVersion %d (supported %d..%d)", pingRes.ProtocolVersion, minProtocolVersion, maxProtocolVersion)
-	}
 
 	var fgRes struct {
 		SessionID string `json:"sessionId"`
 	}
 	if err := callRPC(conn, reader, 2, "session.getForeground", struct{}{}, &fgRes, timeout); err != nil {
-		return "", err
+		return "", fmt.Errorf("%w (protocolVersion %d)", err, pingRes.ProtocolVersion)
 	}
 	if fgRes.SessionID == "" {
-		return "", errors.New("no foreground session")
+		return "", fmt.Errorf("no foreground session (protocolVersion %d)", pingRes.ProtocolVersion)
 	}
 
 	sendParams := struct {
@@ -88,7 +81,7 @@ func sendPrompt(port int, prompt, displayPrompt string, timeout time.Duration) (
 		MessageID string `json:"messageId"`
 	}
 	if err := callRPC(conn, reader, 3, "session.send", sendParams, &sendRes, timeout); err != nil {
-		return "", err
+		return "", fmt.Errorf("%w (protocolVersion %d)", err, pingRes.ProtocolVersion)
 	}
 	return sendRes.MessageID, nil
 }
