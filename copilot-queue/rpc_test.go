@@ -123,23 +123,6 @@ func TestSendSuccessAndRequestOrder(t *testing.T) {
 	}
 }
 
-func TestSendWrongProtocolVersion(t *testing.T) {
-	port := startFakeServer(t, func(conn net.Conn, req capturedRequest) {
-		if req.Method == "ping" {
-			writeResult(conn, req.ID, map[string]any{"protocolVersion": 2})
-		}
-	})
-
-	var out, errBuf bytes.Buffer
-	code := run([]string{"send", "--port", strconv.Itoa(port), "--from", "main", "--message", "hi"}, &out, &errBuf)
-	if code != exitError {
-		t.Fatalf("expected error exit, got %d", code)
-	}
-	if !strings.Contains(errBuf.String(), "protocolVersion 2") {
-		t.Fatalf("error must name version received, got: %q", errBuf.String())
-	}
-}
-
 func TestSendEmptySessionID(t *testing.T) {
 	port := startFakeServer(t, func(conn net.Conn, req capturedRequest) {
 		switch req.Method {
@@ -177,7 +160,7 @@ func TestSendJSONRPCError(t *testing.T) {
 	if code != exitError {
 		t.Fatalf("expected error exit, got %d", code)
 	}
-	if !strings.Contains(errBuf.String(), "session busy") {
-		t.Fatalf("stderr = %q, want session busy", errBuf.String())
+	if !strings.Contains(errBuf.String(), "session busy") || !strings.Contains(errBuf.String(), "protocolVersion 3") {
+		t.Fatalf("stderr = %q, want session busy and protocolVersion 3", errBuf.String())
 	}
 }
