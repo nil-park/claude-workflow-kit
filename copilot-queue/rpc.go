@@ -15,8 +15,9 @@ import (
 )
 
 const (
-	expectedProtocolVersion = 3
-	maxFrameBytes           = 4 << 20
+	minProtocolVersion = 3
+	maxProtocolVersion = 4
+	maxFrameBytes      = 4 << 20
 )
 
 type rpcRequest struct {
@@ -60,8 +61,8 @@ func sendPrompt(port int, prompt, displayPrompt string, timeout time.Duration) (
 	if err := callRPC(conn, reader, 1, "ping", map[string]string{"message": "ping"}, &pingRes, timeout); err != nil {
 		return "", err
 	}
-	if pingRes.ProtocolVersion != expectedProtocolVersion {
-		return "", fmt.Errorf("unexpected Copilot protocolVersion %d (expected %d)", pingRes.ProtocolVersion, expectedProtocolVersion)
+	if pingRes.ProtocolVersion < minProtocolVersion || pingRes.ProtocolVersion > maxProtocolVersion {
+		return "", fmt.Errorf("unexpected Copilot protocolVersion %d (supported %d..%d)", pingRes.ProtocolVersion, minProtocolVersion, maxProtocolVersion)
 	}
 
 	var fgRes struct {
