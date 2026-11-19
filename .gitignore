@@ -4,6 +4,9 @@
 # spec doc originals fetched per docs/setup/
 /.spec-docs/
 
+# credentials such as the GCP service account key
+/.secrets/
+
 # personal Claude Code settings
 /.claude/settings.local.json
 
