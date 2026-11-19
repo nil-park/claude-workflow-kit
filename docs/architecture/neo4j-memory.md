@@ -7,6 +7,9 @@
 - `Instruction`: 긴 지침 노드
 - `Reminder`: instant 지침 노드
 - `Scope`: 스코프 노드
+- `Scope` 노드와 `Reminder` 노드는 짧은 설명(description)을 가지며, `Instruction` 노드는 설명이 없다.
+  - `Scope` 설명에는 대화에서 식별할 수 있는 스코프의 내용을 적는다.
+  - `Reminder` 설명에는 대화 중간에 주입되는 시점을 기록한다.
 
 ## 구성 요소
 
