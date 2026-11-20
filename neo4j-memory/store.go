@@ -8,11 +8,7 @@ import (
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 )
 
-// seedOrigin, joined with the manifest owner, marks nodes written by `load`,
-// so a reload deletes only that owner's dropped instructions.
-const seedOrigin = "plugins-seed"
-
-// candidateLimit bounds the read; hitting it means the graph outgrew this PoC.
+// candidateLimit bounds the read; hitting it means the graph outgrew this CLI.
 const candidateLimit = 1000
 
 const txTimeout = 20 * time.Second
@@ -22,101 +18,152 @@ var constraintQueries = []string{
 	"CREATE CONSTRAINT scope_name IF NOT EXISTS FOR (s:Scope) REQUIRE s.name IS UNIQUE",
 }
 
-// Locked nodes are skipped everywhere: the user protects them from agents,
-// and the loader writes as an agent. An entity becomes a scope only when it
-// carries no other instruction-group label, since those labels exclude each
-// other, and only when the name points at that one node: otherwise the
-// scope_name constraint would abort the whole load.
-var writeQueries = []string{
-	`UNWIND $scopes AS s
-	 MATCH (e:Entity {name: s.name})
-	 WITH s, collect(e) AS entities
-	 WHERE size(entities) = 1 AND NOT EXISTS { MATCH (:Scope {name: s.name}) }
-	 WITH entities[0] AS e
-	 WHERE NOT e:Instruction AND NOT e:Reminder
-	   AND e.deletedAt IS NULL AND coalesce(e.locked, false) = false
-	 SET e:Scope`,
-	`UNWIND $scopes AS s
-	 MERGE (n:Scope {name: s.name})
-	 WITH n, s WHERE coalesce(n.locked, false) = false
-	 SET n.description = s.description, n.deletedAt = null,
-	     n.disableModelInvocation = CASE WHEN s.disableModelInvocation THEN true END`,
-	`UNWIND $instructions AS x
-	 MERGE (i:Instruction {key: x.key})
-	 WITH i, x WHERE coalesce(i.locked, false) = false
-	 SET i.title = x.title, i.origin = $origin, i.deletedAt = null,
-	     i.body = CASE WHEN x.body = '' THEN null ELSE x.body END,
-	     i.slots = CASE WHEN x.slots = '' THEN null ELSE x.slots END
-	 WITH i
-	 OPTIONAL MATCH (i)-[r:APPLIES_IN|INCLUDES]->()
-	 DELETE r`,
-	`UNWIND $instructions AS x
-	 MATCH (i:Instruction {key: x.key}) WHERE coalesce(i.locked, false) = false
-	 UNWIND x.scopes AS name
-	 MATCH (s:Scope {name: name})
-	 MERGE (i)-[:APPLIES_IN]->(s)`,
-	`UNWIND $instructions AS x
-	 MATCH (i:Instruction {key: x.key}) WHERE coalesce(i.locked, false) = false
-	 UNWIND x.includes AS childKey
-	 MATCH (c:Instruction {key: childKey})
-	 MERGE (i)-[:INCLUDES]->(c)`,
-	// A node dropped from the manifest is deleted, not soft-deleted: soft
-	// deletion lets the user undo an agent's judgment, and these nodes only
-	// mirror the manifest.
-	`MATCH (i:Instruction {origin: $origin})
-	 WHERE NOT i.key IN [x IN $instructions | x.key]
-	   AND coalesce(i.locked, false) = false
-	 DETACH DELETE i`,
-}
-
-// An instruction linked to a soft-deleted scope never applies: dropping that
-// scope from its list would widen the AND condition instead.
 const candidateQuery = `
 MATCH (s:Scope)<-[:APPLIES_IN]-(i:Instruction)
-WHERE s.name IN $scopes AND s.deletedAt IS NULL
-  AND i.deletedAt IS NULL AND i.key IS NOT NULL
-  AND NOT EXISTS { (i)-[:APPLIES_IN]->(d:Scope) WHERE d.deletedAt IS NOT NULL }
+WHERE s.name IN $scopes AND i.key IS NOT NULL
 WITH DISTINCT i LIMIT $limit
-RETURN i.key AS key, coalesce(i.title, '') AS title, coalesce(i.body, '') AS body, coalesce(i.slots, '') AS slots,
-       [(i)-[:APPLIES_IN]->(t:Scope) | t.name] AS scopes,
-       [(i)-[:INCLUDES]->(c:Instruction) WHERE c.deletedAt IS NULL | c.key] AS includes`
+RETURN i.key AS key, coalesce(i.title, '') AS title, coalesce(i.body, '') AS body,
+       [(i)-[:APPLIES_IN]->(t:Scope) | t.name] AS scopes`
 
-func writeSeed(ctx context.Context, driver neo4j.DriverWithContext, db string, seed Seed) error {
+type store struct {
+	driver neo4j.DriverWithContext
+	db     string
+}
+
+func (s *store) ensureConstraints(ctx context.Context) error {
 	for _, q := range constraintQueries {
-		if _, err := neo4j.ExecuteQuery(ctx, driver, q, nil, neo4j.EagerResultTransformer,
-			neo4j.ExecuteQueryWithDatabase(db), neo4j.ExecuteQueryWithTransactionConfig(neo4j.WithTxTimeout(txTimeout))); err != nil {
+		if _, err := neo4j.ExecuteQuery(ctx, s.driver, q, nil, neo4j.EagerResultTransformer,
+			neo4j.ExecuteQueryWithDatabase(s.db),
+			neo4j.ExecuteQueryWithTransactionConfig(neo4j.WithTxTimeout(txTimeout))); err != nil {
 			return err
 		}
 	}
-	instructions, err := instructionParams(seed.Instructions)
-	if err != nil {
-		return err
-	}
-	params := map[string]any{"scopes": scopeParams(seed.Scopes), "instructions": instructions, "origin": seed.Origin}
-	session := driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: db})
+	return nil
+}
+
+func (s *store) withWriteTx(ctx context.Context, fn func(neo4j.ManagedTransaction) error) error {
+	session := s.driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: s.db})
 	defer session.Close(ctx)
-	_, err = session.ExecuteWrite(ctx, func(tx neo4j.ManagedTransaction) (any, error) {
-		for _, q := range writeQueries {
-			res, err := tx.Run(ctx, q, params)
-			if err != nil {
-				return nil, err
-			}
-			// Consume so that a failing statement reports here, not at commit.
-			if _, err := res.Consume(ctx); err != nil {
-				return nil, err
-			}
-		}
-		return nil, nil
+	_, err := session.ExecuteWrite(ctx, func(tx neo4j.ManagedTransaction) (any, error) {
+		return nil, fn(tx)
 	}, neo4j.WithTxTimeout(txTimeout))
 	return err
 }
 
-// fetchCandidates returns every instruction linked to at least one of the
-// given scopes; Merge then keeps those whose scopes all apply.
-func fetchCandidates(ctx context.Context, driver neo4j.DriverWithContext, db string, scopes []string) ([]Instruction, error) {
-	res, err := neo4j.ExecuteQuery(ctx, driver, candidateQuery,
+func runAndConsume(ctx context.Context, tx neo4j.ManagedTransaction, query string, params map[string]any) error {
+	res, err := tx.Run(ctx, query, params)
+	if err != nil {
+		return err
+	}
+	_, err = res.Consume(ctx)
+	return err
+}
+
+func querySingleRow(ctx context.Context, tx neo4j.ManagedTransaction, query string, params map[string]any) (map[string]any, bool, error) {
+	res, err := tx.Run(ctx, query, params)
+	if err != nil {
+		return nil, false, err
+	}
+	records, err := res.Collect(ctx)
+	if err != nil {
+		return nil, false, err
+	}
+	if len(records) == 0 {
+		return nil, false, nil
+	}
+	return records[0].AsMap(), true, nil
+}
+
+func checkNodeExists(ctx context.Context, tx neo4j.ManagedTransaction, query string, params map[string]any, kind, id string) error {
+	_, found, err := querySingleRow(ctx, tx, query, params)
+	if err != nil {
+		return err
+	}
+	if !found {
+		return fmt.Errorf("%s %q not found", kind, id)
+	}
+	return nil
+}
+
+// createScope creates a Scope node, or adds :Scope to a single matching
+// Entity that carries no Instruction or Reminder label.
+func (s *store) createScope(ctx context.Context, name, description string, disableModelInvocation bool) error {
+	if err := s.ensureConstraints(ctx); err != nil {
+		return err
+	}
+	params := map[string]any{
+		"name":                   name,
+		"description":            description,
+		"disableModelInvocation": disableModelInvocation,
+	}
+	return s.withWriteTx(ctx, func(tx neo4j.ManagedTransaction) error {
+		_, exists, err := querySingleRow(ctx, tx, "MATCH (s:Scope {name: $name}) RETURN s.name AS name LIMIT 1", params)
+		if err != nil {
+			return err
+		}
+		if exists {
+			return fmt.Errorf("scope %q already exists", name)
+		}
+		row, found, err := querySingleRow(ctx, tx, `
+			MATCH (e:Entity {name: $name})
+			WITH collect(e) AS entities
+			WHERE size(entities) = 1
+			WITH entities[0] AS e
+			WHERE NOT e:Instruction AND NOT e:Reminder
+			SET e:Scope, e.description = $description,
+			    e.disableModelInvocation = CASE WHEN $disableModelInvocation THEN true END
+			RETURN true AS promoted`, params)
+		if err != nil {
+			return err
+		}
+		if found && row["promoted"] == true {
+			return nil
+		}
+		return runAndConsume(ctx, tx, `
+			CREATE (n:Scope {name: $name, description: $description})
+			SET n.disableModelInvocation = CASE WHEN $disableModelInvocation THEN true END`, params)
+	})
+}
+
+func (s *store) editScope(ctx context.Context, name, description string) error {
+	params := map[string]any{"name": name, "description": description}
+	return s.withWriteTx(ctx, func(tx neo4j.ManagedTransaction) error {
+		if err := checkNodeExists(ctx, tx,
+			"MATCH (s:Scope {name: $name}) RETURN s.name AS name",
+			params, "scope", name); err != nil {
+			return err
+		}
+		return runAndConsume(ctx, tx, "MATCH (s:Scope {name: $name}) SET s.description = $description", params)
+	})
+}
+
+// SET+REMOVE on a scratch property takes an exclusive write lock on the node
+// for the transaction (Neo4j Java Reference, Transaction management -> Isolation levels).
+const lockScopeQuery = "MATCH (s:Scope {name: $name}) SET s._lock = true REMOVE s._lock RETURN s.name AS name"
+
+func (s *store) deleteScope(ctx context.Context, name string) error {
+	params := map[string]any{"name": name}
+	return s.withWriteTx(ctx, func(tx neo4j.ManagedTransaction) error {
+		if err := checkNodeExists(ctx, tx, lockScopeQuery, params, "scope", name); err != nil {
+			return err
+		}
+		row, _, err := querySingleRow(ctx, tx,
+			"MATCH (s:Scope {name: $name})<-[:APPLIES_IN]-(i:Instruction) RETURN count(i) AS linked",
+			params)
+		if err != nil {
+			return err
+		}
+		if linked, _ := row["linked"].(int64); linked > 0 {
+			return fmt.Errorf("scope %q still has %d linked instruction(s)", name, linked)
+		}
+		return runAndConsume(ctx, tx, "MATCH (s:Scope {name: $name}) DETACH DELETE s", params)
+	})
+}
+
+func (s *store) fetchCandidates(ctx context.Context, scopes []string) ([]Instruction, error) {
+	res, err := neo4j.ExecuteQuery(ctx, s.driver, candidateQuery,
 		map[string]any{"scopes": scopes, "limit": candidateLimit},
-		neo4j.EagerResultTransformer, neo4j.ExecuteQueryWithDatabase(db), neo4j.ExecuteQueryWithReadersRouting(),
+		neo4j.EagerResultTransformer, neo4j.ExecuteQueryWithDatabase(s.db), neo4j.ExecuteQueryWithReadersRouting(),
 		neo4j.ExecuteQueryWithTransactionConfig(neo4j.WithTxTimeout(txTimeout)))
 	if err != nil {
 		return nil, err
