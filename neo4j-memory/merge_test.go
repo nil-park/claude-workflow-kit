@@ -71,6 +71,21 @@ func TestMergeWarnsWhenTwoNodesFillOneSlot(t *testing.T) {
 	}
 }
 
+func TestMergeEmitsRootlessCycleAndSelfLoop(t *testing.T) {
+	candidates := []Instruction{
+		{Key: "a", Body: "a", Scopes: []string{"s"}, Includes: []string{"b"}},
+		{Key: "b", Body: "b", Scopes: []string{"s"}, Includes: []string{"a"}},
+		{Key: "self", Body: "self", Scopes: []string{"s"}, Includes: []string{"self"}},
+	}
+	got := Merge(candidates, []string{"s"})
+	if keys := sectionKeys(got); !slices.Equal(keys, []string{"a", "self"}) || got.Sections[0].Body != "a\n\nb" {
+		t.Fatalf("sections = %+v", got.Sections)
+	}
+	if len(got.Warnings) != 4 {
+		t.Fatalf("warnings = %v, want a stand-in and a cycle warning for each loop", got.Warnings)
+	}
+}
+
 func TestMergeStopsAtCycle(t *testing.T) {
 	candidates := []Instruction{
 		{Key: "root", Body: "root", Scopes: []string{"s"}, Includes: []string{"a"}},

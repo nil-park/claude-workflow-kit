@@ -25,11 +25,15 @@ var constraintQueries = []string{
 // Locked nodes are skipped everywhere: the user protects them from agents,
 // and the loader writes as an agent. An entity becomes a scope only when it
 // carries no other instruction-group label, since those labels exclude each
-// other.
+// other, and only when the name points at that one node: otherwise the
+// scope_name constraint would abort the whole load.
 var writeQueries = []string{
 	`UNWIND $scopes AS s
 	 MATCH (e:Entity {name: s.name})
-	 WHERE NOT e:Scope AND NOT e:Instruction AND NOT e:Reminder
+	 WITH s, collect(e) AS entities
+	 WHERE size(entities) = 1 AND NOT EXISTS { MATCH (:Scope {name: s.name}) }
+	 WITH entities[0] AS e
+	 WHERE NOT e:Instruction AND NOT e:Reminder
 	   AND e.deletedAt IS NULL AND coalesce(e.locked, false) = false
 	 SET e:Scope`,
 	`UNWIND $scopes AS s

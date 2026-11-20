@@ -52,31 +52,57 @@ func Merge(candidates []Instruction, active []string) MergeResult {
 			includedByActive[child] = true
 		}
 	}
-	keys := make([]string, 0, len(byKey))
+	var roots, rest []string
 	for key, inst := range byKey {
-		if inst.Slot == "" && !includedByActive[key] {
-			keys = append(keys, key)
+		switch {
+		case inst.Slot != "":
+		case includedByActive[key]:
+			rest = append(rest, key)
+		default:
+			roots = append(roots, key)
 		}
 	}
-	slices.Sort(keys)
+	slices.Sort(roots)
+	slices.Sort(rest)
 
-	var result MergeResult
-	for _, key := range keys {
-		body := expand(key, byKey, map[string]bool{}, &result.Warnings)
+	e := expander{byKey: byKey, onPath: map[string]bool{}, reached: map[string]bool{}}
+	var sections []Section
+	emit := func(key string) {
+		body := e.expand(key)
 		for _, m := range placeholder.FindAllStringSubmatch(body, -1) {
-			result.Warnings = append(result.Warnings, fmt.Sprintf("%s: placeholder {{%s}} is not filled", key, m[1]))
+			e.warnings = append(e.warnings, fmt.Sprintf("%s: placeholder {{%s}} is not filled", key, m[1]))
 		}
-		result.Sections = append(result.Sections, Section{Key: key, Scopes: byKey[key].Scopes, Body: body})
+		sections = append(sections, Section{Key: key, Scopes: byKey[key].Scopes, Body: body})
 	}
-	return result
+	for _, key := range roots {
+		emit(key)
+	}
+	// Nodes that include each other with no root above them would otherwise
+	// vanish; the first unreached one stands in as their root.
+	for _, key := range rest {
+		if !e.reached[key] {
+			e.warnings = append(e.warnings, fmt.Sprintf("%s: reachable only through a cycle, emitted on its own", key))
+			emit(key)
+		}
+	}
+	return MergeResult{Sections: sections, Warnings: e.warnings}
 }
 
-// expand tracks the current path so that a cycle stops instead of recursing
-// forever.
-func expand(key string, byKey map[string]Instruction, onPath map[string]bool, warnings *[]string) string {
-	onPath[key] = true
-	defer delete(onPath, key)
+type expander struct {
+	byKey map[string]Instruction
+	// onPath holds the current include path so that a cycle stops instead of
+	// recursing forever; reached holds every node expanded so far.
+	onPath   map[string]bool
+	reached  map[string]bool
+	warnings []string
+}
 
+func (e *expander) expand(key string) string {
+	e.onPath[key] = true
+	e.reached[key] = true
+	defer delete(e.onPath, key)
+
+	byKey, warnings := e.byKey, &e.warnings
 	inst := byKey[key]
 	values := map[string]string{}
 	var appended []string
@@ -86,11 +112,11 @@ func expand(key string, byKey map[string]Instruction, onPath map[string]bool, wa
 		if _, ok := byKey[child]; !ok {
 			continue
 		}
-		if onPath[child] {
+		if e.onPath[child] {
 			*warnings = append(*warnings, fmt.Sprintf("%s: cycle through %s skipped", key, child))
 			continue
 		}
-		text := expand(child, byKey, onPath, warnings)
+		text := e.expand(child)
 		if slot := byKey[child].Slot; slot != "" {
 			if _, taken := values[slot]; taken {
 				*warnings = append(*warnings, fmt.Sprintf("%s: {{%s}} is filled by more than one node; %s skipped", key, slot, child))
