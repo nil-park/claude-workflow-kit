@@ -43,7 +43,7 @@ func openLiveStore(t *testing.T) (context.Context, *store) {
 // even when the test fails.
 func TestLiveWriteRulesAndMerge(t *testing.T) {
 	ctx, s := openLiveStore(t)
-	prefix := fmt.Sprintf("test-%d-", time.Now().UnixNano())
+	prefix := fmt.Sprintf("_livetest-%d-", time.Now().UnixNano())
 	t.Cleanup(func() {
 		cleanCtx, cleanCancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cleanCancel()
@@ -170,7 +170,7 @@ func TestLiveGraphQueryReadOnly(t *testing.T) {
 		t.Fatalf("expected non-empty scope rows, got %+v", rows)
 	}
 
-	probe := fmt.Sprintf("test-%d-readonly", time.Now().UnixNano())
+	probe := fmt.Sprintf("_livetest-%d-readonly", time.Now().UnixNano())
 	if _, err := s.queryRead(ctx, fmt.Sprintf("CREATE (:Entity {name: %q})", probe)); err == nil {
 		t.Fatal("expected read-only query to reject CREATE")
 	}
