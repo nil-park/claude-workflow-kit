@@ -1,4 +1,4 @@
-module github.com/nil-park/claude-workflow-kit/neo4j-memory
+module github.com/nil-park/claude-workflow-kit/mem4j
 
 go 1.27
 

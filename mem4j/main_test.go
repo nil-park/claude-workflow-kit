@@ -39,6 +39,12 @@ func TestRunReportsUsageErrorsBeforeConnecting(t *testing.T) {
 		"instruction delete no key":    {[]string{"instruction", "delete"}, "", "-key"},
 		"instruction recall no scope":  {[]string{"instruction", "recall"}, "", "-scope"},
 		"instruction recall extra arg": {[]string{"instruction", "recall", "-scope", "a", "b"}, "", "unexpected arguments"},
+		"graph missing action":         {[]string{"graph"}, "", "usage:"},
+		"graph unknown action":         {[]string{"graph", "drop"}, "", "unknown graph action"},
+		"graph query no input":         {[]string{"graph", "query"}, "", "-cypher or -file"},
+		"graph query empty cypher":     {[]string{"graph", "query", "-cypher", "   "}, "", "non-empty -cypher or -file"},
+		"graph query both inputs":      {[]string{"graph", "query", "-cypher", "RETURN 1", "-file", "-"}, "x", "only one of -cypher or -file"},
+		"graph query extra arg":        {[]string{"graph", "query", "-cypher", "RETURN 1", "extra"}, "", "unexpected arguments"},
 	}
 	for name, tc := range cases {
 		args := tc.args
@@ -65,7 +71,7 @@ func TestResolveBodyReadsFileAndStdin(t *testing.T) {
 		if err := parseFlags(fs, args); err != nil {
 			t.Fatalf("parseFlags(%v): %v", args, err)
 		}
-		return resolveBody(fs, *body, *file, stdin)
+		return resolveTextInput(fs, "body", *body, *file, stdin)
 	}
 	got, ok, err := resolve([]string{"-file", bodyPath}, nil)
 	if err != nil || !ok || got != "line1\n가" {

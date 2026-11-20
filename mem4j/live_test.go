@@ -11,25 +11,23 @@ import (
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 )
 
-// TestLiveWriteRulesAndMerge exercises the write commands and merge against
-// the live Aura graph under a unique prefix, cleaning up all created nodes
-// even when the test fails.
-func TestLiveWriteRulesAndMerge(t *testing.T) {
-	if os.Getenv("NEO4J_MEMORY_LIVE") == "" {
-		t.Skip("set NEO4J_MEMORY_LIVE=1 to run against the live graph")
+func openLiveStore(t *testing.T) (context.Context, *store) {
+	t.Helper()
+	if os.Getenv("MEM4J_LIVE") == "" {
+		t.Skip("set MEM4J_LIVE=1 to run against the live graph")
 	}
 	cred, err := readCredentials(defaultCredentials)
 	if err != nil {
 		t.Fatal(err)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
+	t.Cleanup(cancel)
 	driver, err := neo4j.NewDriverWithContext(cred.URI, neo4j.BasicAuth(cred.Username, cred.Password, ""))
 	if err != nil {
 		t.Fatal(err)
 	}
-	// t.Cleanup runs in LIFO order: register driver.Close first so the node
-	// cleanup query runs while the driver is still open.
+	// t.Cleanup runs in LIFO order: register driver.Close before node cleanup
+	// so the cleanup query runs while the driver is still open.
 	t.Cleanup(func() {
 		closeCtx, closeCancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer closeCancel()
@@ -37,20 +35,26 @@ func TestLiveWriteRulesAndMerge(t *testing.T) {
 			t.Errorf("close driver: %v", err)
 		}
 	})
+	return ctx, &store{driver: driver, db: cred.Database}
+}
 
-	s := &store{driver: driver, db: cred.Database}
+// TestLiveWriteRulesAndMerge exercises the write commands and merge against
+// the live Aura graph under a unique prefix, cleaning up all created nodes
+// even when the test fails.
+func TestLiveWriteRulesAndMerge(t *testing.T) {
+	ctx, s := openLiveStore(t)
 	prefix := fmt.Sprintf("test-%d-", time.Now().UnixNano())
 	t.Cleanup(func() {
 		cleanCtx, cleanCancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cleanCancel()
-		if _, err := neo4j.ExecuteQuery(cleanCtx, driver, `
+		if _, err := neo4j.ExecuteQuery(cleanCtx, s.driver, `
 			MATCH (n)
 			WHERE (n:Scope AND n.name STARTS WITH $prefix)
 			   OR (n:Entity AND n.name STARTS WITH $prefix)
 			   OR (n:Instruction AND n.key STARTS WITH $prefix)
 			DETACH DELETE n`,
 			map[string]any{"prefix": prefix},
-			neo4j.EagerResultTransformer, neo4j.ExecuteQueryWithDatabase(cred.Database)); err != nil {
+			neo4j.EagerResultTransformer, neo4j.ExecuteQueryWithDatabase(s.db)); err != nil {
 			t.Errorf("cleanup test nodes: %v", err)
 		}
 	})
@@ -61,8 +65,8 @@ func TestLiveWriteRulesAndMerge(t *testing.T) {
 	instKey := prefix + "inst-1"
 
 	// Entity -> Scope promotion
-	if _, err := neo4j.ExecuteQuery(ctx, driver, "CREATE (:Entity {name: $name})",
-		map[string]any{"name": entityScope}, neo4j.EagerResultTransformer, neo4j.ExecuteQueryWithDatabase(cred.Database)); err != nil {
+	if _, err := neo4j.ExecuteQuery(ctx, s.driver, "CREATE (:Entity {name: $name})",
+		map[string]any{"name": entityScope}, neo4j.EagerResultTransformer, neo4j.ExecuteQueryWithDatabase(s.db)); err != nil {
 		t.Fatal(err)
 	}
 	if err := s.createScope(ctx, entityScope, "promoted scope", false); err != nil {
@@ -153,5 +157,28 @@ func TestLiveWriteRulesAndMerge(t *testing.T) {
 	}
 	if err := s.editScope(ctx, scopeB, "nope"); err == nil || !strings.Contains(err.Error(), "not found") {
 		t.Fatalf("expected not-found scope after delete, got %v", err)
+	}
+}
+
+func TestLiveGraphQueryReadOnly(t *testing.T) {
+	ctx, s := openLiveStore(t)
+	rows, err := s.queryRead(ctx, "MATCH (s:Scope) RETURN s.name AS name ORDER BY s.name LIMIT 3")
+	if err != nil {
+		t.Fatalf("read query: %v", err)
+	}
+	if len(rows) == 0 || rows[0]["name"] == "" {
+		t.Fatalf("expected non-empty scope rows, got %+v", rows)
+	}
+
+	probe := fmt.Sprintf("test-%d-readonly", time.Now().UnixNano())
+	if _, err := s.queryRead(ctx, fmt.Sprintf("CREATE (:Entity {name: %q})", probe)); err == nil {
+		t.Fatal("expected read-only query to reject CREATE")
+	}
+	checkRows, err := s.queryRead(ctx, fmt.Sprintf("MATCH (e:Entity {name: %q}) RETURN count(e) AS c", probe))
+	if err != nil {
+		t.Fatalf("verify nothing written: %v", err)
+	}
+	if len(checkRows) != 1 || checkRows[0]["c"] != int64(0) {
+		t.Fatalf("expected 0 probe nodes after rejected CREATE, got %+v", checkRows)
 	}
 }

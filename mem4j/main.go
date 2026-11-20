@@ -1,16 +1,17 @@
-// Command neo4j-memory manages agent instructions and scopes in a Neo4j graph
+// Command mem4j manages agent instructions and scopes in a Neo4j graph
 // and merges the instructions that apply to a set of scopes.
 //
-//	neo4j-memory scope list
-//	neo4j-memory scope create -name <name> -description <text> [-disable-model-invocation]
-//	neo4j-memory scope edit -name <name> -description <text>
-//	neo4j-memory scope delete -name <name>
-//	neo4j-memory instruction recall -scope <name> [-scope <name> ...]
-//	neo4j-memory instruction create -key <key> -title <title> -scope <name> [-scope ...] (-body <text> | -file <path|->)
-//	neo4j-memory instruction edit -key <key> [-title <title>] [-body <text> | -file <path|->]
-//	neo4j-memory instruction link -key <key> -scope <name>
-//	neo4j-memory instruction unlink -key <key> -scope <name>
-//	neo4j-memory instruction delete -key <key>
+//	mem4j scope list
+//	mem4j scope create -name <name> -description <text> [-disable-model-invocation]
+//	mem4j scope edit -name <name> -description <text>
+//	mem4j scope delete -name <name>
+//	mem4j instruction recall -scope <name> [-scope <name> ...]
+//	mem4j instruction create -key <key> -title <title> -scope <name> [-scope ...] (-body <text> | -file <path|->)
+//	mem4j instruction edit -key <key> [-title <title>] [-body <text> | -file <path|->]
+//	mem4j instruction link -key <key> -scope <name>
+//	mem4j instruction unlink -key <key> -scope <name>
+//	mem4j instruction delete -key <key>
+//	mem4j graph query (-cypher <text> | -file <path|->)
 package main
 
 import (
@@ -26,7 +27,7 @@ import (
 
 func main() {
 	if err := run(os.Args[1:], os.Stdin, os.Stdout, os.Stderr); err != nil {
-		fmt.Fprintln(os.Stderr, "neo4j-memory:", err)
+		fmt.Fprintln(os.Stderr, "mem4j:", err)
 		os.Exit(1)
 	}
 }
@@ -62,10 +63,10 @@ func writeMerged(w io.Writer, instructions []Instruction) {
 
 func writeEmptyMergeNotice(w io.Writer, missing []string) {
 	if len(missing) == 0 {
-		fmt.Fprintln(w, "neo4j-memory: no instructions apply to the requested scopes")
+		fmt.Fprintln(w, "mem4j: no instructions apply to the requested scopes")
 		return
 	}
-	fmt.Fprintf(w, "neo4j-memory: no instructions apply (unknown scopes: %s)\n", strings.Join(missing, ", "))
+	fmt.Fprintf(w, "mem4j: no instructions apply (unknown scopes: %s)\n", strings.Join(missing, ", "))
 }
 
 func writeScopes(w io.Writer, scopes []Scope) {

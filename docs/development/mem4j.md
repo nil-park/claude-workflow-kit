@@ -1,6 +1,6 @@
-# neo4j-memory 개발
+# mem4j 개발
 
-이 문서는 neo4j-memory의 개발 전제와 플랫폼 제약을 정리한다. 아키텍처는 [neo4j-memory 아키텍처 문서](../architecture/neo4j-memory.md)에서 다룬다.
+이 문서는 `mem4j`의 개발 전제와 플랫폼 제약을 정리한다. 아키텍처는 [mem4j 아키텍처 문서](../architecture/mem4j.md)에서 다룬다.
 
 ## 환경별 접근 방식
 

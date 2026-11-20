@@ -3,10 +3,8 @@ package main
 import (
 	"context"
 	"errors"
-	"flag"
 	"fmt"
 	"io"
-	"os"
 )
 
 func parseInstructionCreate(args []string, stdin io.Reader) (parsedCommand, error) {
@@ -24,7 +22,7 @@ func parseInstructionCreate(args []string, stdin io.Reader) (parsedCommand, erro
 	if k == "" || t == "" || len(scopes) == 0 {
 		return parsedCommand{}, errors.New("instruction create requires -key, -title, and at least one -scope")
 	}
-	text, provided, err := resolveBody(fs, *body, *file, stdin)
+	text, provided, err := resolveTextInput(fs, "body", *body, *file, stdin)
 	if err != nil {
 		return parsedCommand{}, err
 	}
@@ -64,7 +62,7 @@ func parseInstructionEdit(args []string, stdin io.Reader) (parsedCommand, error)
 		}
 		newTitle = &t
 	}
-	text, bodyProvided, err := resolveBody(fs, *body, *file, stdin)
+	text, bodyProvided, err := resolveTextInput(fs, "body", *body, *file, stdin)
 	if err != nil {
 		return parsedCommand{}, err
 	}
@@ -144,39 +142,4 @@ func parseInstructionDelete(args []string) (parsedCommand, error) {
 			return nil
 		},
 	}, nil
-}
-
-func flagProvided(fs *flag.FlagSet, name string) bool {
-	found := false
-	fs.Visit(func(f *flag.Flag) {
-		if f.Name == name {
-			found = true
-		}
-	})
-	return found
-}
-
-func resolveBody(fs *flag.FlagSet, body, file string, stdin io.Reader) (string, bool, error) {
-	hasBody := flagProvided(fs, "body")
-	hasFile := flagProvided(fs, "file")
-	if hasBody && hasFile {
-		return "", false, errors.New("specify only one of -body or -file")
-	}
-	if hasBody {
-		return normalizeText(body), true, nil
-	}
-	if !hasFile {
-		return "", false, nil
-	}
-	var raw []byte
-	var err error
-	if file == "-" {
-		raw, err = io.ReadAll(stdin)
-	} else {
-		raw, err = os.ReadFile(file)
-	}
-	if err != nil {
-		return "", false, err
-	}
-	return normalizeText(string(raw)), true, nil
 }
