@@ -11,9 +11,19 @@
 
 ## 노드 레이블
 
-- `Instruction`: 상시 지침 노드
-- `Reminder`: instant 지침 노드
-- `Scope`: 스코프 노드
+- 두 계열은 노드 하나에 함께 붙일 수 있는 레이블의 조합으로 구분한다.
+  - 지침 계열 레이블(`Instruction`, `Reminder`, `Scope`)은 서로 배타적이다(예: 한 노드가 `Instruction`과 `Scope`를 동시에 가질 수 없다).
+  - 백데이터 계열의 `Entity`와 `Statement`는 서로 배타적이지 않다.
+  - 서로 다른 계열의 레이블은 노드 하나에 함께 붙일 수 있다(예: `Instruction`과 `Statement`, `Scope`와 `Entity`).
+- 지침 계열: 에이전트가 어떻게 행동해야 하는지 지시한다.
+  - `Instruction`: 상시 지침 노드
+  - `Reminder`: instant 지침 노드
+  - `Scope`: 스코프 노드
+- 백데이터 계열: 작업 확인에 쓰이는 사실과 상태를 기록한다.
+  - `Entity`: 대상이나 개체를 나타내는 노드
+  - `Statement`: 사실이나 상태를 서술하는 노드
+- `Entity`가 스코프에도 해당하면 노드 하나에 `Entity`와 `Scope` 레이블을 함께 붙인다(예: 사용자).
+  - 이 이중 레이블 노드가 두 계열을 연결한다.
 
 ## 노드 프로퍼티
 
@@ -58,3 +68,6 @@
 
 - `Instruction` 노드와 `Reminder` 노드는 자신이 종속되는 각 `Scope` 노드와 관계로 연결된다.
   - 각 노드가 여러 `Scope` 노드와 연결되면, 연결된 스코프의 교집합에 종속된다.
+- `Instruction` 노드는 서로 연결될 수 있다.
+  - 지침을 병합할 때 순환(cycle)으로 인한 무한 반복을 방지한다.
+- 대상 사이의 관계는 `Statement` 본문에 적지 않고 그래프의 관계(relationship)로 표현한다.
