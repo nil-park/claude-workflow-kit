@@ -9,7 +9,7 @@ RESET := \033[0m
 
 .PHONY: format test statusline agy-compaction-hook claude-queue copilot-queue
 
-GO_MODULES := statusline agy-compaction-hook claude-queue copilot-queue
+GO_MODULES := statusline agy-compaction-hook claude-queue copilot-queue neo4j-memory
 
 # 고치면서 검사한다. 확장자별 파일이 없어도 오류 없이 넘어간다.
 format:

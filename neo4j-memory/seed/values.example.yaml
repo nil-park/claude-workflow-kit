@@ -1,0 +1,2 @@
+# Copy to .secrets/neo4j-memory-values.yaml and fill in real values.
+user: user
