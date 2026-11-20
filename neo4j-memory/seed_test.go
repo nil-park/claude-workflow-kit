@@ -69,7 +69,7 @@ func TestRepoSeedPicksGitWorkflowByHosting(t *testing.T) {
 }
 
 // Two users loading the same template must get disjoint keys and origins, or
-// one user's load would overwrite and soft-delete the other's instructions.
+// one user's load would overwrite and delete the other's instructions.
 func TestSeedsOfTwoOwnersDoNotShareKeys(t *testing.T) {
 	other := writeFile(t, t.TempDir(), "values.yaml", "user: other\n")
 	a, b := loadRepoSeed(t, exampleValues), loadRepoSeed(t, other)

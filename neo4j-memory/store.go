@@ -9,7 +9,7 @@ import (
 )
 
 // seedOrigin, joined with the manifest owner, marks nodes written by `load`,
-// so a reload soft-deletes only that owner's dropped instructions.
+// so a reload deletes only that owner's dropped instructions.
 const seedOrigin = "plugins-seed"
 
 // candidateLimit bounds the read; hitting it means the graph outgrew this PoC.
@@ -60,10 +60,13 @@ var writeQueries = []string{
 	 UNWIND x.includes AS childKey
 	 MATCH (c:Instruction {key: childKey})
 	 MERGE (i)-[:INCLUDES]->(c)`,
+	// A node dropped from the manifest is deleted, not soft-deleted: soft
+	// deletion lets the user undo an agent's judgment, and these nodes only
+	// mirror the manifest.
 	`MATCH (i:Instruction {origin: $origin})
 	 WHERE NOT i.key IN [x IN $instructions | x.key]
-	   AND i.deletedAt IS NULL AND coalesce(i.locked, false) = false
-	 SET i.deletedAt = datetime()`,
+	   AND coalesce(i.locked, false) = false
+	 DETACH DELETE i`,
 }
 
 // An instruction linked to a soft-deleted scope never applies: dropping that

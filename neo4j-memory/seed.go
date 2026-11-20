@@ -9,7 +9,7 @@ import (
 )
 
 type Seed struct {
-	// Origin tags every node this seed loads, so a reload soft-deletes only
+	// Origin tags every node this seed loads, so a reload deletes only
 	// this owner's dropped instructions.
 	Origin       string
 	Scopes       []ScopeSpec
