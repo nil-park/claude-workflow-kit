@@ -13,7 +13,7 @@ const defaultCredentials = "../.secrets/neo4j.txt"
 
 type parsedCommand struct {
 	credPath string
-	exec     func(ctx context.Context, s *store, stdout io.Writer) error
+	exec     func(ctx context.Context, s *store, stdout, stderr io.Writer) error
 }
 
 type scopeList []string
@@ -25,33 +25,59 @@ func (s *scopeList) Set(v string) error {
 	return nil
 }
 
-// parseCommand validates the subcommand, flags, and any body input before
-// credentials are read or Neo4j is contacted.
+// parseCommand validates the resource, action, flags, and any body input
+// before credentials are read or Neo4j is contacted.
 func parseCommand(args []string, stdin io.Reader) (parsedCommand, error) {
 	if len(args) == 0 {
-		return parsedCommand{}, errors.New("usage: neo4j-memory <scope-create|scope-edit|scope-delete|instruction-create|instruction-edit|instruction-link|instruction-unlink|instruction-delete|merge> [flags]")
+		return parsedCommand{}, errors.New("usage: neo4j-memory <scope|instruction> <action> [flags]")
 	}
 	switch args[0] {
-	case "scope-create":
-		return parseScopeCreate(args[1:])
-	case "scope-edit":
-		return parseScopeEdit(args[1:])
-	case "scope-delete":
-		return parseScopeDelete(args[1:])
-	case "instruction-create":
-		return parseInstructionCreate(args[1:], stdin)
-	case "instruction-edit":
-		return parseInstructionEdit(args[1:], stdin)
-	case "instruction-link":
-		return parseInstructionLink(args[1:], true)
-	case "instruction-unlink":
-		return parseInstructionLink(args[1:], false)
-	case "instruction-delete":
-		return parseInstructionDelete(args[1:])
-	case "merge":
-		return parseMerge(args[1:])
+	case "scope":
+		return parseScopeCommand(args[1:])
+	case "instruction":
+		return parseInstructionCommand(args[1:], stdin)
 	default:
-		return parsedCommand{}, fmt.Errorf("unknown command %q", args[0])
+		return parsedCommand{}, fmt.Errorf("unknown resource %q (expected scope or instruction)", args[0])
+	}
+}
+
+func parseScopeCommand(args []string) (parsedCommand, error) {
+	if len(args) == 0 {
+		return parsedCommand{}, errors.New("usage: neo4j-memory scope <list|create|edit|delete> [flags]")
+	}
+	switch args[0] {
+	case "list":
+		return parseScopeList(args[1:])
+	case "create":
+		return parseScopeCreate(args[1:])
+	case "edit":
+		return parseScopeEdit(args[1:])
+	case "delete":
+		return parseScopeDelete(args[1:])
+	default:
+		return parsedCommand{}, fmt.Errorf("unknown scope action %q", args[0])
+	}
+}
+
+func parseInstructionCommand(args []string, stdin io.Reader) (parsedCommand, error) {
+	if len(args) == 0 {
+		return parsedCommand{}, errors.New("usage: neo4j-memory instruction <recall|create|edit|link|unlink|delete> [flags]")
+	}
+	switch args[0] {
+	case "recall":
+		return parseInstructionRecall(args[1:])
+	case "create":
+		return parseInstructionCreate(args[1:], stdin)
+	case "edit":
+		return parseInstructionEdit(args[1:], stdin)
+	case "link":
+		return parseInstructionLink(args[1:], true)
+	case "unlink":
+		return parseInstructionLink(args[1:], false)
+	case "delete":
+		return parseInstructionDelete(args[1:])
+	default:
+		return parsedCommand{}, fmt.Errorf("unknown instruction action %q", args[0])
 	}
 }
 
@@ -72,93 +98,33 @@ func parseFlags(fs *flag.FlagSet, args []string) error {
 	return nil
 }
 
-func parseScopeCreate(args []string) (parsedCommand, error) {
-	fs, cred := newFlagSet("scope-create")
-	name := fs.String("name", "", "scope name")
-	desc := fs.String("description", "", "short description of the scope")
-	disable := fs.Bool("disable-model-invocation", false, "require explicit user invocation")
-	if err := parseFlags(fs, args); err != nil {
-		return parsedCommand{}, err
-	}
-	n, d := normalizeText(*name), normalizeText(*desc)
-	if n == "" || d == "" {
-		return parsedCommand{}, errors.New("scope-create requires -name and -description")
-	}
-	return parsedCommand{
-		credPath: *cred,
-		exec: func(ctx context.Context, s *store, stdout io.Writer) error {
-			if err := s.createScope(ctx, n, d, *disable); err != nil {
-				return err
-			}
-			fmt.Fprintf(stdout, "created scope %q\n", n)
-			return nil
-		},
-	}, nil
-}
-
-func parseScopeEdit(args []string) (parsedCommand, error) {
-	fs, cred := newFlagSet("scope-edit")
-	name := fs.String("name", "", "scope name")
-	desc := fs.String("description", "", "new short description")
-	if err := parseFlags(fs, args); err != nil {
-		return parsedCommand{}, err
-	}
-	n, d := normalizeText(*name), normalizeText(*desc)
-	if n == "" || d == "" {
-		return parsedCommand{}, errors.New("scope-edit requires -name and -description")
-	}
-	return parsedCommand{
-		credPath: *cred,
-		exec: func(ctx context.Context, s *store, stdout io.Writer) error {
-			if err := s.editScope(ctx, n, d); err != nil {
-				return err
-			}
-			fmt.Fprintf(stdout, "updated scope %q\n", n)
-			return nil
-		},
-	}, nil
-}
-
-func parseScopeDelete(args []string) (parsedCommand, error) {
-	fs, cred := newFlagSet("scope-delete")
-	name := fs.String("name", "", "scope name")
-	if err := parseFlags(fs, args); err != nil {
-		return parsedCommand{}, err
-	}
-	n := normalizeText(*name)
-	if n == "" {
-		return parsedCommand{}, errors.New("scope-delete requires -name")
-	}
-	return parsedCommand{
-		credPath: *cred,
-		exec: func(ctx context.Context, s *store, stdout io.Writer) error {
-			if err := s.deleteScope(ctx, n); err != nil {
-				return err
-			}
-			fmt.Fprintf(stdout, "deleted scope %q\n", n)
-			return nil
-		},
-	}, nil
-}
-
-func parseMerge(args []string) (parsedCommand, error) {
-	fs, cred := newFlagSet("merge")
+func parseInstructionRecall(args []string) (parsedCommand, error) {
+	fs, cred := newFlagSet("instruction recall")
 	var scopes scopeList
 	fs.Var(&scopes, "scope", "active scope name, repeatable")
 	if err := parseFlags(fs, args); err != nil {
 		return parsedCommand{}, err
 	}
 	if len(scopes) == 0 {
-		return parsedCommand{}, errors.New("merge requires at least one -scope")
+		return parsedCommand{}, errors.New("instruction recall requires at least one -scope")
 	}
 	return parsedCommand{
 		credPath: *cred,
-		exec: func(ctx context.Context, s *store, stdout io.Writer) error {
+		exec: func(ctx context.Context, s *store, stdout, stderr io.Writer) error {
 			candidates, err := s.fetchCandidates(ctx, scopes)
 			if err != nil {
 				return err
 			}
-			writeMerged(stdout, Merge(candidates, scopes))
+			merged := Merge(candidates, scopes)
+			if len(merged) == 0 {
+				missing, err := s.missingScopes(ctx, scopes)
+				if err != nil {
+					return err
+				}
+				writeEmptyMergeNotice(stderr, missing)
+				return nil
+			}
+			writeMerged(stdout, merged)
 			return nil
 		},
 	}, nil

@@ -8,22 +8,12 @@ import (
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 )
 
-// candidateLimit bounds the read; hitting it means the graph outgrew this CLI.
-const candidateLimit = 1000
-
 const txTimeout = 20 * time.Second
 
 var constraintQueries = []string{
 	"CREATE CONSTRAINT instruction_key IF NOT EXISTS FOR (i:Instruction) REQUIRE i.key IS UNIQUE",
 	"CREATE CONSTRAINT scope_name IF NOT EXISTS FOR (s:Scope) REQUIRE s.name IS UNIQUE",
 }
-
-const candidateQuery = `
-MATCH (s:Scope)<-[:APPLIES_IN]-(i:Instruction)
-WHERE s.name IN $scopes AND i.key IS NOT NULL
-WITH DISTINCT i LIMIT $limit
-RETURN i.key AS key, coalesce(i.title, '') AS title, coalesce(i.body, '') AS body,
-       [(i)-[:APPLIES_IN]->(t:Scope) | t.name] AS scopes`
 
 type store struct {
 	driver neo4j.DriverWithContext
@@ -158,26 +148,4 @@ func (s *store) deleteScope(ctx context.Context, name string) error {
 		}
 		return runAndConsume(ctx, tx, "MATCH (s:Scope {name: $name}) DETACH DELETE s", params)
 	})
-}
-
-func (s *store) fetchCandidates(ctx context.Context, scopes []string) ([]Instruction, error) {
-	res, err := neo4j.ExecuteQuery(ctx, s.driver, candidateQuery,
-		map[string]any{"scopes": scopes, "limit": candidateLimit},
-		neo4j.EagerResultTransformer, neo4j.ExecuteQueryWithDatabase(s.db), neo4j.ExecuteQueryWithReadersRouting(),
-		neo4j.ExecuteQueryWithTransactionConfig(neo4j.WithTxTimeout(txTimeout)))
-	if err != nil {
-		return nil, err
-	}
-	if len(res.Records) >= candidateLimit {
-		return nil, fmt.Errorf("candidate instructions reached the limit of %d", candidateLimit)
-	}
-	insts := make([]Instruction, 0, len(res.Records))
-	for _, rec := range res.Records {
-		inst, err := toInstruction(rec.AsMap())
-		if err != nil {
-			return nil, err
-		}
-		insts = append(insts, inst)
-	}
-	return insts, nil
 }

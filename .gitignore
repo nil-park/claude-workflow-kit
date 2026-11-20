@@ -7,6 +7,9 @@
 # credentials such as the GCP service account key
 /.secrets/
 
+# durable local datasets for re-running migrations (e.g. neo4j-memory)
+/.data/
+
 # personal Claude Code settings
 /.claude/settings.local.json
 

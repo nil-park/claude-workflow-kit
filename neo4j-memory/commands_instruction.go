@@ -10,7 +10,7 @@ import (
 )
 
 func parseInstructionCreate(args []string, stdin io.Reader) (parsedCommand, error) {
-	fs, cred := newFlagSet("instruction-create")
+	fs, cred := newFlagSet("instruction create")
 	key := fs.String("key", "", "unique instruction key")
 	title := fs.String("title", "", "short instruction title")
 	body := fs.String("body", "", "instruction body text")
@@ -22,18 +22,18 @@ func parseInstructionCreate(args []string, stdin io.Reader) (parsedCommand, erro
 	}
 	k, t := normalizeText(*key), normalizeText(*title)
 	if k == "" || t == "" || len(scopes) == 0 {
-		return parsedCommand{}, errors.New("instruction-create requires -key, -title, and at least one -scope")
+		return parsedCommand{}, errors.New("instruction create requires -key, -title, and at least one -scope")
 	}
 	text, provided, err := resolveBody(fs, *body, *file, stdin)
 	if err != nil {
 		return parsedCommand{}, err
 	}
 	if !provided || text == "" {
-		return parsedCommand{}, errors.New("instruction-create requires a non-empty -body or -file")
+		return parsedCommand{}, errors.New("instruction create requires a non-empty -body or -file")
 	}
 	return parsedCommand{
 		credPath: *cred,
-		exec: func(ctx context.Context, s *store, stdout io.Writer) error {
+		exec: func(ctx context.Context, s *store, stdout, _ io.Writer) error {
 			if err := s.createInstruction(ctx, k, t, text, scopes); err != nil {
 				return err
 			}
@@ -44,7 +44,7 @@ func parseInstructionCreate(args []string, stdin io.Reader) (parsedCommand, erro
 }
 
 func parseInstructionEdit(args []string, stdin io.Reader) (parsedCommand, error) {
-	fs, cred := newFlagSet("instruction-edit")
+	fs, cred := newFlagSet("instruction edit")
 	key := fs.String("key", "", "instruction key")
 	title := fs.String("title", "", "new instruction title")
 	body := fs.String("body", "", "new instruction body text")
@@ -54,13 +54,13 @@ func parseInstructionEdit(args []string, stdin io.Reader) (parsedCommand, error)
 	}
 	k := normalizeText(*key)
 	if k == "" {
-		return parsedCommand{}, errors.New("instruction-edit requires -key")
+		return parsedCommand{}, errors.New("instruction edit requires -key")
 	}
 	var newTitle *string
 	if flagProvided(fs, "title") {
 		t := normalizeText(*title)
 		if t == "" {
-			return parsedCommand{}, errors.New("instruction-edit: -title cannot be empty")
+			return parsedCommand{}, errors.New("instruction edit: -title cannot be empty")
 		}
 		newTitle = &t
 	}
@@ -71,16 +71,16 @@ func parseInstructionEdit(args []string, stdin io.Reader) (parsedCommand, error)
 	var newBody *string
 	if bodyProvided {
 		if text == "" {
-			return parsedCommand{}, errors.New("instruction-edit: body cannot be empty")
+			return parsedCommand{}, errors.New("instruction edit: body cannot be empty")
 		}
 		newBody = &text
 	}
 	if newTitle == nil && newBody == nil {
-		return parsedCommand{}, errors.New("instruction-edit requires at least one of -title, -body, or -file")
+		return parsedCommand{}, errors.New("instruction edit requires at least one of -title, -body, or -file")
 	}
 	return parsedCommand{
 		credPath: *cred,
-		exec: func(ctx context.Context, s *store, stdout io.Writer) error {
+		exec: func(ctx context.Context, s *store, stdout, _ io.Writer) error {
 			if err := s.editInstruction(ctx, k, newTitle, newBody); err != nil {
 				return err
 			}
@@ -91,9 +91,9 @@ func parseInstructionEdit(args []string, stdin io.Reader) (parsedCommand, error)
 }
 
 func parseInstructionLink(args []string, link bool) (parsedCommand, error) {
-	cmdName := "instruction-unlink"
+	cmdName := "instruction unlink"
 	if link {
-		cmdName = "instruction-link"
+		cmdName = "instruction link"
 	}
 	fs, cred := newFlagSet(cmdName)
 	key := fs.String("key", "", "instruction key")
@@ -107,7 +107,7 @@ func parseInstructionLink(args []string, link bool) (parsedCommand, error) {
 	}
 	return parsedCommand{
 		credPath: *cred,
-		exec: func(ctx context.Context, s *store, stdout io.Writer) error {
+		exec: func(ctx context.Context, s *store, stdout, _ io.Writer) error {
 			if link {
 				if err := s.linkInstruction(ctx, k, sc); err != nil {
 					return err
@@ -125,18 +125,18 @@ func parseInstructionLink(args []string, link bool) (parsedCommand, error) {
 }
 
 func parseInstructionDelete(args []string) (parsedCommand, error) {
-	fs, cred := newFlagSet("instruction-delete")
+	fs, cred := newFlagSet("instruction delete")
 	key := fs.String("key", "", "instruction key")
 	if err := parseFlags(fs, args); err != nil {
 		return parsedCommand{}, err
 	}
 	k := normalizeText(*key)
 	if k == "" {
-		return parsedCommand{}, errors.New("instruction-delete requires -key")
+		return parsedCommand{}, errors.New("instruction delete requires -key")
 	}
 	return parsedCommand{
 		credPath: *cred,
-		exec: func(ctx context.Context, s *store, stdout io.Writer) error {
+		exec: func(ctx context.Context, s *store, stdout, _ io.Writer) error {
 			if err := s.deleteInstruction(ctx, k); err != nil {
 				return err
 			}

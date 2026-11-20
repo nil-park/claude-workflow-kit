@@ -77,6 +77,19 @@ func TestLiveWriteRulesAndMerge(t *testing.T) {
 	if err := s.editScope(ctx, scopeA, "scope A updated"); err != nil {
 		t.Fatalf("editScope: %v", err)
 	}
+	listed, err := s.listScopes(ctx)
+	if err != nil {
+		t.Fatalf("listScopes: %v", err)
+	}
+	foundA := false
+	for _, sc := range listed {
+		if sc.Name == scopeA && sc.Description == "scope A updated" && sc.DisableModelInvocation {
+			foundA = true
+		}
+	}
+	if !foundA {
+		t.Fatalf("listScopes did not include updated %q with disableModelInvocation=true", scopeA)
+	}
 
 	// Create, edit, link, unlink, last-scope refusal
 	if err := s.createInstruction(ctx, instKey, "Title 1", "Body 1", []string{scopeA}); err != nil {
@@ -93,13 +106,21 @@ func TestLiveWriteRulesAndMerge(t *testing.T) {
 		t.Fatalf("linkInstruction: %v", err)
 	}
 
-	// Merge requires all linked scopes
+	// Merge requires all linked scopes; missingScopes reports only absent ones
 	cands, err := s.fetchCandidates(ctx, []string{scopeA})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if got := Merge(cands, []string{scopeA}); len(got) != 0 {
 		t.Fatalf("merge with only scopeA: got %+v, want empty", got)
+	}
+	missingScope := prefix + "no-such-scope"
+	missing, err := s.missingScopes(ctx, []string{scopeA, missingScope})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(missing) != 1 || missing[0] != missingScope {
+		t.Fatalf("missingScopes = %v, want [%s]", missing, missingScope)
 	}
 	cands, err = s.fetchCandidates(ctx, []string{scopeA, scopeB})
 	if err != nil {
