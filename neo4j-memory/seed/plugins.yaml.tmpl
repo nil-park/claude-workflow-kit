@@ -43,59 +43,75 @@ scopes:
 
 instructions:
   - key: work-cycle
+    title: 작성-리뷰 사이클
     file: plugins/project-skills-bootstrap/skills/bootstrap-work-cycle/work-cycle.md
     scopes: [{{ .user | quote }}, 파일 작성]
   - key: coding-standards
+    title: 코드 작성과 리뷰 기준
     file: plugins/project-skills-bootstrap/skills/bootstrap-coding-standards/coding-standards.md
     scopes: [{{ .user | quote }}, 코드 작성]
   - key: docs-standards
+    title: 문서 배치와 작성 기준
     file: plugins/project-skills-bootstrap/skills/bootstrap-docs-standards/docs-standards.md
     scopes: [{{ .user | quote }}, 문서 작성]
   - key: anti-claudeism
+    title: Claude 문체 걷어내기
     file: plugins/project-skills-bootstrap/skills/bootstrap-anti-claudeism/anti-claudeism.md
     scopes: [{{ .user | quote }}, 한국어 문체 교정]
   - key: git-workflow@github
+    title: GitHub 브랜치와 PR 절차
     file: plugins/project-skills-bootstrap/skills/bootstrap-git-workflow/git-workflow-github.md
     scopes: [{{ .user | quote }}, 브랜치와 PR 작업, GitHub 리포지토리]
   - key: git-workflow@gitlab
+    title: GitLab 브랜치와 MR 절차
     file: plugins/project-skills-bootstrap/skills/bootstrap-git-workflow/git-workflow-gitlab.md
     scopes: [{{ .user | quote }}, 브랜치와 PR 작업, GitLab 리포지토리]
   - key: scratch-dir
+    title: 작업 파일 저장 위치
     file: plugins/project-skills-bootstrap/skills/bootstrap-scratch-dir/scratch-dir.md
     scopes: [{{ .user | quote }}, 작업 파일 저장]
-  - key: scratch-dir@claude-workflow-kit/scratch_dir
-    body: .refs
-    slot: scratch_dir
-    includedBy: scratch-dir
-    scopes: [{{ .user | quote }}, 작업 파일 저장, claude-workflow-kit 리포지토리]
   - key: duo-session
+    title: 듀오 세션 main 지침
     file: plugins/project-skills-bootstrap/skills/bootstrap-duo-session/duo-session.md
     scopes: [{{ .user | quote }}, 듀오 세션]
   - key: duo-session-peer
+    title: 듀오 세션 peer 지침
     file: plugins/project-skills-bootstrap/skills/bootstrap-duo-session/duo-session-peer.md
     scopes: [{{ .user | quote }}, 듀오 세션 peer]
   - key: multi-session
+    title: 멀티 세션 오케스트레이터 지침
     file: plugins/project-skills-bootstrap/skills/bootstrap-multi-session/multi-session.md
     scopes: [{{ .user | quote }}, 멀티 세션]
 
 variants:
-  - keyPrefix: multi-session@agy
+  - key: scratch-dir@claude-workflow-kit
+    title: 작업 파일 저장 위치 / claude-workflow-kit 리포지토리
+    slots:
+      scratch_dir: .refs
+    includedBy: scratch-dir
+    scopes: [{{ .user | quote }}, 작업 파일 저장, claude-workflow-kit 리포지토리]
+  - key: multi-session@agy
+    title: 멀티 세션 / Antigravity CLI peer
     file: plugins/project-skills-bootstrap/skills/bootstrap-multi-session/variants/agy.md
     includedBy: multi-session
     scopes: [{{ .user | quote }}, 멀티 세션, "peer CLI: Antigravity CLI"]
-  - keyPrefix: multi-session@claude-code
+  - key: multi-session@claude-code
+    title: 멀티 세션 / Claude Code peer
     file: plugins/project-skills-bootstrap/skills/bootstrap-multi-session/variants/claude-code.md
     includedBy: multi-session
     scopes: [{{ .user | quote }}, 멀티 세션, "peer CLI: Claude Code"]
-  - keyPrefix: multi-session@codex
+  - key: multi-session@codex
+    title: 멀티 세션 / Codex CLI peer
     file: plugins/project-skills-bootstrap/skills/bootstrap-multi-session/variants/codex.md
     includedBy: multi-session
     scopes: [{{ .user | quote }}, 멀티 세션, "peer CLI: Codex CLI"]
-  - keyPrefix: multi-session@copilot
+  - key: multi-session@copilot
+    title: 멀티 세션 / GitHub Copilot CLI peer
     file: plugins/project-skills-bootstrap/skills/bootstrap-multi-session/variants/copilot.md
     includedBy: multi-session
     scopes: [{{ .user | quote }}, 멀티 세션, "peer CLI: GitHub Copilot CLI"]
-  - keyPrefix: multi-session@gemini
+  - key: multi-session@gemini
+    title: 멀티 세션 / Gemini CLI peer
     file: plugins/project-skills-bootstrap/skills/bootstrap-multi-session/variants/gemini.md
     includedBy: multi-session
     scopes: [{{ .user | quote }}, 멀티 세션, "peer CLI: Gemini CLI"]

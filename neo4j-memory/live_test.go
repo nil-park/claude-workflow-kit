@@ -54,7 +54,7 @@ func TestLiveGraphMatchesSeed(t *testing.T) {
 			l, w := live.Sections[i], want.Sections[i]
 			slices.Sort(l.Scopes)
 			slices.Sort(w.Scopes)
-			if l.Key != w.Key || l.Body != w.Body || !slices.Equal(l.Scopes, w.Scopes) {
+			if l.Key != w.Key || l.Title != w.Title || l.Body != w.Body || !slices.Equal(l.Scopes, w.Scopes) {
 				t.Errorf("%v: section %s differs from the seed", scopes, w.Key)
 			}
 		}

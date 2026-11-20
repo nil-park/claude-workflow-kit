@@ -25,11 +25,11 @@ func TestRunReportsUsageErrorsBeforeConnecting(t *testing.T) {
 }
 
 func TestToInstructionRejectsUnexpectedTypes(t *testing.T) {
-	valid := map[string]any{"key": "k", "body": "b", "slot": "", "scopes": []any{"s"}, "includes": []any{}}
-	if _, err := toInstruction(valid); err != nil {
-		t.Fatalf("valid record: %v", err)
+	valid := map[string]any{"key": "k", "title": "t", "body": "", "slots": `{"a":"b"}`, "scopes": []any{"s"}, "includes": []any{}}
+	if got, err := toInstruction(valid); err != nil || got.Slots["a"] != "b" {
+		t.Fatalf("valid record: %+v, %v", got, err)
 	}
-	for field, bad := range map[string]any{"key": nil, "body": 1, "scopes": []any{1}, "includes": "x"} {
+	for field, bad := range map[string]any{"key": nil, "title": nil, "body": 1, "slots": "{", "scopes": []any{1}, "includes": "x"} {
 		rec := map[string]any{}
 		for k, v := range valid {
 			rec[k] = v

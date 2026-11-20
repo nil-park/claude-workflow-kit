@@ -110,6 +110,22 @@ func TestRenderManifestQuotesValuesAndRejectsMissingKeys(t *testing.T) {
 	}
 }
 
+func TestLoadSeedRejectsUntitledAndDetachedVariants(t *testing.T) {
+	dir := t.TempDir()
+	values := writeFile(t, dir, "values.yaml", "user: u\n")
+	writeFile(t, dir, "body.md", "body")
+	for name, manifest := range map[string]string{
+		"untitled instruction": "instructions:\n  - {key: a, file: body.md, scopes: [s]}\n",
+		"variant without template": "instructions:\n  - {key: a, title: A, file: body.md, scopes: [s]}\n" +
+			"variants:\n  - {key: v, title: V, slots: {x: y}, scopes: [s]}\n",
+	} {
+		path := writeFile(t, dir, "m.tmpl", "owner: o\nscopes:\n  - {name: s, description: d}\n"+manifest)
+		if _, err := loadSeed(path, values, dir); err == nil {
+			t.Errorf("%s: expected an error", name)
+		}
+	}
+}
+
 func writeFile(t *testing.T, dir, name, content string) string {
 	t.Helper()
 	path := filepath.Join(dir, name)

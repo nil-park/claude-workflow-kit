@@ -28,24 +28,25 @@ type ScopeSpec struct {
 	DisableModelInvocation bool   `yaml:"disableModelInvocation"`
 }
 
-// A seed instruction takes its body from File, or from Body when it is a short
-// value such as a slot filled per repository.
+// A seed instruction takes its body from File.
 type seedInstruction struct {
 	Key        string   `yaml:"key"`
+	Title      string   `yaml:"title"`
 	File       string   `yaml:"file"`
-	Body       string   `yaml:"body"`
-	Slot       string   `yaml:"slot"`
 	IncludedBy string   `yaml:"includedBy"`
 	Scopes     []string `yaml:"scopes"`
 }
 
-// A seed variant becomes one slot-filling instruction per section of File,
-// keyed "<KeyPrefix>/<section name>".
+// A seed variant fills the placeholders of the template it is included by.
+// Its values come from the sections of File, or from Slots when they are as
+// short as a directory name.
 type seedVariant struct {
-	KeyPrefix  string   `yaml:"keyPrefix"`
-	File       string   `yaml:"file"`
-	IncludedBy string   `yaml:"includedBy"`
-	Scopes     []string `yaml:"scopes"`
+	Key        string            `yaml:"key"`
+	Title      string            `yaml:"title"`
+	File       string            `yaml:"file"`
+	Slots      map[string]string `yaml:"slots"`
+	IncludedBy string            `yaml:"includedBy"`
+	Scopes     []string          `yaml:"scopes"`
 }
 
 // renderManifest fills the manifest template with the values file, the way

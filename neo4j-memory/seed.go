@@ -32,31 +32,20 @@ func loadSeed(manifestPath, valuesPath, root string) (Seed, error) {
 	var insts []Instruction
 	parents := map[string]string{}
 	for _, s := range manifest.Instructions {
-		body := s.Body
-		if s.File != "" {
-			text, err := readText(filepath.Join(root, s.File))
-			if err != nil {
-				return Seed{}, err
-			}
-			body = stripFrontmatter(text)
-		}
-		insts = append(insts, Instruction{Key: s.Key, Body: normalizeText(body), Slot: s.Slot, Scopes: normalizeAll(s.Scopes)})
-		parents[s.Key] = s.IncludedBy
-	}
-	for _, v := range manifest.Variants {
-		text, err := readText(filepath.Join(root, v.File))
+		text, err := readText(filepath.Join(root, s.File))
 		if err != nil {
 			return Seed{}, err
 		}
-		sections, err := parseVariant(text)
+		insts = append(insts, Instruction{Key: s.Key, Title: normalizeText(s.Title), Body: stripFrontmatter(text), Scopes: normalizeAll(s.Scopes)})
+		parents[s.Key] = s.IncludedBy
+	}
+	for _, v := range manifest.Variants {
+		slots, err := variantSlots(v, root)
 		if err != nil {
-			return Seed{}, fmt.Errorf("%s: %w", v.File, err)
+			return Seed{}, err
 		}
-		for _, sec := range sections {
-			key := v.KeyPrefix + "/" + sec.Name
-			insts = append(insts, Instruction{Key: key, Body: sec.Value, Slot: sec.Name, Scopes: normalizeAll(v.Scopes)})
-			parents[key] = v.IncludedBy
-		}
+		insts = append(insts, Instruction{Key: v.Key, Title: normalizeText(v.Title), Slots: slots, Scopes: normalizeAll(v.Scopes)})
+		parents[v.Key] = v.IncludedBy
 	}
 
 	seed := Seed{Origin: seedOrigin + ":" + owner, Scopes: manifest.Scopes, Instructions: insts}
@@ -83,6 +72,12 @@ func link(seed *Seed, parents map[string]string) error {
 	}
 	var errs []error
 	for _, inst := range seed.Instructions {
+		if inst.Title == "" {
+			errs = append(errs, fmt.Errorf("%s: title is missing", inst.Key))
+		}
+		if inst.isVariant() && parents[inst.Key] == "" {
+			errs = append(errs, fmt.Errorf("%s: a variant needs includedBy", inst.Key))
+		}
 		if len(inst.Scopes) == 0 {
 			errs = append(errs, fmt.Errorf("%s: an instruction needs at least one scope", inst.Key))
 		}
@@ -103,6 +98,33 @@ func link(seed *Seed, parents map[string]string) error {
 		seed.Instructions[p].Includes = append(seed.Instructions[p].Includes, inst.Key)
 	}
 	return errors.Join(errs...)
+}
+
+// variantSlots takes the values from the variant file's sections, or from the
+// manifest when it has no file. A variant without values would be an ordinary
+// node with an empty body, so that is an error.
+func variantSlots(v seedVariant, root string) (map[string]string, error) {
+	slots := map[string]string{}
+	for name, value := range v.Slots {
+		slots[name] = normalizeText(value)
+	}
+	if v.File != "" {
+		text, err := readText(filepath.Join(root, v.File))
+		if err != nil {
+			return nil, err
+		}
+		sections, err := parseVariant(text)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", v.File, err)
+		}
+		for _, sec := range sections {
+			slots[sec.Name] = sec.Value
+		}
+	}
+	if len(slots) == 0 {
+		return nil, fmt.Errorf("%s: a variant needs at least one slot value", v.Key)
+	}
+	return slots, nil
 }
 
 func prefixKeys(insts []Instruction, prefix string) {

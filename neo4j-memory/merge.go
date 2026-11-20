@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"maps"
 	"regexp"
 	"slices"
 	"strings"
@@ -9,17 +10,22 @@ import (
 
 // Instruction is an Instruction node as the merge step sees it.
 type Instruction struct {
-	Key  string
-	Body string
-	// Slot names the placeholder this node fills in the node that includes it.
-	// An empty slot appends the body to that node instead.
-	Slot     string
+	Key   string
+	Title string
+	Body  string
+	// Slots makes this node a variant: it holds the values for the
+	// placeholders of the template that includes it, and has no body of its
+	// own. An ordinary included node is appended to the including node.
+	Slots    map[string]string
 	Scopes   []string
 	Includes []string
 }
 
+func (inst Instruction) isVariant() bool { return len(inst.Slots) > 0 }
+
 type Section struct {
 	Key    string
+	Title  string
 	Scopes []string
 	Body   string
 }
@@ -37,8 +43,7 @@ var placeholder = regexp.MustCompile(`\{\{([A-Za-z0-9_-]+)\}\}`)
 //
 // A node is emitted on its own unless an active node includes it, so an
 // instruction stays visible when only the node including it is inactive. A
-// slot value is never emitted on its own: without its template it means
-// nothing.
+// variant is never emitted on its own: without its template it means nothing.
 func Merge(candidates []Instruction, active []string) MergeResult {
 	byKey := map[string]Instruction{}
 	for _, inst := range candidates {
@@ -55,7 +60,7 @@ func Merge(candidates []Instruction, active []string) MergeResult {
 	var roots, rest []string
 	for key, inst := range byKey {
 		switch {
-		case inst.Slot != "":
+		case inst.isVariant():
 		case includedByActive[key]:
 			rest = append(rest, key)
 		default:
@@ -72,7 +77,8 @@ func Merge(candidates []Instruction, active []string) MergeResult {
 		for _, m := range placeholder.FindAllStringSubmatch(body, -1) {
 			e.warnings = append(e.warnings, fmt.Sprintf("%s: placeholder {{%s}} is not filled", key, m[1]))
 		}
-		sections = append(sections, Section{Key: key, Scopes: byKey[key].Scopes, Body: body})
+		inst := byKey[key]
+		sections = append(sections, Section{Key: key, Title: inst.Title, Scopes: inst.Scopes, Body: body})
 	}
 	for _, key := range roots {
 		emit(key)
@@ -97,34 +103,37 @@ type expander struct {
 	warnings []string
 }
 
+func (e *expander) warn(format string, args ...any) {
+	e.warnings = append(e.warnings, fmt.Sprintf(format, args...))
+}
+
 func (e *expander) expand(key string) string {
 	e.onPath[key] = true
 	e.reached[key] = true
 	defer delete(e.onPath, key)
 
-	byKey, warnings := e.byKey, &e.warnings
-	inst := byKey[key]
+	inst := e.byKey[key]
 	values := map[string]string{}
 	var appended []string
 	children := slices.Clone(inst.Includes)
 	slices.Sort(children)
-	for _, child := range children {
-		if _, ok := byKey[child]; !ok {
-			continue
-		}
-		if e.onPath[child] {
-			*warnings = append(*warnings, fmt.Sprintf("%s: cycle through %s skipped", key, child))
-			continue
-		}
-		text := e.expand(child)
-		if slot := byKey[child].Slot; slot != "" {
-			if _, taken := values[slot]; taken {
-				*warnings = append(*warnings, fmt.Sprintf("%s: {{%s}} is filled by more than one node; %s skipped", key, slot, child))
-				continue
+	for _, childKey := range children {
+		child, ok := e.byKey[childKey]
+		switch {
+		case !ok:
+		case e.onPath[childKey]:
+			e.warn("%s: cycle through %s skipped", key, childKey)
+		case child.isVariant():
+			e.reached[childKey] = true
+			for _, slot := range slices.Sorted(maps.Keys(child.Slots)) {
+				if _, taken := values[slot]; taken {
+					e.warn("%s: {{%s}} is filled by more than one variant; the value from %s skipped", key, slot, childKey)
+					continue
+				}
+				values[slot] = child.Slots[slot]
 			}
-			values[slot] = text
-		} else {
-			appended = append(appended, text)
+		default:
+			appended = append(appended, e.expand(childKey))
 		}
 	}
 	return strings.Join(append([]string{fillSlots(inst.Body, values)}, appended...), "\n\n")

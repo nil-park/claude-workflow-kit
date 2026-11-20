@@ -44,7 +44,9 @@ var writeQueries = []string{
 	`UNWIND $instructions AS x
 	 MERGE (i:Instruction {key: x.key})
 	 WITH i, x WHERE coalesce(i.locked, false) = false
-	 SET i.body = x.body, i.slot = CASE WHEN x.slot = '' THEN null ELSE x.slot END, i.origin = $origin, i.deletedAt = null
+	 SET i.title = x.title, i.origin = $origin, i.deletedAt = null,
+	     i.body = CASE WHEN x.body = '' THEN null ELSE x.body END,
+	     i.slots = CASE WHEN x.slots = '' THEN null ELSE x.slots END
 	 WITH i
 	 OPTIONAL MATCH (i)-[r:APPLIES_IN|INCLUDES]->()
 	 DELETE r`,
@@ -72,7 +74,7 @@ WHERE s.name IN $scopes AND s.deletedAt IS NULL
   AND i.deletedAt IS NULL AND i.key IS NOT NULL
   AND NOT EXISTS { (i)-[:APPLIES_IN]->(d:Scope) WHERE d.deletedAt IS NOT NULL }
 WITH DISTINCT i LIMIT $limit
-RETURN i.key AS key, coalesce(i.body, '') AS body, coalesce(i.slot, '') AS slot,
+RETURN i.key AS key, coalesce(i.title, '') AS title, coalesce(i.body, '') AS body, coalesce(i.slots, '') AS slots,
        [(i)-[:APPLIES_IN]->(t:Scope) | t.name] AS scopes,
        [(i)-[:INCLUDES]->(c:Instruction) WHERE c.deletedAt IS NULL | c.key] AS includes`
 
@@ -83,10 +85,14 @@ func writeSeed(ctx context.Context, driver neo4j.DriverWithContext, db string, s
 			return err
 		}
 	}
-	params := map[string]any{"scopes": scopeParams(seed.Scopes), "instructions": instructionParams(seed.Instructions), "origin": seed.Origin}
+	instructions, err := instructionParams(seed.Instructions)
+	if err != nil {
+		return err
+	}
+	params := map[string]any{"scopes": scopeParams(seed.Scopes), "instructions": instructions, "origin": seed.Origin}
 	session := driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: db})
 	defer session.Close(ctx)
-	_, err := session.ExecuteWrite(ctx, func(tx neo4j.ManagedTransaction) (any, error) {
+	_, err = session.ExecuteWrite(ctx, func(tx neo4j.ManagedTransaction) (any, error) {
 		for _, q := range writeQueries {
 			res, err := tx.Run(ctx, q, params)
 			if err != nil {
@@ -124,63 +130,4 @@ func fetchCandidates(ctx context.Context, driver neo4j.DriverWithContext, db str
 		insts = append(insts, inst)
 	}
 	return insts, nil
-}
-
-// toInstruction rejects a record whose fields have unexpected types, since
-// other agents also write to the shared graph.
-func toInstruction(m map[string]any) (Instruction, error) {
-	key, ok := m["key"].(string)
-	if !ok {
-		return Instruction{}, fmt.Errorf("instruction key has type %T", m["key"])
-	}
-	body, okBody := m["body"].(string)
-	slot, okSlot := m["slot"].(string)
-	scopes, errScopes := toStrings(m["scopes"])
-	includes, errIncludes := toStrings(m["includes"])
-	if !okBody || !okSlot || errScopes != nil || errIncludes != nil {
-		return Instruction{}, fmt.Errorf("instruction %s has a field of an unexpected type", key)
-	}
-	return Instruction{Key: key, Body: body, Slot: slot, Scopes: scopes, Includes: includes}, nil
-}
-
-func scopeParams(scopes []ScopeSpec) []map[string]any {
-	out := make([]map[string]any, len(scopes))
-	for i, s := range scopes {
-		out[i] = map[string]any{"name": s.Name, "description": s.Description, "disableModelInvocation": s.DisableModelInvocation}
-	}
-	return out
-}
-
-func instructionParams(insts []Instruction) []map[string]any {
-	out := make([]map[string]any, len(insts))
-	for i, inst := range insts {
-		out[i] = map[string]any{
-			"key": inst.Key, "body": inst.Body, "slot": inst.Slot,
-			"scopes": inst.Scopes, "includes": nonNil(inst.Includes),
-		}
-	}
-	return out
-}
-
-func toStrings(v any) ([]string, error) {
-	items, ok := v.([]any)
-	if !ok {
-		return nil, fmt.Errorf("expected a list, got %T", v)
-	}
-	out := make([]string, 0, len(items))
-	for _, item := range items {
-		s, ok := item.(string)
-		if !ok {
-			return nil, fmt.Errorf("expected a string, got %T", item)
-		}
-		out = append(out, s)
-	}
-	return out, nil
-}
-
-func nonNil(s []string) []string {
-	if s == nil {
-		return []string{}
-	}
-	return s
 }

@@ -100,6 +100,7 @@ func run(args []string, stdout, stderr io.Writer) error {
 // conflicting instructions by where they come from.
 func writeMerged(w io.Writer, result MergeResult) {
 	for _, s := range result.Sections {
-		fmt.Fprintf(w, "<instruction key=%q scopes=%q>\n%s\n</instruction>\n\n", s.Key, strings.Join(s.Scopes, ", "), strings.TrimRight(s.Body, "\n"))
+		fmt.Fprintf(w, "<instruction key=%q title=%q scopes=%q>\n%s\n</instruction>\n\n",
+			s.Key, s.Title, strings.Join(s.Scopes, ", "), strings.TrimRight(s.Body, "\n"))
 	}
 }
