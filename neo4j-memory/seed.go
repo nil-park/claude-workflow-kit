@@ -95,6 +95,7 @@ func loadSeed(manifestPath, valuesPath, root string) (Seed, error) {
 	}
 	for i := range manifest.Scopes {
 		manifest.Scopes[i].Name = normalizeText(manifest.Scopes[i].Name)
+		manifest.Scopes[i].Description = normalizeText(manifest.Scopes[i].Description)
 	}
 
 	var insts []Instruction
@@ -146,7 +147,7 @@ func link(seed *Seed, parents map[string]string) error {
 		scopeNames = append(scopeNames, s.Name)
 	}
 	var errs []error
-	for i, inst := range seed.Instructions {
+	for _, inst := range seed.Instructions {
 		if len(inst.Scopes) == 0 {
 			errs = append(errs, fmt.Errorf("%s: an instruction needs at least one scope", inst.Key))
 		}
@@ -165,7 +166,6 @@ func link(seed *Seed, parents map[string]string) error {
 			continue
 		}
 		seed.Instructions[p].Includes = append(seed.Instructions[p].Includes, inst.Key)
-		seed.Instructions[i].Included = true
 	}
 	return errors.Join(errs...)
 }

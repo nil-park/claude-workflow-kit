@@ -15,7 +15,8 @@ type VariantSection struct {
 	Value string
 }
 
-var fenceOpen = regexp.MustCompile("^(`{3,})[A-Za-z]*$")
+// The info string after the backticks may hold anything but a backtick.
+var fenceOpen = regexp.MustCompile("^(`{3,})[^`]*$")
 
 // normalizeText unifies line endings and Hangul composition so that text read
 // on any OS compares equal.

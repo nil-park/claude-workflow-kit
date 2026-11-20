@@ -49,6 +49,22 @@ func run(args []string, stdout, stderr io.Writer) error {
 		return err
 	}
 
+	// Check everything that needs no database before connecting to one.
+	var seed Seed
+	switch args[0] {
+	case "load":
+		var err error
+		if seed, err = loadSeed(*seedPath, *valuesPath, *root); err != nil {
+			return err
+		}
+	case "merge":
+		if len(scopes) == 0 {
+			return errors.New("merge needs at least one -scope")
+		}
+	default:
+		return fmt.Errorf("unknown command %q", args[0])
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 	cred, err := readCredentials(*credPath)
@@ -61,34 +77,23 @@ func run(args []string, stdout, stderr io.Writer) error {
 	}
 	defer driver.Close(ctx)
 
-	switch args[0] {
-	case "load":
-		seed, err := loadSeed(*seedPath, *valuesPath, *root)
-		if err != nil {
-			return err
-		}
+	if args[0] == "load" {
 		if err := writeSeed(ctx, driver, cred.Database, seed); err != nil {
 			return err
 		}
 		fmt.Fprintf(stdout, "loaded %d scopes and %d instructions\n", len(seed.Scopes), len(seed.Instructions))
 		return nil
-	case "merge":
-		if len(scopes) == 0 {
-			return errors.New("merge needs at least one -scope")
-		}
-		candidates, err := fetchCandidates(ctx, driver, cred.Database, scopes)
-		if err != nil {
-			return err
-		}
-		result := Merge(candidates, scopes)
-		writeMerged(stdout, result)
-		for _, w := range result.Warnings {
-			fmt.Fprintln(stderr, "warning:", w)
-		}
-		return nil
-	default:
-		return fmt.Errorf("unknown command %q", args[0])
 	}
+	candidates, err := fetchCandidates(ctx, driver, cred.Database, scopes)
+	if err != nil {
+		return err
+	}
+	result := Merge(candidates, scopes)
+	writeMerged(stdout, result)
+	for _, w := range result.Warnings {
+		fmt.Fprintln(stderr, "warning:", w)
+	}
+	return nil
 }
 
 // writeMerged tags each instruction with its scopes, so the agent can weigh

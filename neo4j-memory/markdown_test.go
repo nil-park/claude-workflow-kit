@@ -26,6 +26,13 @@ func TestParseVariantKeepsHeadingsInsideLongerFence(t *testing.T) {
 	}
 }
 
+func TestParseVariantAcceptsAnyInfoString(t *testing.T) {
+	got, err := parseVariant("## a\n```c++ \nx\n```")
+	if err != nil || len(got) != 1 || got[0].Value != "x" {
+		t.Fatalf("got %q, err %v", got, err)
+	}
+}
+
 func TestParseVariantRejectsMalformedSections(t *testing.T) {
 	for name, text := range map[string]string{
 		"no block":       "## a\ntext\n## b\n```\nx\n```",

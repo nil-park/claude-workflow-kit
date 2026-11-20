@@ -16,8 +16,6 @@ type Instruction struct {
 	Slot     string
 	Scopes   []string
 	Includes []string
-	// Included nodes are only reached through the node that includes them.
-	Included bool
 }
 
 type Section struct {
@@ -36,6 +34,11 @@ var placeholder = regexp.MustCompile(`\{\{([A-Za-z0-9_-]+)\}\}`)
 // Merge picks the instructions whose scopes all lie in the active set and
 // expands what they include. A node with no scope never applies, because
 // every instruction must belong to at least one scope.
+//
+// A node is emitted on its own unless an active node includes it, so an
+// instruction stays visible when only the node including it is inactive. A
+// slot value is never emitted on its own: without its template it means
+// nothing.
 func Merge(candidates []Instruction, active []string) MergeResult {
 	byKey := map[string]Instruction{}
 	for _, inst := range candidates {
@@ -43,9 +46,15 @@ func Merge(candidates []Instruction, active []string) MergeResult {
 			byKey[inst.Key] = inst
 		}
 	}
+	includedByActive := map[string]bool{}
+	for _, inst := range byKey {
+		for _, child := range inst.Includes {
+			includedByActive[child] = true
+		}
+	}
 	keys := make([]string, 0, len(byKey))
 	for key, inst := range byKey {
-		if !inst.Included {
+		if inst.Slot == "" && !includedByActive[key] {
 			keys = append(keys, key)
 		}
 	}
@@ -83,6 +92,10 @@ func expand(key string, byKey map[string]Instruction, onPath map[string]bool, wa
 		}
 		text := expand(child, byKey, onPath, warnings)
 		if slot := byKey[child].Slot; slot != "" {
+			if _, taken := values[slot]; taken {
+				*warnings = append(*warnings, fmt.Sprintf("%s: {{%s}} is filled by more than one node; %s skipped", key, slot, child))
+				continue
+			}
 			values[slot] = text
 		} else {
 			appended = append(appended, text)
