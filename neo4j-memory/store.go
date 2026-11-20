@@ -8,8 +8,8 @@ import (
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 )
 
-// seedOrigin marks nodes written by `load`, so a reload can soft-delete the
-// ones the manifest no longer lists without touching other nodes.
+// seedOrigin, joined with the manifest owner, marks nodes written by `load`,
+// so a reload soft-deletes only that owner's dropped instructions.
 const seedOrigin = "plugins-seed"
 
 // candidateLimit bounds the read; hitting it means the graph outgrew this PoC.
@@ -83,7 +83,7 @@ func writeSeed(ctx context.Context, driver neo4j.DriverWithContext, db string, s
 			return err
 		}
 	}
-	params := map[string]any{"scopes": scopeParams(seed.Scopes), "instructions": instructionParams(seed.Instructions), "origin": seedOrigin}
+	params := map[string]any{"scopes": scopeParams(seed.Scopes), "instructions": instructionParams(seed.Instructions), "origin": seed.Origin}
 	session := driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: db})
 	defer session.Close(ctx)
 	_, err := session.ExecuteWrite(ctx, func(tx neo4j.ManagedTransaction) (any, error) {

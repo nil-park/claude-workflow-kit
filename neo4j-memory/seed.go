@@ -1,98 +1,29 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
-	"text/template"
-
-	"gopkg.in/yaml.v3"
 )
 
-// The seed manifest records the agent's judgment of which scopes the
-// repository's skills belong to, and how variants split into nodes.
-type seedManifest struct {
-	Scopes       []ScopeSpec       `yaml:"scopes"`
-	Instructions []seedInstruction `yaml:"instructions"`
-	Variants     []seedVariant     `yaml:"variants"`
-}
-
-type ScopeSpec struct {
-	Name                   string `yaml:"name"`
-	Description            string `yaml:"description"`
-	DisableModelInvocation bool   `yaml:"disableModelInvocation"`
-}
-
-// A seed instruction takes its body from File, or from Body when it is a short
-// value such as a slot filled per repository.
-type seedInstruction struct {
-	Key        string   `yaml:"key"`
-	File       string   `yaml:"file"`
-	Body       string   `yaml:"body"`
-	Slot       string   `yaml:"slot"`
-	IncludedBy string   `yaml:"includedBy"`
-	Scopes     []string `yaml:"scopes"`
-}
-
-// A seed variant becomes one slot-filling instruction per section of File,
-// keyed "<KeyPrefix>/<section name>".
-type seedVariant struct {
-	KeyPrefix  string   `yaml:"keyPrefix"`
-	File       string   `yaml:"file"`
-	IncludedBy string   `yaml:"includedBy"`
-	Scopes     []string `yaml:"scopes"`
-}
-
 type Seed struct {
+	// Origin tags every node this seed loads, so a reload soft-deletes only
+	// this owner's dropped instructions.
+	Origin       string
 	Scopes       []ScopeSpec
 	Instructions []Instruction
 }
 
-// renderManifest fills the manifest template with the values file, the way
-// Helm renders a chart. A key missing from the values file is an error.
-func renderManifest(manifestPath, valuesPath string) (seedManifest, error) {
-	rawValues, err := os.ReadFile(valuesPath)
-	if err != nil {
-		return seedManifest{}, err
-	}
-	values := map[string]any{}
-	if err := yaml.Unmarshal(rawValues, &values); err != nil {
-		return seedManifest{}, fmt.Errorf("%s: %w", valuesPath, err)
-	}
-	// JSON string syntax is valid YAML double-quoted scalar syntax.
-	quote := func(v any) (string, error) {
-		b, err := json.Marshal(fmt.Sprint(v))
-		return string(b), err
-	}
-	tmpl, err := template.New(filepath.Base(manifestPath)).
-		Option("missingkey=error").
-		Funcs(template.FuncMap{"quote": quote}).
-		ParseFiles(manifestPath)
-	if err != nil {
-		return seedManifest{}, err
-	}
-	var rendered bytes.Buffer
-	if err := tmpl.Execute(&rendered, values); err != nil {
-		return seedManifest{}, err
-	}
-	var manifest seedManifest
-	if err := yaml.Unmarshal(rendered.Bytes(), &manifest); err != nil {
-		return seedManifest{}, fmt.Errorf("%s rendered: %w", manifestPath, err)
-	}
-	return manifest, nil
-}
-
 // loadSeed renders the manifest and reads the files it names, resolving file
-// paths against root.
+// paths against root. Keys come out prefixed with the owner.
 func loadSeed(manifestPath, valuesPath, root string) (Seed, error) {
 	manifest, err := renderManifest(manifestPath, valuesPath)
 	if err != nil {
 		return Seed{}, err
 	}
+	owner := normalizeText(manifest.Owner)
 	for i := range manifest.Scopes {
 		manifest.Scopes[i].Name = normalizeText(manifest.Scopes[i].Name)
 		manifest.Scopes[i].Description = normalizeText(manifest.Scopes[i].Description)
@@ -128,8 +59,12 @@ func loadSeed(manifestPath, valuesPath, root string) (Seed, error) {
 		}
 	}
 
-	seed := Seed{Scopes: manifest.Scopes, Instructions: insts}
-	return seed, link(&seed, parents)
+	seed := Seed{Origin: seedOrigin + ":" + owner, Scopes: manifest.Scopes, Instructions: insts}
+	if err := link(&seed, parents); err != nil {
+		return Seed{}, err
+	}
+	prefixKeys(seed.Instructions, owner+"/")
+	return seed, nil
 }
 
 // link records each includedBy as an edge on the parent and checks that every
@@ -168,6 +103,15 @@ func link(seed *Seed, parents map[string]string) error {
 		seed.Instructions[p].Includes = append(seed.Instructions[p].Includes, inst.Key)
 	}
 	return errors.Join(errs...)
+}
+
+func prefixKeys(insts []Instruction, prefix string) {
+	for i := range insts {
+		insts[i].Key = prefix + insts[i].Key
+		for j := range insts[i].Includes {
+			insts[i].Includes[j] = prefix + insts[i].Includes[j]
+		}
+	}
 }
 
 func readText(path string) (string, error) {

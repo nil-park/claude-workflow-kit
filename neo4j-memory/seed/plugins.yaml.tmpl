@@ -1,5 +1,6 @@
 # Template rendered with a values file before parsing, as Helm renders a chart
 # with values.yaml. Values that depend on who loads it stay out of the repo.
+owner: {{ .user | quote }}
 scopes:
   - name: {{ .user | quote }}
     description: {{ printf "%s 사용자가 진행하는 세션" .user | quote }}
