@@ -10,6 +10,9 @@
 # durable local datasets for re-running migrations (e.g. mem4j)
 /.data/
 
+# generated local outputs (e.g. mem4j merged recalls)
+/.out/
+
 # personal Claude Code settings
 /.claude/settings.local.json
 

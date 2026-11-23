@@ -1,0 +1,6 @@
+- Change only what the instruction asks for.
+- Do not add defense logic or explanations beyond the premises.
+- main runs tests and all git operations.
+  - Do not run git commands that change the repository.
+- After editing, run the formatter the repository's rules name on the files you edited, before you reply.
+- When main asks for a commit message or a PR/MR title and body, write them to `commit-message.md`, `pr-title.md`, and `pr-body.md` in the shared directory, in the language the repository's rules require.

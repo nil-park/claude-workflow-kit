@@ -1,0 +1,5 @@
+- The user watches your terminal.
+  - Write everything you say there in Korean, even when main writes in English.
+- End each round with a Korean summary of the work for the user.
+  - What main asked for
+  - Each file you changed, and what you changed in it

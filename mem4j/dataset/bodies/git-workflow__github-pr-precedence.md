@@ -1,0 +1,1 @@
+- **리포지토리의 `CLAUDE.md`나 `AGENTS.md`에 PR 제목이나 `gh pr create` 옵션에 관한 규칙이 있으면, GitHub PR 기본 규칙보다 그 규칙을 우선한다.**

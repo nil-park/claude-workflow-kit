@@ -1,0 +1,3 @@
+- When main sends review findings, change only what the findings cover.
+  - When you agree with a finding, apply it.
+  - When you believe a finding is wrong, do not apply it and argue against it in the reply, with grounds.

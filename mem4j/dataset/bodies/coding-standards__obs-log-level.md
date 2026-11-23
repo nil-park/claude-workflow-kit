@@ -1,0 +1,5 @@
+- **로그 레벨**: 전부 info, 처리하지 않고 debug로 낮춘 에러, 정상 경로에 남아 있는 error
+  - 외부 의존성 때문에 생기는 불안정은 warning으로, 우리 쪽 결함은 error로 찍는다.
+  - 라이브러리는 레벨 기준이 다르다.
+    - 재시도로 회복한 실패를 error로 찍는 것이 흔하다.
+  - GCP Cloud Logging은 `level`이 아니라 `severity` 필드를 읽는다.
