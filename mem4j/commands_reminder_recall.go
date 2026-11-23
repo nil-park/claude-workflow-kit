@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	defaultReminderThreshold = 0.5
+	defaultReminderThreshold = 0.75
 	defaultReminderLimit     = 5
 )
 
@@ -42,7 +42,7 @@ func parseReminderRecall(args []string, stdin io.Reader) (parsedCommand, error) 
 	gcpCred := fs.String("gcp-credentials", "", "GCP service account JSON (default ~/.config/mem4j/.secrets/gcp.json)")
 	query := fs.String("query", "", "conversation context text to match against reminder descriptions")
 	file := fs.String("file", "", "path to query text file, or '-' for stdin")
-	threshold := fs.Float64("threshold", defaultReminderThreshold, "minimum cosine similarity score (0..1)")
+	threshold := fs.Float64("threshold", defaultReminderThreshold, "minimum cosine similarity score (-1..1)")
 	limit := fs.Int("limit", defaultReminderLimit, "maximum number of reminders to return")
 	var scopes scopeList
 	fs.Var(&scopes, "scope", "active scope name, repeatable")

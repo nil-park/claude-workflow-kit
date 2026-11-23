@@ -11,7 +11,7 @@
 //	mem4j instruction link -key <key> -scope <name>
 //	mem4j instruction unlink -key <key> -scope <name>
 //	mem4j instruction delete -key <key>
-//	mem4j reminder recall -scope <name> [-scope ...] (-query <text> | -file <path|->) [-threshold 0.5] [-limit 5]
+//	mem4j reminder recall -scope <name> [-scope ...] (-query <text> | -file <path|->) [-threshold 0.75] [-limit 5]
 //	mem4j reminder create [-key <key>] -title <title> -description <text> -scope <name> [-scope ...] (-body <text> | -file <path|->)
 //	mem4j reminder edit -key <key> [-title <title>] [-description <text>] [-body <text> | -file <path|->]
 //	mem4j reminder link -key <key> -scope <name>
