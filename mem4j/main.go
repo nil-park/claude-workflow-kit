@@ -11,6 +11,12 @@
 //	mem4j instruction link -key <key> -scope <name>
 //	mem4j instruction unlink -key <key> -scope <name>
 //	mem4j instruction delete -key <key>
+//	mem4j reminder recall -scope <name> [-scope ...] (-query <text> | -file <path|->) [-threshold 0.5] [-limit 5]
+//	mem4j reminder create [-key <key>] -title <title> -description <text> -scope <name> [-scope ...] (-body <text> | -file <path|->)
+//	mem4j reminder edit -key <key> [-title <title>] [-description <text>] [-body <text> | -file <path|->]
+//	mem4j reminder link -key <key> -scope <name>
+//	mem4j reminder unlink -key <key> -scope <name>
+//	mem4j reminder delete -key <key>
 //	mem4j graph query (-cypher <text> | -file <path|->)
 package main
 
@@ -81,4 +87,19 @@ func writeScopes(w io.Writer, scopes []Scope) {
 		fmt.Fprintf(w, "<scope name=%q disableModelInvocation=%t>\n%s\n</scope>\n\n",
 			s.Name, s.DisableModelInvocation, strings.TrimRight(s.Description, "\n"))
 	}
+}
+
+func writeReminders(w io.Writer, reminders []Reminder) {
+	for _, r := range reminders {
+		fmt.Fprintf(w, "<reminder key=%q title=%q scopes=%q score=\"%.3f\">\n%s\n</reminder>\n\n",
+			r.Key, r.Title, strings.Join(r.Scopes, ", "), r.Score, strings.TrimRight(r.Body, "\n"))
+	}
+}
+
+func writeEmptyReminderNotice(w io.Writer, missing []string) {
+	if len(missing) == 0 {
+		fmt.Fprintln(w, "mem4j: no reminders match the query in the requested scopes")
+		return
+	}
+	fmt.Fprintf(w, "mem4j: no reminders match (unknown scopes: %s)\n", strings.Join(missing, ", "))
 }

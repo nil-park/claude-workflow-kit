@@ -28,17 +28,19 @@ func (s *scopeList) Set(v string) error {
 // before credentials are read or Neo4j is contacted.
 func parseCommand(args []string, stdin io.Reader) (parsedCommand, error) {
 	if len(args) == 0 {
-		return parsedCommand{}, errors.New("usage: mem4j <scope|instruction|graph> <action> [flags]")
+		return parsedCommand{}, errors.New("usage: mem4j <scope|instruction|reminder|graph> <action> [flags]")
 	}
 	switch args[0] {
 	case "scope":
 		return parseScopeCommand(args[1:])
 	case "instruction":
 		return parseInstructionCommand(args[1:], stdin)
+	case "reminder":
+		return parseReminderCommand(args[1:], stdin)
 	case "graph":
 		return parseGraphCommand(args[1:], stdin)
 	default:
-		return parsedCommand{}, fmt.Errorf("unknown resource %q (expected scope, instruction, or graph)", args[0])
+		return parsedCommand{}, fmt.Errorf("unknown resource %q (expected scope, instruction, reminder, or graph)", args[0])
 	}
 }
 

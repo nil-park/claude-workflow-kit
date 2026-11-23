@@ -12,6 +12,7 @@ const txTimeout = 20 * time.Second
 
 var constraintQueries = []string{
 	"CREATE CONSTRAINT instruction_key IF NOT EXISTS FOR (i:Instruction) REQUIRE i.key IS UNIQUE",
+	"CREATE CONSTRAINT reminder_key IF NOT EXISTS FOR (r:Reminder) REQUIRE r.key IS UNIQUE",
 	"CREATE CONSTRAINT scope_name IF NOT EXISTS FOR (s:Scope) REQUIRE s.name IS UNIQUE",
 }
 
@@ -138,13 +139,13 @@ func (s *store) deleteScope(ctx context.Context, name string) error {
 			return err
 		}
 		row, _, err := querySingleRow(ctx, tx,
-			"MATCH (s:Scope {name: $name})<-[:APPLIES_IN]-(i:Instruction) RETURN count(i) AS linked",
+			"MATCH (s:Scope {name: $name})<-[:APPLIES_IN]-(n) WHERE n:Instruction OR n:Reminder RETURN count(n) AS linked",
 			params)
 		if err != nil {
 			return err
 		}
 		if linked, _ := row["linked"].(int64); linked > 0 {
-			return fmt.Errorf("scope %q still has %d linked instruction(s)", name, linked)
+			return fmt.Errorf("scope %q still has %d linked instruction(s) or reminder(s)", name, linked)
 		}
 		return runAndConsume(ctx, tx, "MATCH (s:Scope {name: $name}) DETACH DELETE s", params)
 	})
