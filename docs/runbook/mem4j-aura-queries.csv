@@ -1,9 +1,9 @@
 name,description,query,id,parentId,isFolder,isProtected
-mem4j,mem4j 스코프와 지침 조회 쿼리,,0,,true,false
+mem4j,mem4j 스코프와 지침 및 백데이터 조회 쿼리,,0,,true,false
 전체 스코프 노드 보기,등록된 모든 Scope 노드를 이름순으로 조회한다,"MATCH (s:Scope)
 RETURN s
 ORDER BY s.name",1,0,false,false
-듀오 세션 지침 표로 보기,특정 스코프에 연결된 Instruction을 표로 모아 본다,"MATCH (i:Instruction)-[:APPLIES_IN]->(:Scope {name: '듀오 세션'})
+듀오 세션 지침 표로 보기,특정 스코프에 연결된 Instruction을 표로 출력한다,"MATCH (i:Instruction)-[:APPLIES_IN]->(:Scope {name: '듀오 세션'})
 RETURN i.key AS key,
        i.title AS title,
        [(i)-[:APPLIES_IN]->(t:Scope) | t.name] AS scopes,
@@ -20,3 +20,22 @@ WITH i, collect(s.name) AS scopes, active
 WHERE size(scopes) > 0 AND all(x IN scopes WHERE x IN active)
 RETURN i.key AS key, i.title AS title, scopes, i.body AS body
 ORDER BY i.key",5,0,false,false
+전체 리마인더 표로 보기,등록된 모든 Reminder와 연결 스코프를 표로 출력한다,"MATCH (r:Reminder)
+RETURN r.key AS key,
+       r.title AS title,
+       r.description AS description,
+       [(r)-[:APPLIES_IN]->(s:Scope) | s.name] AS scopes,
+       r.body AS body
+ORDER BY r.key",6,0,false,false
+전체 엔티티와 연결 그래프로 보기,모든 Entity 노드와 Entity 간 관계를 그래프로 표시한다,"MATCH (e:Entity)
+OPTIONAL MATCH p = (e)-[r]-(o:Entity)
+WHERE type(r) <> 'ABOUT'
+RETURN e, p",7,0,false,false
+엔티티의 사실과 이력 표로 보기,특정 Entity에 1-hop으로 연결된 Statement와 Event를 표로 출력한다,"MATCH (n)-[:ABOUT]->(:Entity {name: 'Recallar 안드로이드 앱'})
+WHERE n:Statement OR n:Event
+RETURN labels(n) AS labels,
+       n.key AS key,
+       n.title AS title,
+       n.occurredAt AS occurredAt,
+       n.body AS body
+ORDER BY n.occurredAt DESC, n.key",8,0,false,false
