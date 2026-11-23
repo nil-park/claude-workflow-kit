@@ -10,8 +10,6 @@ import (
 	"strings"
 )
 
-const defaultCredentials = "../.secrets/neo4j.txt"
-
 type parsedCommand struct {
 	credPath string
 	exec     func(ctx context.Context, s *store, stdout, stderr io.Writer) error
@@ -87,7 +85,7 @@ func parseInstructionCommand(args []string, stdin io.Reader) (parsedCommand, err
 func newFlagSet(name string) (*flag.FlagSet, *string) {
 	fs := flag.NewFlagSet(name, flag.ContinueOnError)
 	fs.SetOutput(io.Discard)
-	cred := fs.String("credentials", defaultCredentials, "Aura credential file (KEY=VALUE)")
+	cred := fs.String("credentials", "", "Aura credential file (KEY=VALUE; default ~/.config/mem4j/.secrets/neo4j.txt)")
 	return fs, cred
 }
 

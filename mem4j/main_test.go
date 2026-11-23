@@ -130,3 +130,18 @@ func TestWriteScopes(t *testing.T) {
 		t.Errorf("writeScopes output = %q", got)
 	}
 }
+
+func TestDefaultCredentialsPath(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+
+	got, err := defaultCredentialsPath()
+	if err != nil {
+		t.Fatalf("defaultCredentialsPath: %v", err)
+	}
+	want := filepath.Join(home, ".config", "mem4j", ".secrets", "neo4j.txt")
+	if got != want {
+		t.Errorf("defaultCredentialsPath() = %q, want %q", got, want)
+	}
+}

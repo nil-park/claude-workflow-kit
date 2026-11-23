@@ -39,7 +39,14 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
-	cred, err := readCredentials(cmd.credPath)
+	credPath := cmd.credPath
+	if credPath == "" {
+		credPath, err = defaultCredentialsPath()
+		if err != nil {
+			return err
+		}
+	}
+	cred, err := readCredentials(credPath)
 	if err != nil {
 		return err
 	}

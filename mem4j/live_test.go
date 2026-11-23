@@ -16,7 +16,11 @@ func openLiveStore(t *testing.T) (context.Context, *store) {
 	if os.Getenv("MEM4J_LIVE") == "" {
 		t.Skip("set MEM4J_LIVE=1 to run against the live graph")
 	}
-	cred, err := readCredentials(defaultCredentials)
+	credPath, err := defaultCredentialsPath()
+	if err != nil {
+		t.Fatal(err)
+	}
+	cred, err := readCredentials(credPath)
 	if err != nil {
 		t.Fatal(err)
 	}

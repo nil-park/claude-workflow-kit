@@ -4,8 +4,17 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
+
+func defaultCredentialsPath() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("resolve home directory: %w", err)
+	}
+	return filepath.Join(home, ".config", "mem4j", ".secrets", "neo4j.txt"), nil
+}
 
 type credentials struct {
 	URI      string
