@@ -16,6 +16,9 @@ func parseReminderCommand(args []string, stdin io.Reader) (parsedCommand, error)
 	if len(args) == 0 {
 		return parsedCommand{}, errors.New("usage: mem4j reminder <recall|create|edit|link|unlink|delete> [flags]")
 	}
+	if cmd, ok, err := handleResourceHelp("reminder", args, stdin); ok {
+		return cmd, err
+	}
 	switch args[0] {
 	case "recall":
 		return parseReminderRecall(args[1:], stdin)

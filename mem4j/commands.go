@@ -12,6 +12,7 @@ import (
 
 type parsedCommand struct {
 	credPath string
+	helpText string
 	exec     func(ctx context.Context, s *store, stdout, stderr io.Writer) error
 }
 
@@ -27,12 +28,25 @@ func (s *scopeList) Set(v string) error {
 // parseCommand validates the resource, action, flags, and any body input
 // before credentials are read or Neo4j is contacted.
 func parseCommand(args []string, stdin io.Reader) (parsedCommand, error) {
+	cmd, err := dispatchCommand(args, stdin)
+	var h helpRequest
+	if errors.As(err, &h) {
+		return parsedCommand{helpText: h.text}, nil
+	}
+	return cmd, err
+}
+
+func dispatchCommand(args []string, stdin io.Reader) (parsedCommand, error) {
 	if len(args) == 0 {
 		return parsedCommand{}, errors.New("usage: mem4j <scope|instruction|reminder|graph> <action> [flags]")
 	}
 	switch args[0] {
+	case "help":
+		return parseHelpCommand(args[1:], stdin)
+	case "-h", "--help", "-help":
+		return parsedCommand{helpText: rootHelp()}, nil
 	case "scope":
-		return parseScopeCommand(args[1:])
+		return parseScopeCommand(args[1:], stdin)
 	case "instruction":
 		return parseInstructionCommand(args[1:], stdin)
 	case "reminder":
@@ -44,9 +58,12 @@ func parseCommand(args []string, stdin io.Reader) (parsedCommand, error) {
 	}
 }
 
-func parseScopeCommand(args []string) (parsedCommand, error) {
+func parseScopeCommand(args []string, stdin io.Reader) (parsedCommand, error) {
 	if len(args) == 0 {
 		return parsedCommand{}, errors.New("usage: mem4j scope <list|create|edit|delete> [flags]")
+	}
+	if cmd, ok, err := handleResourceHelp("scope", args, stdin); ok {
+		return cmd, err
 	}
 	switch args[0] {
 	case "list":
@@ -65,6 +82,9 @@ func parseScopeCommand(args []string) (parsedCommand, error) {
 func parseInstructionCommand(args []string, stdin io.Reader) (parsedCommand, error) {
 	if len(args) == 0 {
 		return parsedCommand{}, errors.New("usage: mem4j instruction <recall|create|edit|link|unlink|delete> [flags]")
+	}
+	if cmd, ok, err := handleResourceHelp("instruction", args, stdin); ok {
+		return cmd, err
 	}
 	switch args[0] {
 	case "recall":
@@ -93,6 +113,9 @@ func newFlagSet(name string) (*flag.FlagSet, *string) {
 
 func parseFlags(fs *flag.FlagSet, args []string) error {
 	if err := fs.Parse(args); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			return helpRequest{text: formatFlagHelp(fs)}
+		}
 		return err
 	}
 	if fs.NArg() > 0 {

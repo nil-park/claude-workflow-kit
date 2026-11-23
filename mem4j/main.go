@@ -43,6 +43,10 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
 	if err != nil {
 		return err
 	}
+	if cmd.helpText != "" {
+		_, err := io.WriteString(stdout, cmd.helpText)
+		return err
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 	credPath := cmd.credPath

@@ -16,6 +16,9 @@ func parseGraphCommand(args []string, stdin io.Reader) (parsedCommand, error) {
 	if len(args) == 0 {
 		return parsedCommand{}, errors.New("usage: mem4j graph <query> [flags]")
 	}
+	if cmd, ok, err := handleResourceHelp("graph", args, stdin); ok {
+		return cmd, err
+	}
 	switch args[0] {
 	case "query":
 		return parseGraphQuery(args[1:], stdin)
