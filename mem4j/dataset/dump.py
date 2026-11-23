@@ -17,6 +17,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+from seed_backdata import seed_all_backdata
+
 DATASET_DIR = Path(__file__).resolve().parent
 CLI_DIR = DATASET_DIR.parent
 REPO_ROOT = CLI_DIR.parent
@@ -176,6 +178,7 @@ def main() -> None:
                 ),
             )
             print(f"Seeded {len(scopes)} scopes, {len(units)} instructions, and {len(reminders)} reminders.")
+            seed_all_backdata(exe, args.credentials, args.gcp_credentials, user, args.workers)
 
         args.merged_dir.mkdir(parents=True, exist_ok=True)
         fail_if(

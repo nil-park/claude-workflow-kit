@@ -1,0 +1,71 @@
+{
+  "scopeLinks": [
+    {
+      "from": "claude-workflow-kit 리포지토리",
+      "type": "HOSTED_ON",
+      "to": "GitHub 리포지토리"
+    },
+    {
+      "from": "듀오 세션 peer",
+      "type": "PART_OF",
+      "to": "듀오 세션"
+    },
+    {
+      "from": "듀오 세션",
+      "type": "USES_PEER",
+      "to": "peer CLI: Antigravity CLI"
+    }
+  ],
+  "entityLinks": [
+    {
+      "from": "claude-workflow-kit 리포지토리",
+      "type": "CONTAINS",
+      "to": "mem4j"
+    },
+    {
+      "from": "claude-workflow-kit 리포지토리",
+      "type": "CONTAINS",
+      "to": "agy-compaction-hook"
+    },
+    {
+      "from": "mem4j",
+      "type": "USES",
+      "to": "Neo4j AuraDB"
+    },
+    {
+      "from": "mem4j",
+      "type": "USES",
+      "to": "Vertex AI gemini-embedding-2"
+    },
+    {
+      "from": "mem4j",
+      "type": "READS",
+      "to": "~/.config/mem4j/.secrets/gcp.json"
+    },
+    {
+      "from": "agy CLI",
+      "type": "BLOCKS_READ",
+      "to": "~/.config/mem4j/.secrets/gcp.json"
+    },
+    {
+      "from": "agy-compaction-hook",
+      "type": "TARGETS",
+      "to": "agy CLI"
+    },
+    {
+      "from": "Recallar 안드로이드 앱",
+      "type": "DOWNLOADS_FROM",
+      "to": "Google Cloud Run"
+    },
+    {
+      "from": "Recallar 웹 편집기",
+      "type": "CALLS",
+      "to": "Google Cloud Run"
+    },
+    {
+      "from": "Google Cloud Run",
+      "type": "USES",
+      "to": "Google Cloud TTS"
+    }
+  ]
+}

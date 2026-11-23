@@ -1,0 +1,54 @@
+[
+  {
+    "name": "{user}",
+    "description": "{user} 사용자 계정 및 개인 개발 환경 소유자"
+  },
+  {
+    "name": "claude-workflow-kit 리포지토리",
+    "description": "nil-park/claude-workflow-kit 리포지토리. Claude Code·agy용 플러그인, 스킬, 훅, mem4j CLI를 관리하는 워크플로 저장소"
+  },
+  {
+    "name": "Windows PowerShell",
+    "description": "Windows PowerShell 5.1 셸 환경"
+  },
+  {
+    "name": "mem4j",
+    "description": "mem4j Go CLI. 여러 AI 에이전트가 공유하는 기억을 Neo4j 그래프와 Vertex AI 임베딩으로 관리하는 도구"
+  },
+  {
+    "name": "agy CLI",
+    "description": "Antigravity CLI (agy). Google 에이전트 CLI 도구"
+  },
+  {
+    "name": "agy-compaction-hook",
+    "description": "agy CLI에서 컨텍스트 압축 직후 PreInvocation 훅으로 스킬 원문 재읽기를 안내하는 컴포넌트"
+  },
+  {
+    "name": "Neo4j AuraDB",
+    "description": "mem4j가 공유 기억 그래프를 저장하는 Neo4j AuraDB 클라우드 데이터베이스"
+  },
+  {
+    "name": "Vertex AI gemini-embedding-2",
+    "description": "GCP Vertex AI global 엔드포인트의 gemini-embedding-2 임베딩 모델(768차원)"
+  },
+  {
+    "name": "~/.config/mem4j/.secrets/gcp.json",
+    "description": "mem4j가 Vertex AI 호출 인증에 사용하는 GCP 서비스 계정 JSON 키 파일"
+  },
+  {
+    "name": "Recallar 안드로이드 앱",
+    "description": "Recallar(구 MemTopic, 루꼴라 캐릭터) 리콜·발화 훈련용 안드로이드 앱"
+  },
+  {
+    "name": "Recallar 웹 편집기",
+    "description": "Recallar 토픽 생성·편집·삭제, JSON 내보내기·가져오기, 서버 TTS 음성 선택을 담당하는 웹 클라이언트"
+  },
+  {
+    "name": "Google Cloud Run",
+    "description": "Recallar 유료 기능과 토픽 번들 전달·백업을 서빙하는 GCP Cloud Run 백엔드"
+  },
+  {
+    "name": "Google Cloud TTS",
+    "description": "Recallar 유료 티어의 고품질 서버 음성 합성에 사용하는 GCP Cloud Text-to-Speech API"
+  }
+]
