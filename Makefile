@@ -7,9 +7,9 @@ BG_BLUE := \033[44m
 BG_PINK := \033[45m
 RESET := \033[0m
 
-.PHONY: format test statusline agy-compaction-hook claude-queue copilot-queue
+.PHONY: format test statusline agy-compaction-hook claude-queue copilot-queue mem4j
 
-GO_MODULES := statusline agy-compaction-hook claude-queue copilot-queue
+GO_MODULES := statusline agy-compaction-hook claude-queue copilot-queue mem4j
 
 # 고치면서 검사한다. 확장자별 파일이 없어도 오류 없이 넘어간다.
 format:
@@ -64,3 +64,7 @@ claude-queue:
 # copilot-queue를 ~/.local/bin에 설치한다.
 copilot-queue:
 	@cd copilot-queue && go build -o "$(HOME)/.local/bin/copilot-queue$$(go env GOEXE)" .
+
+# mem4j를 ~/.local/bin에 설치한다.
+mem4j:
+	@cd mem4j && go build -o "$(HOME)/.local/bin/mem4j$$(go env GOEXE)" .

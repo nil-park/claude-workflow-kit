@@ -1,0 +1,1 @@
+- **쿼리 타임아웃**: statement timeout 미설정, 락 대기 상한 없음

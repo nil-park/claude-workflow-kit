@@ -1,0 +1,42 @@
+[
+  {
+    "key": "j23ilfktmf",
+    "title": "ADR 0001 TTS 엔진 이원화 초안",
+    "occurredAt": "2026-07-11",
+    "description": "무료 유저는 빌트인 TTS, 유료 유저는 백엔드 경유 GCP Cloud TTS를 쓰는 이원화 방향을 ADR 0001 초안으로 작성했다.",
+    "entities": ["Recallar 안드로이드 앱", "Google Cloud TTS"],
+    "body": "무료 유저는 빌트인 TTS, 유료 유저는 백엔드 경유 GCP Cloud TTS를 쓰는 이원화 방향을 ADR 0001 초안으로 작성했다."
+  },
+  {
+    "key": "e6iddtgubk",
+    "title": "ADR 0007 Cloud Run 백엔드 승인",
+    "occurredAt": "2026-07-19",
+    "description": "유료 백엔드를 Cloud Run에 서빙하되 v1은 LB·Cloud Armor 없이 직접 서빙하고 v2에서 방어를 도입하기로 ADR 0007로 승인했다.",
+    "entities": ["Google Cloud Run"],
+    "body": "유료 백엔드를 Cloud Run에 서빙하되 v1은 LB·Cloud Armor 없이 직접 서빙하고 v2에서 방어를 도입하기로 ADR 0007로 승인했다."
+  },
+  {
+    "key": "auwczjdxv7",
+    "title": "ADR 0012·0013 웹 편집·번들·블록 이미지 승인",
+    "occurredAt": "2026-11-17",
+    "description": "토픽 편집의 웹 이전, 번들 기반 앱 전달, 블록 이미지 구조를 ADR 0012·0013으로 승인해 기존 ADR 0001·0007의 티어·프록시 결정을 대체했다.",
+    "entities": ["Recallar 안드로이드 앱", "Recallar 웹 편집기"],
+    "body": "토픽 편집의 웹 이전, 번들 기반 앱 전달, 블록 이미지 구조를 ADR 0012·0013으로 승인해 기존 ADR 0001·0007의 티어·프록시 결정을 대체했다."
+  },
+  {
+    "key": "bjo3kjz5yz",
+    "title": "ADR 0014 앱 이름 Recallar 변경 승인",
+    "occurredAt": "2026-11-17",
+    "description": "앱 표시 이름을 `MemTopic`에서 `Recallar`로 변경하고 대표 캐릭터를 루꼴라 잎으로 정하기로 ADR 0014로 승인했다.",
+    "entities": ["Recallar 안드로이드 앱"],
+    "body": "앱 표시 이름을 `MemTopic`에서 `Recallar`로 변경하고 대표 캐릭터를 루꼴라 잎으로 정하기로 ADR 0014로 승인했다."
+  },
+  {
+    "key": "54pu66x7k6",
+    "title": "mem4j Reminder와 임베딩 검색 구현",
+    "occurredAt": "2026-11-23",
+    "description": "`mem4j`에 `Reminder` CRUD와 Vertex AI `gemini-embedding-2` 기반 사전 필터 코사인 유사도 `recall`을 구현하고 6개 시드 리마인더를 AuraDB에 적재했다.",
+    "entities": ["mem4j", "Vertex AI gemini-embedding-2"],
+    "body": "`mem4j`에 `Reminder` CRUD와 Vertex AI `gemini-embedding-2` 기반 사전 필터 코사인 유사도 `recall`을 구현하고 6개 시드 리마인더를 AuraDB에 적재했다."
+  }
+]

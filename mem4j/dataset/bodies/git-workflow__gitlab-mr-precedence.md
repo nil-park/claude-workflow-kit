@@ -1,0 +1,1 @@
+- **리포지토리의 `CLAUDE.md`나 `AGENTS.md`에 MR 제목이나 `glab mr create` 옵션에 관한 규칙이 있으면, GitLab MR 기본 규칙보다 그 규칙을 우선한다.**

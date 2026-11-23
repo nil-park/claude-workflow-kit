@@ -1,0 +1,128 @@
+[
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/apply-all-files",
+    "before": "모두 이 사이클에 따라",
+    "after": "모두 작성-리뷰 사이클에 따라",
+    "reason": "단독 완결을 위해 지시어 해소"
+  },
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/non-file-excluded",
+    "before": "대상이 아니다.",
+    "after": "작성-리뷰 사이클의 대상이 아니다.",
+    "reason": "단독 완결을 위해 생략된 대상 명시"
+  },
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/outside-git-repo",
+    "before": "시스템 설정도 대상이다.",
+    "after": "시스템 설정처럼 git 리포지토리 밖의 파일도 작성-리뷰 사이클 대상이다.",
+    "reason": "상위 제목(git 리포지토리 밖의 파일) 맥락 반영"
+  },
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/standards-original-read",
+    "before": "두 스킬의 조항은",
+    "after": "`docs-standards`와 `coding-standards` 스킬의 조항은",
+    "reason": "상위 제목의 두 스킬 이름 명시"
+  },
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/clean-pass-three",
+    "before": "- **지적이 없는 라운드",
+    "after": "- **리뷰 라운드는 지적이 없는 라운드",
+    "reason": "상위 제목(리뷰 라운드) 주어 보충"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/purpose",
+    "before": "최소한 아래 항목만은",
+    "after": "최소한 코드 작성 기준 카탈로그의 항목만은",
+    "reason": "단위 분리로 '아래' 지시어 해소"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/purpose",
+    "before": "**이 카탈로그는",
+    "after": "**코드 작성 기준 카탈로그는",
+    "reason": "단독 완결을 위해 지시어 해소"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/bullet-hierarchy",
+    "before": "아래에 있는 다이어그램·표·예시 규칙이 이 조항보다 우선한다.",
+    "after": "다이어그램·표·예시로 보여 주는 편이 산문보다 나을 때 그 형식을 쓰는 규칙이 불릿 계층화 규칙보다 우선한다.",
+    "reason": "단위 분리로 '아래에 있는' 지시어 해소"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/procedure",
+    "before": "아래 탐색 절과 예시 절을",
+    "after": "문장 단위·문서 단위 클로디즘 판정 기준과 예시를",
+    "reason": "단위 분리로 '아래' 지시어 해소"
+  },
+  {
+    "source": "git-workflow-shared",
+    "key": "git-workflow/stage1-no-code",
+    "before": "이 단계에서는",
+    "after": "작업 단위 확정 단계에서는",
+    "reason": "단위 분리로 '이 단계' 지시어 해소"
+  },
+  {
+    "source": "git-workflow-github",
+    "key": "git-workflow/github-pr-precedence",
+    "before": "이 절보다",
+    "after": "GitHub PR 기본 규칙보다",
+    "reason": "단위 분리로 '이 절' 지시어 해소"
+  },
+  {
+    "source": "git-workflow-gitlab",
+    "key": "git-workflow/gitlab-mr-precedence",
+    "before": "이 절보다",
+    "after": "GitLab MR 기본 규칙보다",
+    "reason": "단위 분리로 '이 절' 지시어 해소"
+  },
+  {
+    "source": "scratch-dir",
+    "key": "scratch-dir/two-spaces-overview",
+    "before": "아래 두 디렉터리 중 한 곳에",
+    "after": "하네스 스크래치패드와 `.refs` 디렉터리 중 한 곳에",
+    "reason": "단위 분리로 '아래 두 디렉터리' 지시어 해소"
+  },
+  {
+    "source": "scratch-dir",
+    "key": "scratch-dir/fallback-no-scratchpad",
+    "before": "- 하네스 스크래치패드용 파일도",
+    "after": "- 하네스 스크래치패드에 접근할 수 없는 환경에서는 하네스 스크래치패드용 파일도",
+    "reason": "상위 제목(스크래치패드에 접근할 수 없는 환경) 조건 명시"
+  },
+  {
+    "source": "duo-session",
+    "key": "duo-session/peer-restart",
+    "before": "시작 3단계에서 `instruction-1.md`를",
+    "after": "peer 시작 명령(`agy --agent duo-session-peer -i ...`)에서 `instruction-1.md`를",
+    "reason": "단위 분리로 '시작 3단계' 참조 해소"
+  },
+  {
+    "source": "multi-session-shared",
+    "key": "multi-session/orchestrator-skills",
+    "before": "종료는 아래 \"없음\" 회신 판정 규칙을",
+    "after": "종료는 peer의 \"없음\" 회신 판정 규칙을",
+    "reason": "단위 분리로 '아래' 지시어 해소"
+  },
+  {
+    "source": "multi-session-shared",
+    "key": "multi-session/orchestrator-skills",
+    "before": "확인한 뒤 아래 사전 점검을",
+    "after": "확인한 뒤 사전 점검을",
+    "reason": "단위 분리로 '아래' 지시어 해소"
+  },
+  {
+    "source": "multi-session-claude-code",
+    "key": "multi-session/claude-code-peer-invoke",
+    "before": "위 커맨드로 만든 세션(peer)에",
+    "after": "사전 점검 커맨드로 만든 세션(peer)에",
+    "reason": "단위 분리로 '위 커맨드' 참조 해소"
+  }
+]

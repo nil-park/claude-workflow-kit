@@ -1,0 +1,65 @@
+[
+  {
+    "key": "5nntcvf7qb",
+    "title": "PowerShell 5.1 명령 연결 제약",
+    "description": "Windows PowerShell 5.1에서는 `&&`를 명령 구분자로 쓸 수 없으며 `;`와 `$LASTEXITCODE` 검사를 사용한다.",
+    "entities": ["Windows PowerShell"],
+    "body": "Windows PowerShell 5.1에서는 `&&`를 명령 구분자로 쓸 수 없으며 `;`와 `$LASTEXITCODE` 검사를 사용한다."
+  },
+  {
+    "key": "v345rhbrgr",
+    "title": "agy CLI 스킬 탐색 경로",
+    "description": "`agy` CLI는 `.claude/skills/` 경로를 자동 탐색하지 않으며 `.agents/skills/`와 `~/.gemini/antigravity-cli/skills/`를 탐색한다.",
+    "entities": ["agy CLI"],
+    "body": "`agy` CLI는 `.claude/skills/` 경로를 자동 탐색하지 않으며 `.agents/skills/`와 `~/.gemini/antigravity-cli/skills/`를 탐색한다."
+  },
+  {
+    "key": "z5rjl4d435",
+    "title": "agy CLI permissions.deny 경로 규칙",
+    "description": "`agy` CLI의 `permissions.deny`는 `**` 글롭을 지원하지 않고 절대 경로(Windows 드라이브 문자 제외, `/` 정규화)와 워크스페이스 상대 경로를 사용한다.",
+    "entities": ["agy CLI", "~/.config/mem4j/.secrets/gcp.json"],
+    "body": "`agy` CLI의 `permissions.deny`는 `**` 글롭을 지원하지 않고 절대 경로(Windows 드라이브 문자 제외, `/` 정규화)와 워크스페이스 상대 경로를 사용한다."
+  },
+  {
+    "key": "iobr7r6jvk",
+    "title": "agy CLI 프롬프트 훅 이벤트",
+    "description": "`agy` CLI에는 `UserPromptSubmit` 전용 이벤트가 없으며, 매 모델 호출 전 `PreInvocation` 이벤트의 `lastUserInput`으로 사용자 입력을 받는다.",
+    "entities": ["agy CLI", "agy-compaction-hook"],
+    "body": "`agy` CLI에는 `UserPromptSubmit` 전용 이벤트가 없으며, 매 모델 호출 전 `PreInvocation` 이벤트의 `lastUserInput`으로 사용자 입력을 받는다."
+  },
+  {
+    "key": "i7joe2he7e",
+    "title": "mem4j 임베딩 차원과 실측 임계값",
+    "description": "`mem4j`는 `gemini-embedding-2`의 `global` 엔드포인트에서 768차원 벡터를 생성하며, 한국어 프롬프트 매칭 실측 기준 실용 임계값은 약 0.80 수준이다.",
+    "entities": ["mem4j", "Vertex AI gemini-embedding-2"],
+    "body": "`mem4j`는 `gemini-embedding-2`의 `global` 엔드포인트에서 768차원 벡터를 생성하며, 한국어 프롬프트 매칭 실측 기준 실용 임계값은 약 0.80 수준이다."
+  },
+  {
+    "key": "oxoiii7fzp",
+    "title": "Recallar 표시 이름과 내부 식별자 유지",
+    "description": "앱 표시 이름은 `Recallar`이고 대표 캐릭터는 루꼴라 잎이지만, 리포지토리 이름(`MemTopic`)과 `applicationId`(`com.nolbee.memtopic`)는 그대로 유지한다.",
+    "entities": ["Recallar 안드로이드 앱"],
+    "body": "앱 표시 이름은 `Recallar`이고 대표 캐릭터는 루꼴라 잎이지만, 리포지토리 이름(`MemTopic`)과 `applicationId`(`com.nolbee.memtopic`)는 그대로 유지한다."
+  },
+  {
+    "key": "hrnzghywfi",
+    "title": "Recallar 웹 편집과 앱 번들 재생 분리",
+    "description": "토픽 생성·편집·삭제와 JSON 내보내기·가져오기는 웹 편집기에서만 수행하고, 앱은 토픽을 번들로 내려받아 오프라인 재생만 담당한다.",
+    "entities": ["Recallar 안드로이드 앱", "Recallar 웹 편집기"],
+    "body": "토픽 생성·편집·삭제와 JSON 내보내기·가져오기는 웹 편집기에서만 수행하고, 앱은 토픽을 번들로 내려받아 오프라인 재생만 담당한다."
+  },
+  {
+    "key": "xt5evdwq4k",
+    "title": "Recallar 무료·유료 티어 경계",
+    "description": "무료·유료 경계는 외부 API 비용 발생 여부로 나누며, 무료 기능은 빌트인 TTS와 직접 첨부 블록 이미지, 유료 기능은 서버 TTS 합성과 이미지 생성에 적용한다.",
+    "entities": ["Recallar 안드로이드 앱", "Google Cloud TTS"],
+    "body": "무료·유료 경계는 외부 API 비용 발생 여부로 나누며, 무료 기능은 빌트인 TTS와 직접 첨부 블록 이미지, 유료 기능은 서버 TTS 합성과 이미지 생성에 적용한다."
+  },
+  {
+    "key": "bdax5torwq",
+    "title": "Recallar 상표권 충돌 시 이름 복귀 조건",
+    "description": "출시 전 상표권 확인에서 `Recallar`가 기존 상표와 충돌하면 표시 이름을 `MemTopic`으로 되돌린다.",
+    "entities": ["Recallar 안드로이드 앱"],
+    "body": "출시 전 상표권 확인에서 `Recallar`가 기존 상표와 충돌하면 표시 이름을 `MemTopic`으로 되돌린다."
+  }
+]

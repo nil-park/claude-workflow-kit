@@ -1,0 +1,3 @@
+- 경로: `main`의 하네스 스크래치패드(절대 경로)이며, `main`은 시작 문구에서 그 경로를 `peer`에 전달한다.
+- `main`은 공유 디렉터리의 `instruction-<N>.md`에 메시지 본문을 쓰고, `peer`는 `reply-<N>.md`에 회신을 쓴다.
+- `peer`는 공유 디렉터리의 `commit-message.md`에 커밋 메시지를 쓰고, `pr-title.md`와 `pr-body.md`에 PR/MR 제목과 본문을 쓴다.

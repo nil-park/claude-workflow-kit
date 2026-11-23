@@ -1,0 +1,1395 @@
+[
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/apply-all-files",
+    "title": "작성-리뷰 사이클 / 적용 대상",
+    "scopes": ["{user}", "파일 작성"],
+    "file": "bodies/work-cycle__apply-all-files.md"
+  },
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/review-targets",
+    "title": "작성-리뷰 사이클 / 리뷰 라운드 대상",
+    "scopes": ["{user}", "파일 작성"],
+    "file": "bodies/work-cycle__review-targets.md"
+  },
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/non-file-excluded",
+    "title": "작성-리뷰 사이클 / 제외 대상",
+    "scopes": ["{user}", "파일 작성"],
+    "file": "bodies/work-cycle__non-file-excluded.md"
+  },
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/outside-git-repo",
+    "title": "작성-리뷰 사이클 / git 리포지토리 밖의 파일",
+    "scopes": ["{user}", "파일 작성"],
+    "file": "bodies/work-cycle__outside-git-repo.md"
+  },
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/domain-judgment",
+    "title": "작성-리뷰 사이클 / 도메인 판정",
+    "scopes": ["{user}", "파일 작성"],
+    "file": "bodies/work-cycle__domain-judgment.md"
+  },
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/standards-original-read",
+    "title": "작성-리뷰 사이클 / docs-standards와 coding-standards 원문 확인",
+    "scopes": ["{user}", "파일 작성"],
+    "file": "bodies/work-cycle__standards-original-read.md"
+  },
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/direct-review",
+    "title": "작성-리뷰 사이클 / 직접 리뷰 원칙",
+    "scopes": ["{user}", "파일 작성"],
+    "file": "bodies/work-cycle__direct-review.md"
+  },
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/clean-pass-three",
+    "title": "작성-리뷰 사이클 / 클린 패스 종료 조건",
+    "scopes": ["{user}", "파일 작성"],
+    "file": "bodies/work-cycle__clean-pass-three.md"
+  },
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/docs-review-method",
+    "title": "작성-리뷰 사이클 / 문서 리뷰 방식",
+    "scopes": ["{user}", "파일 작성"],
+    "file": "bodies/work-cycle__docs-review-method.md"
+  },
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/code-review-method",
+    "title": "작성-리뷰 사이클 / 코드 리뷰 방식",
+    "scopes": ["{user}", "파일 작성"],
+    "file": "bodies/work-cycle__code-review-method.md"
+  },
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/read-full-files",
+    "title": "작성-리뷰 사이클 / 리뷰 대상 파일 전문 읽기",
+    "scopes": ["{user}", "파일 작성"],
+    "file": "bodies/work-cycle__read-full-files.md"
+  },
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/round-log-scratch",
+    "title": "작성-리뷰 사이클 / 라운드 기록 저장",
+    "scopes": ["{user}", "파일 작성"],
+    "file": "bodies/work-cycle__round-log-scratch.md"
+  },
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/when-to-call-user",
+    "title": "작성-리뷰 사이클 / 리뷰 중 사용자 호출 조건",
+    "scopes": ["{user}", "파일 작성"],
+    "file": "bodies/work-cycle__when-to-call-user.md"
+  },
+  {
+    "source": "work-cycle",
+    "key": "work-cycle/final-report",
+    "title": "작성-리뷰 사이클 / 최종 보고 항목",
+    "scopes": ["{user}", "파일 작성"],
+    "file": "bodies/work-cycle__final-report.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/purpose",
+    "title": "코드 작성 기준 / 목적",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__purpose.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/common-failure-and-edge",
+    "title": "코드 작성 기준 / 공통 / 실패 경로와 경계 조건",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__common-failure-and-edge.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/common-error-suppression",
+    "title": "코드 작성 기준 / 공통 / 에러 억제",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__common-error-suppression.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/common-memory-leak",
+    "title": "코드 작성 기준 / 공통 / 메모리 누수",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__common-memory-leak.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/common-circular-dependency",
+    "title": "코드 작성 기준 / 공통 / 순환 의존성",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__common-circular-dependency.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/common-secrets-and-input",
+    "title": "코드 작성 기준 / 공통 / 시크릿과 입력 신뢰",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__common-secrets-and-input.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/common-encoding-and-nfc",
+    "title": "코드 작성 기준 / 공통 / 인코딩 미지정",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__common-encoding-and-nfc.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/common-time-handling",
+    "title": "코드 작성 기준 / 공통 / 시각 처리",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__common-time-handling.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/common-duplication",
+    "title": "코드 작성 기준 / 공통 / 중복 코드",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__common-duplication.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/common-file-length",
+    "title": "코드 작성 기준 / 공통 / 파일 길이",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__common-file-length.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/common-over-configuration",
+    "title": "코드 작성 기준 / 공통 / 설정 항목 과다",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__common-over-configuration.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/common-test-effectiveness",
+    "title": "코드 작성 기준 / 공통 / 테스트 실효성",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__common-test-effectiveness.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/common-leftovers",
+    "title": "코드 작성 기준 / 공통 / 잔여물",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__common-leftovers.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/common-redundant-comments",
+    "title": "코드 작성 기준 / 공통 / 군더더기 주석",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__common-redundant-comments.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/common-naming",
+    "title": "코드 작성 기준 / 공통 / 네이밍",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__common-naming.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/client-exception-handling",
+    "title": "코드 작성 기준 / 클라이언트 (HTTP/RPC/외부 서비스 의존) / 예외 처리 누락",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__client-exception-handling.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/client-retry-policy",
+    "title": "코드 작성 기준 / 클라이언트 (HTTP/RPC/외부 서비스 의존) / 재시도 정책",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__client-retry-policy.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/server-connection-pool",
+    "title": "코드 작성 기준 / 서버 / 커넥션 풀",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__server-connection-pool.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/server-concurrency-limit",
+    "title": "코드 작성 기준 / 서버 / 동시성 상한",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__server-concurrency-limit.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/server-auth",
+    "title": "코드 작성 기준 / 서버 / 인증과 인가",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__server-auth.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/db-index-usage",
+    "title": "코드 작성 기준 / 데이터베이스 / 인덱스를 쓰지 않는 쿼리",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__db-index-usage.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/db-query-timeout",
+    "title": "코드 작성 기준 / 데이터베이스 / 쿼리 타임아웃",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__db-query-timeout.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/db-n-plus-one",
+    "title": "코드 작성 기준 / 데이터베이스 / N+1 쿼리",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__db-n-plus-one.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/db-unbounded-result",
+    "title": "코드 작성 기준 / 데이터베이스 / 상한 없는 결과 집합",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__db-unbounded-result.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/db-transaction-scope",
+    "title": "코드 작성 기준 / 데이터베이스 / 트랜잭션 범위",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__db-transaction-scope.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/db-migration",
+    "title": "코드 작성 기준 / 데이터베이스 / 마이그레이션",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__db-migration.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/runtime-memory-gc",
+    "title": "코드 작성 기준 / 런타임 (JVM, Go 등 장기 실행 프로세스) / 메모리와 GC 설정",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__runtime-memory-gc.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/obs-log-format",
+    "title": "코드 작성 기준 / 관측성 (로그·지표·추적) / 로그 포맷",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__obs-log-format.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/obs-log-level",
+    "title": "코드 작성 기준 / 관측성 (로그·지표·추적) / 로그 레벨",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__obs-log-level.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/obs-log-volume",
+    "title": "코드 작성 기준 / 관측성 (로그·지표·추적) / 로그 과다",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__obs-log-volume.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/obs-failure-metrics",
+    "title": "코드 작성 기준 / 관측성 (로그·지표·추적) / 실패가 보이는 지표",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__obs-failure-metrics.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/obs-serverless-alarm",
+    "title": "코드 작성 기준 / 관측성 (로그·지표·추적) / 에러 알람 누락",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__obs-serverless-alarm.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/obs-trace-context",
+    "title": "코드 작성 기준 / 관측성 (로그·지표·추적) / 추적 맥락 전파",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__obs-trace-context.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/infra-least-privilege",
+    "title": "코드 작성 기준 / 인프라 / 최소 권한 위배",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__infra-least-privilege.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/infra-security-software",
+    "title": "코드 작성 기준 / 인프라 / 필수 보안 프로그램 누락",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__infra-security-software.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/infra-firewall-scope",
+    "title": "코드 작성 기준 / 인프라 / 방화벽 규칙 범위",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__infra-firewall-scope.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/infra-outbound-ip",
+    "title": "코드 작성 기준 / 인프라 / 아웃바운드 IP 고정",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__infra-outbound-ip.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/infra-resource-ownership",
+    "title": "코드 작성 기준 / 인프라 / 리소스 관리 주체",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__infra-resource-ownership.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/infra-instance-limit",
+    "title": "코드 작성 기준 / 인프라 / 인스턴스 상한 산정",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__infra-instance-limit.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/infra-resource-naming",
+    "title": "코드 작성 기준 / 인프라 / 리소스 이름 규칙",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__infra-resource-naming.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/infra-env-abbrev",
+    "title": "코드 작성 기준 / 인프라 / 환경 약칭 불일치",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__infra-env-abbrev.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/infra-global-bucket-name",
+    "title": "코드 작성 기준 / 인프라 / 전역 유일 이름",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__infra-global-bucket-name.md"
+  },
+  {
+    "source": "coding-standards",
+    "key": "coding-standards/infra-cost-labels",
+    "title": "코드 작성 기준 / 인프라 / 비용 귀속 레이블",
+    "scopes": ["{user}", "코드 작성"],
+    "file": "bodies/coding-standards__infra-cost-labels.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/placement-table",
+    "title": "문서 작성 기준 / 배치 표와 디렉터리 규약",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__placement-table.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/no-why-in-architecture",
+    "title": "문서 작성 기준 / architecture에 why 금지",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__no-why-in-architecture.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/human-reader-and-repo-check",
+    "title": "문서 작성 기준 / 사람 독자 기준과 두 점검 질문",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__human-reader-and-repo-check.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/prefer-deletion",
+    "title": "문서 작성 기준 / 덧붙이기보다 삭제 우선",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__prefer-deletion.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/development-premises",
+    "title": "문서 작성 기준 / development 전제와 reference 사실",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__development-premises.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/why-placement",
+    "title": "문서 작성 기준 / 장문 why 배치와 예외",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__why-placement.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/decisions-data",
+    "title": "문서 작성 기준 / decisions 작성 기준",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__decisions-data.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/monitoring-vs-runbook",
+    "title": "문서 작성 기준 / monitoring과 runbook 역할 구분",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__monitoring-vs-runbook.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/pr-no-point-in-time",
+    "title": "문서 작성 기준 / PR·MR 시점 고정값·체크박스·후속 작업 금지",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__pr-no-point-in-time.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/pr-how-reader-actions",
+    "title": "문서 작성 기준 / PR·MR 본문의 how 범위",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__pr-how-reader-actions.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/pr-what-five-lines",
+    "title": "문서 작성 기준 / PR·MR 본문의 what 분량",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__pr-what-five-lines.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/pr-headings",
+    "title": "문서 작성 기준 / PR·MR 본문 헤딩 규약",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__pr-headings.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/file-and-dir-naming",
+    "title": "문서 작성 기준 / 디렉터리와 파일 이름",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__file-and-dir-naming.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/bullet-hierarchy",
+    "title": "문서 작성 기준 / what과 how의 불릿 계층화",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__bullet-hierarchy.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/diagrams-tables-examples",
+    "title": "문서 작성 기준 / 다이어그램·표·예시 활용",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__diagrams-tables-examples.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/emphasis-sparingly",
+    "title": "문서 작성 기준 / 강조 표기 절제",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__emphasis-sparingly.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/sentence-max-100-chars",
+    "title": "문서 작성 기준 / 한 문장 100자 제한",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__sentence-max-100-chars.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/terminology-consistency",
+    "title": "문서 작성 기준 / 용어 일관성",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__terminology-consistency.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/korean-grammar-and-style",
+    "title": "문서 작성 기준 / 한국어 문장·부호·커밋 제목 규약",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__korean-grammar-and-style.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/korean-review-scope",
+    "title": "문서 작성 기준 / 한국어 검수 대상과 주석 재확인",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__korean-review-scope.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/no-repo-code-paste",
+    "title": "문서 작성 기준 / 리포 코드 붙여넣기 금지",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__no-repo-code-paste.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/no-duplication-and-sot",
+    "title": "문서 작성 기준 / 중복 금지와 SoT·참조 규칙",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__no-duplication-and-sot.md"
+  },
+  {
+    "source": "docs-standards",
+    "key": "docs-standards/no-honorifics",
+    "title": "문서 작성 기준 / 경어 금지",
+    "scopes": ["{user}", "문서 작성"],
+    "file": "bodies/docs-standards__no-honorifics.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/goal-and-target",
+    "title": "한국어 문체 교정 / 목적과 대상",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__goal-and-target.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/procedure",
+    "title": "한국어 문체 교정 / 절차",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__procedure.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/caution",
+    "title": "한국어 문체 교정 / 주의 사항",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__caution.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/example-format",
+    "title": "한국어 문체 교정 / 예시 표기와 Stop 훅 예외",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__example-format.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/sent-subject-predicate",
+    "title": "한국어 문체 교정 / 문장 판정 / 주어와 서술어가 맞지 않는다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__sent-subject-predicate.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/sent-missing-object-actor",
+    "title": "한국어 문체 교정 / 문장 판정 / 목적어나 행위 주체가 빠졌다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__sent-missing-object-actor.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/sent-omitted-particle",
+    "title": "한국어 문체 교정 / 문장 판정 / 조사나 어미를 줄여 뜻이 흐려졌다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__sent-omitted-particle.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/sent-no-predicate-ending",
+    "title": "한국어 문체 교정 / 문장 판정 / 문장이 서술어로 끝나지 않는다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__sent-no-predicate-ending.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/sent-translationese",
+    "title": "한국어 문체 교정 / 문장 판정 / 영어를 그대로 옮긴 번역체",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__sent-translationese.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/sent-passive-and-nominal",
+    "title": "한국어 문체 교정 / 문장 판정 / 피동과 명사구로 서술어를 뭉갰다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__sent-passive-and-nominal.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/sent-tangled-modifiers",
+    "title": "한국어 문체 교정 / 문장 판정 / 수식 관계가 꼬여 두 번 읽게 된다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__sent-tangled-modifiers.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/sent-punctuation-join",
+    "title": "한국어 문체 교정 / 문장 판정 / 문장 부호로 절을 이었다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__sent-punctuation-join.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/sent-over-100-chars",
+    "title": "한국어 문체 교정 / 문장 판정 / 한 문장이 100자를 넘는다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__sent-over-100-chars.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/sent-dangling-pronoun",
+    "title": "한국어 문체 교정 / 문장 판정 / 선행사 없이 지시어로 받았다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__sent-dangling-pronoun.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/sent-figurative-verb",
+    "title": "한국어 문체 교정 / 문장 판정 / 일반적인 동사를 쓸 곳에 비유적인 낱말을 썼다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__sent-figurative-verb.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/sent-personification",
+    "title": "한국어 문체 교정 / 문장 판정 / 무생물에 사람 동사를 붙였다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__sent-personification.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/doc-overloaded-word",
+    "title": "한국어 문체 교정 / 문서 판정 / 한 낱말이 서로 다른 동작이나 대상을 여럿 맡는다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__doc-overloaded-word.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/doc-inconsistent-naming",
+    "title": "한국어 문체 교정 / 문서 판정 / 이름이 일관되지 않는다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__doc-inconsistent-naming.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/doc-repeated-pattern",
+    "title": "한국어 문체 교정 / 문서 판정 / 같은 문형이 되풀이된다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__doc-repeated-pattern.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/doc-repeated-predicate",
+    "title": "한국어 문체 교정 / 문서 판정 / 같은 서술어를 한 문단 안에서 되풀이한다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__doc-repeated-predicate.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/doc-duplicate-no-sot",
+    "title": "한국어 문체 교정 / 문서 판정 / 같은 내용이 여러 곳에 적혀 있고 SoT가 정해지지 않았다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__doc-duplicate-no-sot.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/doc-redundant-explanation",
+    "title": "한국어 문체 교정 / 문서 판정 / 지워도 코드에서 구현의 의도가 그대로 읽히는 서술이 남아 있다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__doc-redundant-explanation.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/doc-flat-hierarchy",
+    "title": "한국어 문체 교정 / 문서 판정 / 계층이 나뉘지 않았다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__doc-flat-hierarchy.md"
+  },
+  {
+    "source": "anti-claudeism",
+    "key": "anti-claudeism/doc-over-emphasis",
+    "title": "한국어 문체 교정 / 문서 판정 / 강조 표기를 남발했다",
+    "scopes": ["{user}", "한국어 문체 교정"],
+    "file": "bodies/anti-claudeism__doc-over-emphasis.md"
+  },
+  {
+    "source": "git-workflow-shared",
+    "key": "git-workflow/four-stages",
+    "title": "브랜치와 PR 작업 / 4단계 진행과 구현 진입 금지",
+    "scopes": ["{user}", "브랜치와 PR 작업"],
+    "file": "bodies/git-workflow__four-stages.md"
+  },
+  {
+    "source": "git-workflow-shared",
+    "key": "git-workflow/stage1-issue-and-scope",
+    "title": "브랜치와 PR 작업 / 1단계: 이슈와 작업 범위 정리",
+    "scopes": ["{user}", "브랜치와 PR 작업"],
+    "file": "bodies/git-workflow__stage1-issue-and-scope.md"
+  },
+  {
+    "source": "git-workflow-shared",
+    "key": "git-workflow/stage1-no-code",
+    "title": "브랜치와 PR 작업 / 1단계: 구현 코드 금지",
+    "scopes": ["{user}", "브랜치와 PR 작업"],
+    "file": "bodies/git-workflow__stage1-no-code.md"
+  },
+  {
+    "source": "git-workflow-shared",
+    "key": "git-workflow/stage2-design-doc",
+    "title": "브랜치와 PR 작업 / 2단계: 설계 문서 작성",
+    "scopes": ["{user}", "브랜치와 PR 작업"],
+    "file": "bodies/git-workflow__stage2-design-doc.md"
+  },
+  {
+    "source": "git-workflow-shared",
+    "key": "git-workflow/stage2-with-ref-doc",
+    "title": "브랜치와 PR 작업 / 2단계: 참고 문서가 있을 때의 설계와 구현",
+    "scopes": ["{user}", "브랜치와 PR 작업"],
+    "file": "bodies/git-workflow__stage2-with-ref-doc.md"
+  },
+  {
+    "source": "git-workflow-shared",
+    "key": "git-workflow/stage2-from-scratch",
+    "title": "브랜치와 PR 작업 / 2단계: 처음부터 설계할 때",
+    "scopes": ["{user}", "브랜치와 PR 작업"],
+    "file": "bodies/git-workflow__stage2-from-scratch.md"
+  },
+  {
+    "source": "git-workflow-shared",
+    "key": "git-workflow/stage2-freeze-during-impl",
+    "title": "브랜치와 PR 작업 / 2단계: 구현 중 설계 변경 절차",
+    "scopes": ["{user}", "브랜치와 PR 작업"],
+    "file": "bodies/git-workflow__stage2-freeze-during-impl.md"
+  },
+  {
+    "source": "git-workflow-shared",
+    "key": "git-workflow/stage3-implementation",
+    "title": "브랜치와 PR 작업 / 3단계: 구현 커밋과 검증",
+    "scopes": ["{user}", "브랜치와 PR 작업"],
+    "file": "bodies/git-workflow__stage3-implementation.md"
+  },
+  {
+    "source": "git-workflow-shared",
+    "key": "git-workflow/stage4-report-items",
+    "title": "브랜치와 PR 작업 / 4단계: 가정과 설계 변경 보고",
+    "scopes": ["{user}", "브랜치와 PR 작업"],
+    "file": "bodies/git-workflow__stage4-report-items.md"
+  },
+  {
+    "source": "git-workflow-shared",
+    "key": "git-workflow/body-repo-conventions",
+    "title": "브랜치와 PR 작업 / 본문 규약과 기본 브랜치 커밋",
+    "scopes": ["{user}", "브랜치와 PR 작업"],
+    "file": "bodies/git-workflow__body-repo-conventions.md"
+  },
+  {
+    "source": "git-workflow-github",
+    "key": "git-workflow/github-stage1-pr-and-branch",
+    "title": "브랜치와 PR 작업 / GitHub 1단계: PR 범위와 브랜치",
+    "scopes": ["{user}", "브랜치와 PR 작업", "GitHub 리포지토리"],
+    "file": "bodies/git-workflow__github-stage1-pr-and-branch.md"
+  },
+  {
+    "source": "git-workflow-github",
+    "key": "git-workflow/github-stage2-mismatch",
+    "title": "브랜치와 PR 작업 / GitHub 2단계: 구현 전 코드와 설계 불일치",
+    "scopes": ["{user}", "브랜치와 PR 작업", "GitHub 리포지토리"],
+    "file": "bodies/git-workflow__github-stage2-mismatch.md"
+  },
+  {
+    "source": "git-workflow-github",
+    "key": "git-workflow/github-stage4-pr-ready",
+    "title": "브랜치와 PR 작업 / GitHub 4단계: PR 마무리와 Ready 전환",
+    "scopes": ["{user}", "브랜치와 PR 작업", "GitHub 리포지토리"],
+    "file": "bodies/git-workflow__github-stage4-pr-ready.md"
+  },
+  {
+    "source": "git-workflow-github",
+    "key": "git-workflow/github-pr-precedence",
+    "title": "브랜치와 PR 작업 / GitHub PR 규칙 우선순위",
+    "scopes": ["{user}", "브랜치와 PR 작업", "GitHub 리포지토리"],
+    "file": "bodies/git-workflow__github-pr-precedence.md"
+  },
+  {
+    "source": "git-workflow-github",
+    "key": "git-workflow/github-pr-title-and-body",
+    "title": "브랜치와 PR 작업 / GitHub PR 제목과 본문 기준",
+    "scopes": ["{user}", "브랜치와 PR 작업", "GitHub 리포지토리"],
+    "file": "bodies/git-workflow__github-pr-title-and-body.md"
+  },
+  {
+    "source": "git-workflow-github",
+    "key": "git-workflow/github-pr-commands",
+    "title": "브랜치와 PR 작업 / GitHub PR 생성·수정·Ready 명령",
+    "scopes": ["{user}", "브랜치와 PR 작업", "GitHub 리포지토리"],
+    "file": "bodies/git-workflow__github-pr-commands.md"
+  },
+  {
+    "source": "git-workflow-gitlab",
+    "key": "git-workflow/gitlab-stage1-mr-and-branch",
+    "title": "브랜치와 PR 작업 / GitLab 1단계: MR 범위와 브랜치",
+    "scopes": ["{user}", "브랜치와 PR 작업", "GitLab 리포지토리"],
+    "file": "bodies/git-workflow__gitlab-stage1-mr-and-branch.md"
+  },
+  {
+    "source": "git-workflow-gitlab",
+    "key": "git-workflow/gitlab-stage2-mismatch",
+    "title": "브랜치와 PR 작업 / GitLab 2단계: 구현 전 코드와 설계 불일치",
+    "scopes": ["{user}", "브랜치와 PR 작업", "GitLab 리포지토리"],
+    "file": "bodies/git-workflow__gitlab-stage2-mismatch.md"
+  },
+  {
+    "source": "git-workflow-gitlab",
+    "key": "git-workflow/gitlab-stage4-mr-ready",
+    "title": "브랜치와 PR 작업 / GitLab 4단계: MR 마무리와 Ready 전환",
+    "scopes": ["{user}", "브랜치와 PR 작업", "GitLab 리포지토리"],
+    "file": "bodies/git-workflow__gitlab-stage4-mr-ready.md"
+  },
+  {
+    "source": "git-workflow-gitlab",
+    "key": "git-workflow/gitlab-mr-precedence",
+    "title": "브랜치와 PR 작업 / GitLab MR 규칙 우선순위",
+    "scopes": ["{user}", "브랜치와 PR 작업", "GitLab 리포지토리"],
+    "file": "bodies/git-workflow__gitlab-mr-precedence.md"
+  },
+  {
+    "source": "git-workflow-gitlab",
+    "key": "git-workflow/gitlab-mr-title-and-body",
+    "title": "브랜치와 PR 작업 / GitLab MR 제목과 본문 기준",
+    "scopes": ["{user}", "브랜치와 PR 작업", "GitLab 리포지토리"],
+    "file": "bodies/git-workflow__gitlab-mr-title-and-body.md"
+  },
+  {
+    "source": "git-workflow-gitlab",
+    "key": "git-workflow/gitlab-mr-commands",
+    "title": "브랜치와 PR 작업 / GitLab MR 생성·수정·Ready 명령",
+    "scopes": ["{user}", "브랜치와 PR 작업", "GitLab 리포지토리"],
+    "file": "bodies/git-workflow__gitlab-mr-commands.md"
+  },
+  {
+    "source": "scratch-dir",
+    "key": "scratch-dir/two-spaces-overview",
+    "title": "작업 파일 저장 / 두 스크래치 공간 구분",
+    "scopes": ["{user}", "작업 파일 저장", "claude-workflow-kit 리포지토리"],
+    "file": "bodies/scratch-dir__two-spaces-overview.md"
+  },
+  {
+    "source": "scratch-dir",
+    "key": "scratch-dir/harness-scratchpad-use",
+    "title": "작업 파일 저장 / 하네스 스크래치패드 용도",
+    "scopes": ["{user}", "작업 파일 저장"],
+    "file": "bodies/scratch-dir__harness-scratchpad-use.md"
+  },
+  {
+    "source": "scratch-dir",
+    "key": "scratch-dir/multiline-via-file",
+    "title": "작업 파일 저장 / 여러 줄 텍스트 파일 전달",
+    "scopes": ["{user}", "작업 파일 저장"],
+    "file": "bodies/scratch-dir__multiline-via-file.md"
+  },
+  {
+    "source": "scratch-dir",
+    "key": "scratch-dir/harness-path-resolution",
+    "title": "작업 파일 저장 / 하네스 스크래치패드 경로 결정",
+    "scopes": ["{user}", "작업 파일 저장"],
+    "file": "bodies/scratch-dir__harness-path-resolution.md"
+  },
+  {
+    "source": "scratch-dir",
+    "key": "scratch-dir/fallback-no-scratchpad",
+    "title": "작업 파일 저장 / 스크래치패드 접근 불가 시 .refs 사용",
+    "scopes": ["{user}", "작업 파일 저장", "claude-workflow-kit 리포지토리"],
+    "file": "bodies/scratch-dir__fallback-no-scratchpad.md"
+  },
+  {
+    "source": "scratch-dir",
+    "key": "scratch-dir/repo-scratch-dir",
+    "title": "작업 파일 저장 / .refs 디렉터리 용도와 파일명 규약",
+    "scopes": ["{user}", "작업 파일 저장", "claude-workflow-kit 리포지토리"],
+    "file": "bodies/scratch-dir__repo-scratch-dir.md"
+  },
+  {
+    "source": "scratch-dir",
+    "key": "scratch-dir/outside-repo-bak",
+    "title": "작업 파일 저장 / 리포지토리 밖 파일 수정과 .bak 사본",
+    "scopes": ["{user}", "작업 파일 저장", "claude-workflow-kit 리포지토리"],
+    "file": "bodies/scratch-dir__outside-repo-bak.md"
+  },
+  {
+    "source": "duo-session",
+    "key": "duo-session/activation-and-sessions",
+    "title": "듀오 세션 / 적용 조건과 세션 구성",
+    "scopes": ["{user}", "듀오 세션"],
+    "file": "bodies/duo-session__activation-and-sessions.md"
+  },
+  {
+    "source": "duo-session",
+    "key": "duo-session/role-split",
+    "title": "듀오 세션 / main과 peer의 역할 분담",
+    "scopes": ["{user}", "듀오 세션"],
+    "file": "bodies/duo-session__role-split.md"
+  },
+  {
+    "source": "duo-session",
+    "key": "duo-session/shared-dir",
+    "title": "듀오 세션 / 공유 디렉터리와 파일 규약",
+    "scopes": ["{user}", "듀오 세션"],
+    "file": "bodies/duo-session__shared-dir.md"
+  },
+  {
+    "source": "duo-session",
+    "key": "duo-session/precheck",
+    "title": "듀오 세션 / 사전 점검 절차",
+    "scopes": ["{user}", "듀오 세션"],
+    "file": "bodies/duo-session__precheck.md"
+  },
+  {
+    "source": "duo-session",
+    "key": "duo-session/start-procedure",
+    "title": "듀오 세션 / 시작 절차",
+    "scopes": ["{user}", "듀오 세션"],
+    "file": "bodies/duo-session__start-procedure.md"
+  },
+  {
+    "source": "duo-session",
+    "key": "duo-session/round-procedure",
+    "title": "듀오 세션 / 라운드 진행 절차",
+    "scopes": ["{user}", "듀오 세션"],
+    "file": "bodies/duo-session__round-procedure.md"
+  },
+  {
+    "source": "duo-session",
+    "key": "duo-session/peer-restart",
+    "title": "듀오 세션 / peer 재시작 절차",
+    "scopes": ["{user}", "듀오 세션"],
+    "file": "bodies/duo-session__peer-restart.md"
+  },
+  {
+    "source": "duo-session",
+    "key": "duo-session/writing-instructions",
+    "title": "듀오 세션 / 지시문 작성 규칙",
+    "scopes": ["{user}", "듀오 세션"],
+    "file": "bodies/duo-session__writing-instructions.md"
+  },
+  {
+    "source": "duo-session",
+    "key": "duo-session/review-standards-original",
+    "title": "듀오 세션 / 리뷰 시 기준 원문 대조",
+    "scopes": ["{user}", "듀오 세션"],
+    "file": "bodies/duo-session__review-standards-original.md"
+  },
+  {
+    "source": "duo-session",
+    "key": "duo-session/review-execution",
+    "title": "듀오 세션 / 리뷰 수행과 anti-claudeism 검사",
+    "scopes": ["{user}", "듀오 세션"],
+    "file": "bodies/duo-session__review-execution.md"
+  },
+  {
+    "source": "duo-session",
+    "key": "duo-session/premises-rules",
+    "title": "듀오 세션 / 작업 범위·전제 문서 규칙",
+    "scopes": ["{user}", "듀오 세션"],
+    "file": "bodies/duo-session__premises-rules.md"
+  },
+  {
+    "source": "duo-session",
+    "key": "duo-session/premises-and-design-flow",
+    "title": "듀오 세션 / 전제·설계 문서 작성 절차",
+    "scopes": ["{user}", "듀오 세션"],
+    "file": "bodies/duo-session__premises-and-design-flow.md"
+  },
+  {
+    "source": "duo-session",
+    "key": "duo-session/implementation-and-report",
+    "title": "듀오 세션 / 구현 단계와 최종 보고",
+    "scopes": ["{user}", "듀오 세션"],
+    "file": "bodies/duo-session__implementation-and-report.md"
+  },
+  {
+    "source": "duo-session",
+    "key": "duo-session/commit-and-pr",
+    "title": "듀오 세션 / 커밋 메시지와 PR/MR 작성",
+    "scopes": ["{user}", "듀오 세션"],
+    "file": "bodies/duo-session__commit-and-pr.md"
+  },
+  {
+    "source": "duo-session-peer",
+    "key": "duo-session-peer/role-and-receiving",
+    "title": "듀오 세션 peer / 역할과 지시 수신",
+    "scopes": ["{user}", "듀오 세션 peer"],
+    "file": "bodies/duo-session-peer__role-and-receiving.md"
+  },
+  {
+    "source": "duo-session-peer",
+    "key": "duo-session-peer/replying",
+    "title": "듀오 세션 peer / 회신과 claude-queue 전송",
+    "scopes": ["{user}", "듀오 세션 peer"],
+    "file": "bodies/duo-session-peer__replying.md"
+  },
+  {
+    "source": "duo-session-peer",
+    "key": "duo-session-peer/talking-to-user",
+    "title": "듀오 세션 peer / 사용자 터미널 한국어 보고",
+    "scopes": ["{user}", "듀오 세션 peer"],
+    "file": "bodies/duo-session-peer__talking-to-user.md"
+  },
+  {
+    "source": "duo-session-peer",
+    "key": "duo-session-peer/edit-scope-and-rules",
+    "title": "듀오 세션 peer / 편집 범위, 포매터, git 금지",
+    "scopes": ["{user}", "듀오 세션 peer"],
+    "file": "bodies/duo-session-peer__edit-scope-and-rules.md"
+  },
+  {
+    "source": "duo-session-peer",
+    "key": "duo-session-peer/review-findings",
+    "title": "듀오 세션 peer / 리뷰 지적 사항 처리",
+    "scopes": ["{user}", "듀오 세션 peer"],
+    "file": "bodies/duo-session-peer__review-findings.md"
+  },
+  {
+    "source": "duo-session-peer",
+    "key": "duo-session-peer/before-editing",
+    "title": "듀오 세션 peer / 편집 전 필독 문서",
+    "scopes": ["{user}", "듀오 세션 peer"],
+    "file": "bodies/duo-session-peer__before-editing.md"
+  },
+  {
+    "source": "multi-session-shared",
+    "key": "multi-session/orchestrator-skills",
+    "title": "멀티 세션 / 오케스트레이터 역할과 적용 스킬",
+    "scopes": ["{user}", "멀티 세션"],
+    "file": "bodies/multi-session__orchestrator-skills.md"
+  },
+  {
+    "source": "multi-session-shared",
+    "key": "multi-session/role-table",
+    "title": "멀티 세션 / 단계별 편집자와 리뷰어 역할",
+    "scopes": ["{user}", "멀티 세션"],
+    "file": "bodies/multi-session__role-table.md"
+  },
+  {
+    "source": "multi-session-shared",
+    "key": "multi-session/wait-for-instruction",
+    "title": "멀티 세션 / 사용자 지시 대기",
+    "scopes": ["{user}", "멀티 세션"],
+    "file": "bodies/multi-session__wait-for-instruction.md"
+  },
+  {
+    "source": "multi-session-shared",
+    "key": "multi-session/doc-orchestration-and-parallel",
+    "title": "멀티 세션 / 문서 오케스트레이션과 병렬 분배",
+    "scopes": ["{user}", "멀티 세션"],
+    "file": "bodies/multi-session__doc-orchestration-and-parallel.md"
+  },
+  {
+    "source": "multi-session-shared",
+    "key": "multi-session/domain-premises-guard",
+    "title": "멀티 세션 / 도메인 가정과 과잉 방어 금지",
+    "scopes": ["{user}", "멀티 세션"],
+    "file": "bodies/multi-session__domain-premises-guard.md"
+  },
+  {
+    "source": "multi-session-shared",
+    "key": "multi-session/source-of-truth-check",
+    "title": "멀티 세션 / 작업 기준 확인",
+    "scopes": ["{user}", "멀티 세션"],
+    "file": "bodies/multi-session__source-of-truth-check.md"
+  },
+  {
+    "source": "multi-session-shared",
+    "key": "multi-session/user-judgment-precedence",
+    "title": "멀티 세션 / 사용자 판정 우선",
+    "scopes": ["{user}", "멀티 세션"],
+    "file": "bodies/multi-session__user-judgment-precedence.md"
+  },
+  {
+    "source": "multi-session-shared",
+    "key": "multi-session/clean-pass-none-reply",
+    "title": "멀티 세션 / peer 없음 회신 종료 판정",
+    "scopes": ["{user}", "멀티 세션"],
+    "file": "bodies/multi-session__clean-pass-none-reply.md"
+  },
+  {
+    "source": "multi-session-shared",
+    "key": "multi-session/orchestrator-exclusives",
+    "title": "멀티 세션 / 오케스트레이터 전담과 PR 범위",
+    "scopes": ["{user}", "멀티 세션"],
+    "file": "bodies/multi-session__orchestrator-exclusives.md"
+  },
+  {
+    "source": "multi-session-shared",
+    "key": "multi-session/design-delegation-and-review",
+    "title": "멀티 세션 / 설계 단계 위임과 검수 체크리스트",
+    "scopes": ["{user}", "멀티 세션"],
+    "file": "bodies/multi-session__design-delegation-and-review.md"
+  },
+  {
+    "source": "multi-session-shared",
+    "key": "multi-session/design-pr-decisions-and-edits",
+    "title": "멀티 세션 / 설계 단계 PR, 결정 기록, 직접 편집 범위",
+    "scopes": ["{user}", "멀티 세션"],
+    "file": "bodies/multi-session__design-pr-decisions-and-edits.md"
+  },
+  {
+    "source": "multi-session-shared",
+    "key": "multi-session/impl-delegation",
+    "title": "멀티 세션 / 구현 단계 진행과 리뷰 의뢰",
+    "scopes": ["{user}", "멀티 세션"],
+    "file": "bodies/multi-session__impl-delegation.md"
+  },
+  {
+    "source": "multi-session-shared",
+    "key": "multi-session/impl-comment-review",
+    "title": "멀티 세션 / 구현 단계 주석 검수 절차",
+    "scopes": ["{user}", "멀티 세션"],
+    "file": "bodies/multi-session__impl-comment-review.md"
+  },
+  {
+    "source": "multi-session-shared",
+    "key": "multi-session/impl-verify-findings",
+    "title": "멀티 세션 / peer 지적 검증과 설계 변경 보고",
+    "scopes": ["{user}", "멀티 세션"],
+    "file": "bodies/multi-session__impl-verify-findings.md"
+  },
+  {
+    "source": "multi-session-shared",
+    "key": "multi-session/korean-review-phase",
+    "title": "멀티 세션 / 구현 완료 후 한국어 검수",
+    "scopes": ["{user}", "멀티 세션"],
+    "file": "bodies/multi-session__korean-review-phase.md"
+  },
+  {
+    "source": "multi-session-shared",
+    "key": "multi-session/premises-and-final-report",
+    "title": "멀티 세션 / 도메인 가정 정리와 마무리 보고",
+    "scopes": ["{user}", "멀티 세션"],
+    "file": "bodies/multi-session__premises-and-final-report.md"
+  },
+  {
+    "source": "multi-session-agy",
+    "key": "multi-session/agy-precheck",
+    "title": "멀티 세션 / Antigravity CLI 사전 점검과 세션 정리",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Antigravity CLI"],
+    "file": "bodies/multi-session__agy-precheck.md"
+  },
+  {
+    "source": "multi-session-agy",
+    "key": "multi-session/agy-peer-invoke",
+    "title": "멀티 세션 / Antigravity CLI peer 호출",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Antigravity CLI"],
+    "file": "bodies/multi-session__agy-peer-invoke.md"
+  },
+  {
+    "source": "multi-session-agy",
+    "key": "multi-session/agy-response-wait",
+    "title": "멀티 세션 / Antigravity CLI 응답 대기",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Antigravity CLI"],
+    "file": "bodies/multi-session__agy-response-wait.md"
+  },
+  {
+    "source": "multi-session-agy",
+    "key": "multi-session/agy-role-rationale",
+    "title": "멀티 세션 / Antigravity CLI 역할 선정 배경",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Antigravity CLI"],
+    "file": "bodies/multi-session__agy-role-rationale.md"
+  },
+  {
+    "source": "multi-session-agy",
+    "key": "multi-session/agy-no-new-text",
+    "title": "멀티 세션 / Antigravity CLI 리포 문서 직접 작성 금지와 가정 문서 편집",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Antigravity CLI"],
+    "file": "bodies/multi-session__agy-no-new-text.md"
+  },
+  {
+    "source": "multi-session-agy",
+    "key": "multi-session/agy-first-prompt",
+    "title": "멀티 세션 / Antigravity CLI 첫 지시 템플릿",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Antigravity CLI"],
+    "file": "bodies/multi-session__agy-first-prompt.md"
+  },
+  {
+    "source": "multi-session-claude-code",
+    "key": "multi-session/claude-code-precheck",
+    "title": "멀티 세션 / Claude Code 사전 점검과 세션 정리",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Claude Code"],
+    "file": "bodies/multi-session__claude-code-precheck.md"
+  },
+  {
+    "source": "multi-session-claude-code",
+    "key": "multi-session/claude-code-peer-invoke",
+    "title": "멀티 세션 / Claude Code peer 호출",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Claude Code"],
+    "file": "bodies/multi-session__claude-code-peer-invoke.md"
+  },
+  {
+    "source": "multi-session-claude-code",
+    "key": "multi-session/claude-code-response-wait",
+    "title": "멀티 세션 / Claude Code 응답 대기",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Claude Code"],
+    "file": "bodies/multi-session__claude-code-response-wait.md"
+  },
+  {
+    "source": "multi-session-claude-code",
+    "key": "multi-session/claude-code-role-rationale",
+    "title": "멀티 세션 / Claude Code 역할 선정 배경",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Claude Code"],
+    "file": "bodies/multi-session__claude-code-role-rationale.md"
+  },
+  {
+    "source": "multi-session-claude-code",
+    "key": "multi-session/claude-code-no-new-text",
+    "title": "멀티 세션 / Claude Code 리포 문서 직접 작성 금지와 가정 문서 편집",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Claude Code"],
+    "file": "bodies/multi-session__claude-code-no-new-text.md"
+  },
+  {
+    "source": "multi-session-claude-code",
+    "key": "multi-session/claude-code-first-prompt",
+    "title": "멀티 세션 / Claude Code 첫 지시 템플릿",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Claude Code"],
+    "file": "bodies/multi-session__claude-code-first-prompt.md"
+  },
+  {
+    "source": "multi-session-codex",
+    "key": "multi-session/codex-precheck",
+    "title": "멀티 세션 / Codex CLI 사전 점검과 세션 정리",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Codex CLI"],
+    "file": "bodies/multi-session__codex-precheck.md"
+  },
+  {
+    "source": "multi-session-codex",
+    "key": "multi-session/codex-peer-invoke",
+    "title": "멀티 세션 / Codex CLI peer 호출",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Codex CLI"],
+    "file": "bodies/multi-session__codex-peer-invoke.md"
+  },
+  {
+    "source": "multi-session-codex",
+    "key": "multi-session/codex-response-wait",
+    "title": "멀티 세션 / Codex CLI 응답 대기",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Codex CLI"],
+    "file": "bodies/multi-session__codex-response-wait.md"
+  },
+  {
+    "source": "multi-session-codex",
+    "key": "multi-session/codex-role-rationale",
+    "title": "멀티 세션 / Codex CLI 역할 선정 배경",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Codex CLI"],
+    "file": "bodies/multi-session__codex-role-rationale.md"
+  },
+  {
+    "source": "multi-session-codex",
+    "key": "multi-session/codex-no-new-text",
+    "title": "멀티 세션 / Codex CLI 리포 문서 직접 작성 금지와 가정 문서 편집",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Codex CLI"],
+    "file": "bodies/multi-session__codex-no-new-text.md"
+  },
+  {
+    "source": "multi-session-codex",
+    "key": "multi-session/codex-first-prompt",
+    "title": "멀티 세션 / Codex CLI 첫 지시 템플릿",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Codex CLI"],
+    "file": "bodies/multi-session__codex-first-prompt.md"
+  },
+  {
+    "source": "multi-session-copilot",
+    "key": "multi-session/copilot-precheck",
+    "title": "멀티 세션 / GitHub Copilot CLI 사전 점검과 세션 정리",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: GitHub Copilot CLI"],
+    "file": "bodies/multi-session__copilot-precheck.md"
+  },
+  {
+    "source": "multi-session-copilot",
+    "key": "multi-session/copilot-peer-invoke",
+    "title": "멀티 세션 / GitHub Copilot CLI peer 호출",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: GitHub Copilot CLI"],
+    "file": "bodies/multi-session__copilot-peer-invoke.md"
+  },
+  {
+    "source": "multi-session-copilot",
+    "key": "multi-session/copilot-response-wait",
+    "title": "멀티 세션 / GitHub Copilot CLI 응답 대기",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: GitHub Copilot CLI"],
+    "file": "bodies/multi-session__copilot-response-wait.md"
+  },
+  {
+    "source": "multi-session-copilot",
+    "key": "multi-session/copilot-role-rationale",
+    "title": "멀티 세션 / GitHub Copilot CLI 역할 선정 배경",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: GitHub Copilot CLI"],
+    "file": "bodies/multi-session__copilot-role-rationale.md"
+  },
+  {
+    "source": "multi-session-copilot",
+    "key": "multi-session/copilot-no-new-text",
+    "title": "멀티 세션 / GitHub Copilot CLI 리포 문서 직접 작성 금지와 가정 문서 편집",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: GitHub Copilot CLI"],
+    "file": "bodies/multi-session__copilot-no-new-text.md"
+  },
+  {
+    "source": "multi-session-copilot",
+    "key": "multi-session/copilot-first-prompt",
+    "title": "멀티 세션 / GitHub Copilot CLI 첫 지시 템플릿",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: GitHub Copilot CLI"],
+    "file": "bodies/multi-session__copilot-first-prompt.md"
+  },
+  {
+    "source": "multi-session-gemini",
+    "key": "multi-session/gemini-precheck",
+    "title": "멀티 세션 / Gemini CLI 사전 점검과 세션 정리",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Gemini CLI"],
+    "file": "bodies/multi-session__gemini-precheck.md"
+  },
+  {
+    "source": "multi-session-gemini",
+    "key": "multi-session/gemini-peer-invoke",
+    "title": "멀티 세션 / Gemini CLI peer 호출",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Gemini CLI"],
+    "file": "bodies/multi-session__gemini-peer-invoke.md"
+  },
+  {
+    "source": "multi-session-gemini",
+    "key": "multi-session/gemini-response-wait",
+    "title": "멀티 세션 / Gemini CLI 응답 대기",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Gemini CLI"],
+    "file": "bodies/multi-session__gemini-response-wait.md"
+  },
+  {
+    "source": "multi-session-gemini",
+    "key": "multi-session/gemini-role-rationale",
+    "title": "멀티 세션 / Gemini CLI 역할 선정 배경",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Gemini CLI"],
+    "file": "bodies/multi-session__gemini-role-rationale.md"
+  },
+  {
+    "source": "multi-session-gemini",
+    "key": "multi-session/gemini-no-new-text",
+    "title": "멀티 세션 / Gemini CLI 리포 문서 직접 작성 금지와 가정 문서 편집",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Gemini CLI"],
+    "file": "bodies/multi-session__gemini-no-new-text.md"
+  },
+  {
+    "source": "multi-session-gemini",
+    "key": "multi-session/gemini-first-prompt",
+    "title": "멀티 세션 / Gemini CLI 첫 지시 템플릿",
+    "scopes": ["{user}", "멀티 세션", "peer CLI: Gemini CLI"],
+    "file": "bodies/multi-session__gemini-first-prompt.md"
+  }
+]
