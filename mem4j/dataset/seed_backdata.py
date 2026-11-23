@@ -53,7 +53,9 @@ def seed_entity(
     return run_cli(cmd, name, ignore_exists=True)
 
 
-def seed_hub_link(exe: Path, cred: Path | None, resource: str, item: dict[str, Any], user: str) -> tuple[str, int, str]:
+def seed_hub_link(
+    exe: Path, cred: Path | None, resource: str, item: dict[str, Any], user: str
+) -> tuple[str, int, str]:
     src = resolve_text(str(item["from"]), user)
     dst = resolve_text(str(item["to"]), user)
     rel_type = str(item["type"])
@@ -128,7 +130,9 @@ def fail_if(kind: str, failures: list[tuple[str, int, str]]) -> None:
 
 def seed_all_backdata(exe: Path, cred: Path | None, gcp_cred: Path | None, user: str, workers: int) -> None:
     entities: list[dict[str, Any]] = json.loads((DATASET_DIR / "entities.json").read_text(encoding="utf-8"))
-    hub_links: dict[str, list[dict[str, Any]]] = json.loads((DATASET_DIR / "hub_links.json").read_text(encoding="utf-8"))
+    hub_links: dict[str, list[dict[str, Any]]] = json.loads(
+        (DATASET_DIR / "hub_links.json").read_text(encoding="utf-8")
+    )
     statements: list[dict[str, Any]] = json.loads((DATASET_DIR / "statements.json").read_text(encoding="utf-8"))
     events: list[dict[str, Any]] = json.loads((DATASET_DIR / "events.json").read_text(encoding="utf-8"))
 
