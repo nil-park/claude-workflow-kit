@@ -7,6 +7,38 @@ import (
 	"io"
 )
 
+func parseInstructionRecall(args []string) (parsedCommand, error) {
+	fs, cred := newFlagSet("instruction recall")
+	var scopes scopeList
+	fs.Var(&scopes, "scope", "active scope name, repeatable")
+	if err := parseFlags(fs, args); err != nil {
+		return parsedCommand{}, err
+	}
+	if len(scopes) == 0 {
+		return parsedCommand{}, errors.New("instruction recall requires at least one -scope")
+	}
+	return parsedCommand{
+		credPath: *cred,
+		exec: func(ctx context.Context, s *store, stdout, stderr io.Writer) error {
+			candidates, err := s.fetchCandidates(ctx, scopes)
+			if err != nil {
+				return err
+			}
+			merged := Merge(candidates, scopes)
+			if len(merged) == 0 {
+				missing, err := s.missingScopes(ctx, scopes)
+				if err != nil {
+					return err
+				}
+				writeEmptyMergeNotice(stderr, missing)
+				return nil
+			}
+			writeMerged(stdout, merged)
+			return nil
+		},
+	}, nil
+}
+
 func parseInstructionCreate(args []string, stdin io.Reader) (parsedCommand, error) {
 	fs, cred := newFlagSet("instruction create")
 	key := fs.String("key", "", "unique instruction key")

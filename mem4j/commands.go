@@ -38,7 +38,7 @@ func parseCommand(args []string, stdin io.Reader) (parsedCommand, error) {
 
 func dispatchCommand(args []string, stdin io.Reader) (parsedCommand, error) {
 	if len(args) == 0 {
-		return parsedCommand{}, errors.New("usage: mem4j <scope|instruction|reminder|graph> <action> [flags]")
+		return parsedCommand{}, errors.New("usage: mem4j <scope|instruction|reminder|entity|statement|event|graph> <action> [flags]")
 	}
 	switch args[0] {
 	case "help":
@@ -51,16 +51,22 @@ func dispatchCommand(args []string, stdin io.Reader) (parsedCommand, error) {
 		return parseInstructionCommand(args[1:], stdin)
 	case "reminder":
 		return parseReminderCommand(args[1:], stdin)
+	case "entity":
+		return parseEntityCommand(args[1:], stdin)
+	case "statement":
+		return parseFactCommand("statement", "Statement", args[1:], stdin)
+	case "event":
+		return parseFactCommand("event", "Event", args[1:], stdin)
 	case "graph":
 		return parseGraphCommand(args[1:], stdin)
 	default:
-		return parsedCommand{}, fmt.Errorf("unknown resource %q (expected scope, instruction, reminder, or graph)", args[0])
+		return parsedCommand{}, fmt.Errorf("unknown resource %q (expected scope, instruction, reminder, entity, statement, event, or graph)", args[0])
 	}
 }
 
 func parseScopeCommand(args []string, stdin io.Reader) (parsedCommand, error) {
 	if len(args) == 0 {
-		return parsedCommand{}, errors.New("usage: mem4j scope <list|create|edit|delete> [flags]")
+		return parsedCommand{}, errors.New("usage: mem4j scope <list|create|edit|link|unlink|neighbors|delete> [flags]")
 	}
 	if cmd, ok, err := handleResourceHelp("scope", args, stdin); ok {
 		return cmd, err
@@ -72,6 +78,12 @@ func parseScopeCommand(args []string, stdin io.Reader) (parsedCommand, error) {
 		return parseScopeCreate(args[1:])
 	case "edit":
 		return parseScopeEdit(args[1:])
+	case "link":
+		return parseHubLink("Scope", "scope link", args[1:], true)
+	case "unlink":
+		return parseHubLink("Scope", "scope unlink", args[1:], false)
+	case "neighbors":
+		return parseHubNeighbors("Scope", "scope neighbors", args[1:])
 	case "delete":
 		return parseScopeDelete(args[1:])
 	default:
@@ -157,36 +169,4 @@ func resolveTextInput(fs *flag.FlagSet, textFlag, text, file string, stdin io.Re
 		return "", false, err
 	}
 	return normalizeText(string(raw)), true, nil
-}
-
-func parseInstructionRecall(args []string) (parsedCommand, error) {
-	fs, cred := newFlagSet("instruction recall")
-	var scopes scopeList
-	fs.Var(&scopes, "scope", "active scope name, repeatable")
-	if err := parseFlags(fs, args); err != nil {
-		return parsedCommand{}, err
-	}
-	if len(scopes) == 0 {
-		return parsedCommand{}, errors.New("instruction recall requires at least one -scope")
-	}
-	return parsedCommand{
-		credPath: *cred,
-		exec: func(ctx context.Context, s *store, stdout, stderr io.Writer) error {
-			candidates, err := s.fetchCandidates(ctx, scopes)
-			if err != nil {
-				return err
-			}
-			merged := Merge(candidates, scopes)
-			if len(merged) == 0 {
-				missing, err := s.missingScopes(ctx, scopes)
-				if err != nil {
-					return err
-				}
-				writeEmptyMergeNotice(stderr, missing)
-				return nil
-			}
-			writeMerged(stdout, merged)
-			return nil
-		},
-	}, nil
 }

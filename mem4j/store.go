@@ -14,6 +14,9 @@ var constraintQueries = []string{
 	"CREATE CONSTRAINT instruction_key IF NOT EXISTS FOR (i:Instruction) REQUIRE i.key IS UNIQUE",
 	"CREATE CONSTRAINT reminder_key IF NOT EXISTS FOR (r:Reminder) REQUIRE r.key IS UNIQUE",
 	"CREATE CONSTRAINT scope_name IF NOT EXISTS FOR (s:Scope) REQUIRE s.name IS UNIQUE",
+	"CREATE CONSTRAINT entity_name IF NOT EXISTS FOR (e:Entity) REQUIRE e.name IS UNIQUE",
+	"CREATE CONSTRAINT statement_key IF NOT EXISTS FOR (s:Statement) REQUIRE s.key IS UNIQUE",
+	"CREATE CONSTRAINT event_key IF NOT EXISTS FOR (e:Event) REQUIRE e.key IS UNIQUE",
 }
 
 type store struct {
@@ -146,6 +149,15 @@ func (s *store) deleteScope(ctx context.Context, name string) error {
 		}
 		if linked, _ := row["linked"].(int64); linked > 0 {
 			return fmt.Errorf("scope %q still has %d linked instruction(s) or reminder(s)", name, linked)
+		}
+		dual, _, err := querySingleRow(ctx, tx, "MATCH (s:Scope {name: $name}) RETURN s:Entity AS isEntity", params)
+		if err != nil {
+			return err
+		}
+		if isEntity, _ := dual["isEntity"].(bool); isEntity {
+			return runAndConsume(ctx, tx, `
+				MATCH (s:Scope {name: $name})
+				REMOVE s:Scope, s.disableModelInvocation`, params)
 		}
 		return runAndConsume(ctx, tx, "MATCH (s:Scope {name: $name}) DETACH DELETE s", params)
 	})

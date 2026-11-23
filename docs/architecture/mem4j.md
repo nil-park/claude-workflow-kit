@@ -33,22 +33,25 @@
 
 ## 노드 프로퍼티
 
-- `Scope`, `Entity`, `Reminder` 노드는 짧은 설명(`description`)을 가지며, `Instruction`, `Statement`, `Event` 노드는 설명이 없다.
-  - `Scope` 설명에는 대화에서 식별할 수 있는 스코프의 내용을 적는다.
-  - `Entity` 설명에는 대상을 식별할 수 있는 핵심 정보와 별칭을 적는다.
-  - `Reminder` 설명에는 대화 중간에 주입되는 시점을 기록한다.
+- 허브 노드(`Scope`, `Entity`)는 `name`으로 식별하고, `name`이 없는 리프 노드(`Instruction`, `Reminder`, `Statement`, `Event`)는 `key`와 `title`을 가진다.
+- `description`은 임베딩 입력이자 식별용 설명이고, `body`는 본문이다.
+  - `Instruction`은 `description`이 없다.
+  - `Scope`는 임베딩 없이 대화에서 스코프를 식별하는 설명을 적는다.
+  - `Entity`는 대상을 식별하는 핵심 정보와 별칭을 적는다.
+  - `Reminder`는 대화 중간에 주입되는 시점을 적는다.
+  - `Statement`와 `Event`는 임베딩 검색에 쓰이는 핵심 서술을 적으며, 본문이 짧으면 본문과 같게 둘 수 있다.
 
-| 프로퍼티                           | 대상 노드                                       | 의미                                                                                                                                           | 없을 때                                   |
-| ---------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| `name` (string)                    | `Scope`, `Entity`                               | 허브 노드를 식별하는 고유 이름                                                                                                                 | 필수                                      |
-| `key` (string)                     | `Instruction`, `Reminder`, `Statement`, `Event` | 리프 노드를 식별하는 고유 키(`Reminder`, `Statement`, `Event`는 생략 시 10자리 소문자 영숫자 랜덤 ID 자동 발급)                                | 필수                                      |
-| `title` (string)                   | `Instruction`, `Reminder`                       | 지침을 식별하는 짧은 이름(예: "작성-리뷰 사이클")                                                                                              | 필수                                      |
-| `description` (string)             | `Scope`, `Entity`, `Reminder`                   | `Scope`는 대화에서 식별할 범위 설명, `Entity`는 대상 설명, `Reminder`는 대화 중간에 주입되는 시점 설명                                         | 필수                                      |
-| `body` (string)                    | `Instruction`, `Reminder`, `Statement`, `Event` | 지침이나 사실, 이력의 본문                                                                                                                     | 필수                                      |
-| `occurredAt` (string)              | `Event`                                         | 사건이 일어난 시각 또는 날짜(UTC ISO 8601)                                                                                                     | 필수                                      |
-| `embedding` (list\<float\>)        | `Entity`, `Reminder`, `Statement`, `Event`      | Gemini Embedding 2로 변환한 768차원 벡터(`Entity`는 `name`과 `description`, `Reminder`는 `description`, `Statement`와 `Event`는 `body`가 입력) | 필수                                      |
-| `disableModelInvocation` (boolean) | 업무 스코프 `Scope`                             | `true`면 에이전트가 스스로 활성화할 수 없고 사용자가 명시적으로 호출할 때만 활성화된다(예: `duo-session` 스킬).                                | `false`와 같음(에이전트 자율 활성화 허용) |
-| `confirmed` (boolean)              | `Instruction`, `Reminder`, `Statement`, `Event` | `true`면 사용자가 확인한 노드(사용자가 직접 작성한 내용 포함)이다.                                                                             | `false`와 같음(AI 추측)                   |
+| 프로퍼티                           | 대상 노드                                           | 의미                                                                                                            | 없을 때                                   |
+| ---------------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| `name` (string)                    | `Scope`, `Entity`                                   | 허브 노드를 식별하는 고유 이름                                                                                  | 필수                                      |
+| `key` (string)                     | `Instruction`, `Reminder`, `Statement`, `Event`     | 리프 노드를 식별하는 고유 키(`Reminder`, `Statement`, `Event`는 생략 시 10자리 소문자 영숫자 랜덤 ID 자동 발급) | 필수                                      |
+| `title` (string)                   | `Instruction`, `Reminder`, `Statement`, `Event`     | 리프 노드를 식별하는 짧은 이름(예: "작성-리뷰 사이클")                                                          | 필수                                      |
+| `description` (string)             | `Scope`, `Entity`, `Reminder`, `Statement`, `Event` | 노드를 식별하거나 임베딩 검색에 사용하는 설명                                                                   | 필수                                      |
+| `body` (string)                    | `Instruction`, `Reminder`, `Statement`, `Event`     | 지침이나 사실, 이력의 본문                                                                                      | 필수                                      |
+| `occurredAt` (string)              | `Event`                                             | 사건이 일어난 시각 또는 날짜(UTC ISO 8601)                                                                      | 필수                                      |
+| `embedding` (list\<float\>)        | `Entity`, `Reminder`, `Statement`, `Event`          | `description`을 Gemini Embedding 2로 변환한 768차원 벡터                                                        | 필수                                      |
+| `disableModelInvocation` (boolean) | 업무 스코프 `Scope`                                 | `true`면 에이전트가 스스로 활성화할 수 없고 사용자가 명시적으로 호출할 때만 활성화된다(예: `duo-session` 스킬). | `false`와 같음(에이전트 자율 활성화 허용) |
+| `confirmed` (boolean)              | `Instruction`, `Reminder`, `Statement`, `Event`     | `true`면 사용자가 확인한 노드(사용자가 직접 작성한 내용 포함)이다.                                              | `false`와 같음(AI 추측)                   |
 
 ## 지침 스코프
 
@@ -98,9 +101,7 @@
 - 에이전트는 훅을 통한 자동 주입과 작업 도중 직접 수행하는 능동 탐색 두 경로로 그래프를 조회한다.
   - 자동 주입: 세션 시작 시 `Instruction`을, 프롬프트 제출 시 `Reminder`를 훅으로 주입한다.
   - 능동 탐색: 에이전트가 `Scope` 간 연결로 연관 스코프를 찾고, `Entity` 간 연결을 따라가며 1-hop으로 연결된 `Statement`와 `Event`를 조회한다.
-- 의미 검색은 각 노드의 임베딩 코사인 유사도로 수행한다.
-  - `Entity`는 `name`과 `description` 임베딩으로 검색한다.
-  - `Statement`와 `Event`는 본문(`body`) 임베딩으로 검색한다.
+- 의미 검색은 `Entity`, `Reminder`, `Statement`, `Event`의 `description` 임베딩 코사인 유사도로 수행한다.
 - 능동 탐색은 CLI 탐색 명령과 읽기 전용 Cypher 쿼리로 제공한다.
 
 ## 지침 작성과 수정
