@@ -1,0 +1,44 @@
+[
+  {
+    "key": "5iqugflqq4",
+    "title": "GitHub 커밋·PR 작성 규칙",
+    "description": "커밋 메시지를 작성하거나 gh CLI로 GitHub 이슈·PR 본문을 올릴 때",
+    "scopes": ["{user}", "GitHub 리포지토리"],
+    "body": "개별 커밋 메시지에 AI attribution 트레일러를 넣지 않는다. GitHub 이슈·PR 본문과 댓글에는 체크박스(`- [ ]`) 대신 일반 불릿을 쓰고, 여러 줄 본문은 `--body-file`로 넘긴다."
+  },
+  {
+    "key": "7q523czbz6",
+    "title": "claude-workflow-kit 언어 구분",
+    "description": "claude-workflow-kit에서 커밋 메시지, PR 제목·본문, 문서, 매니페스트를 작성할 때",
+    "scopes": ["{user}", "claude-workflow-kit 리포지토리"],
+    "body": "커밋 메시지, PR 제목·본문, 플러그인·마켓플레이스 매니페스트는 영어로 작성하고, `AGENTS.md`, 이슈, `docs/` 아래 문서, 스킬 본문은 한국어로 작성한다."
+  },
+  {
+    "key": "a6gbee5skv",
+    "title": "mem4j 조작 시 CLI 우선 사용",
+    "description": "Neo4j Aura 그래프의 스코프, 지침, 리마인더를 추가·수정·삭제하거나 조회하려 할 때",
+    "scopes": ["{user}", "claude-workflow-kit 리포지토리"],
+    "body": "Neo4j에 직접 Cypher 쓰기 쿼리를 실행하지 말고 `mem4j` CLI 명령을 사용한다. 읽기 조회도 `mem4j graph query`를 통한다."
+  },
+  {
+    "key": "xhcb6cnpud",
+    "title": "불필요한 페이크 서버·버전 거부 테스트 금지",
+    "description": "테스트 코드를 작성하면서 fake server, 모킹 서버, 상위 버전 거부 테스트를 추가하려 할 때",
+    "scopes": ["{user}", "코드 작성"],
+    "body": "실제 실패 원인을 검증하지 않는 fake server 테스트나 상위 호환 버전을 미리 차단하는 버전 거부 테스트는 작성하지 않는다."
+  },
+  {
+    "key": "cuf3i2prgr",
+    "title": "문서 예시의 구체적 이름 사용",
+    "description": "런북이나 가이드 문서에 CLI 명령 예시나 Cypher 쿼리 예시를 적을 때",
+    "scopes": ["{user}", "문서 작성"],
+    "body": "`<스코프1>` 같은 추상 자리표시자 대신 `듀오 세션`처럼 실제 사용하는 구체적인 이름으로 예시를 적는다. 공개 리포지토리에서는 개인 실명만 `<사용자>`로 표기한다."
+  },
+  {
+    "key": "ijv6tg2374",
+    "title": ".refs 디렉터리 용도 구분",
+    "description": ".refs 디렉터리에 문서를 만들거나 에이전트 간 메시지 전달 경로를 정할 때",
+    "scopes": ["{user}", "듀오 세션"],
+    "body": "`.refs`는 에이전트끼리 대화하는 경로가 아니라 사용자와 에이전트가 소통하는 문서 공간이다. 에이전트 간 전달은 전용 통신 채널과 스크래치패드를 사용한다."
+  }
+]
