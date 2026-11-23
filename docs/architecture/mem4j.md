@@ -19,12 +19,12 @@
   - 서로 다른 계열의 레이블은 노드 하나에 함께 붙일 수 있다(예: `Instruction`과 `Statement`, `Scope`와 `Entity`).
 - 지침 계열: 에이전트가 어떻게 행동해야 하는지 지시한다.
   - `Instruction`: 상시 지침 노드
-  - `Reminder`: instant 지침 노드
+  - `Reminder`: `Instruction`의 변형으로, 조건부로 주입되는 instant 지침 노드
   - `Scope`: 스코프 노드
 - 백데이터 계열: 작업 확인에 쓰이는 사실, 상태, 이력을 기록한다.
   - `Entity`: 대상이나 개체를 나타내는 노드
   - `Statement`: 사실이나 상태를 서술하는 노드
-  - `Event`: 특정 시점에 일어난 일을 기록하여 이력을 남기는 노드
+  - `Event`: `Statement`의 변형으로, 특정 시점에 일어난 일을 기록하는 이력 노드
 - `Entity`가 스코프에도 해당하면 노드 하나에 `Entity`와 `Scope` 레이블을 함께 붙인다(예: 사용자).
   - 이 이중 레이블 노드가 두 계열을 연결한다.
 
@@ -73,14 +73,15 @@
 
 ## 그래프 표현
 
-- `Instruction` 노드와 `Reminder` 노드는 자신이 종속되는 각 `Scope` 노드와 관계로 연결된다.
-  - 각 노드가 여러 `Scope` 노드와 연결되면, 연결된 스코프의 교집합에 종속된다.
-- `Instruction` 노드는 서로 연결될 수 있다.
-  - 지침을 병합할 때 순환(cycle)으로 인한 무한 반복을 방지한다.
+- `Instruction`과 `Reminder`는 자신이 종속되는 하나 이상의 `Scope`와 1-hop 관계로 직접 연결된다.
+  - 여러 `Scope`와 연결되면 연결된 스코프의 교집합에 종속된다.
+  - `Instruction`이나 `Reminder` 노드끼리는 관계를 만들지 않는다.
+- `Statement`와 `Event`는 자신이 서술하는 하나 이상의 `Entity`와 1-hop 관계로 직접 연결된다.
+  - `Statement`나 `Event` 노드끼리는 관계를 만들지 않는다.
+  - 대상 사이의 관계는 `Statement` 본문에 적지 않고 `Entity` 사이의 관계(relationship)로 표현한다.
 - 지침 단위는 문장 순서를 바꾸면 의미가 깨지는 최소 묶음이며, 단위마다 단독으로 완결된다.
   - 병합은 순서에 의존하지 않고 스코프가 일치하는 단위를 모두 모은다.
   - 내용이 대부분 비슷한 단위를 별도로 작성할 수 있다(예: `gh`/`glab`과 PR/MR만 다른 GitHub과 GitLab 절차 단위).
-- 대상 사이의 관계는 `Statement` 본문에 적지 않고 그래프의 관계(relationship)로 표현한다.
 
 ## 지침 작성과 수정
 
