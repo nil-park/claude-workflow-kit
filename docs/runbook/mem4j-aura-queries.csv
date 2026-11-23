@@ -1,0 +1,22 @@
+name,description,query,id,parentId,isFolder,isProtected
+mem4j,mem4j 스코프와 지침 조회 쿼리,,0,,true,false
+전체 스코프 노드 보기,등록된 모든 Scope 노드를 이름순으로 조회한다,"MATCH (s:Scope)
+RETURN s
+ORDER BY s.name",1,0,false,false
+듀오 세션 지침 표로 보기,특정 스코프에 연결된 Instruction을 표로 모아 본다,"MATCH (i:Instruction)-[:APPLIES_IN]->(:Scope {name: '듀오 세션'})
+RETURN i.key AS key,
+       i.title AS title,
+       [(i)-[:APPLIES_IN]->(t:Scope) | t.name] AS scopes,
+       i.body AS body
+ORDER BY i.key",2,0,false,false
+듀오 세션 지침 그래프로 보기,특정 스코프에 직접 연결된 Instruction만 그래프로 표시한다,"MATCH p = (i:Instruction)-[:APPLIES_IN]->(s:Scope {name: '듀오 세션'})
+RETURN p",3,0,false,false
+듀오 세션 지침과 전체 스코프 그래프로 보기,특정 스코프의 Instruction에 연결된 다른 Scope까지 함께 그린다,"MATCH (i:Instruction)-[:APPLIES_IN]->(:Scope {name: '듀오 세션'})
+MATCH p = (i)-[:APPLIES_IN]->(:Scope)
+RETURN p",4,0,false,false
+스코프 조합 적용 지침 보기,mem4j instruction recall과 같은 교집합 조건으로 추린다,"WITH ['<사용자>', '듀오 세션'] AS active
+MATCH (i:Instruction)-[:APPLIES_IN]->(s:Scope)
+WITH i, collect(s.name) AS scopes, active
+WHERE size(scopes) > 0 AND all(x IN scopes WHERE x IN active)
+RETURN i.key AS key, i.title AS title, scopes, i.body AS body
+ORDER BY i.key",5,0,false,false
