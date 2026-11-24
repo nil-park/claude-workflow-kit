@@ -99,10 +99,25 @@
 ## 조회와 탐색
 
 - 에이전트는 훅을 통한 자동 주입과 작업 도중 직접 수행하는 능동 탐색 두 경로로 그래프를 조회한다.
-  - 자동 주입: 세션 시작 시 `Instruction`을, 프롬프트 제출 시 `Reminder`를 훅으로 주입한다.
+  - 자동 주입: 세션 시작 시 상시 지침(`Instruction`)과 전체 `Scope` 목록을, 프롬프트 제출 시 조건부 `Reminder`를 훅으로 주입한다.
   - 능동 탐색: 에이전트가 `Scope` 간 연결로 연관 스코프를 찾고, `Entity` 간 연결을 따라가며 1-hop으로 연결된 `Statement`와 `Event`를 조회한다.
 - 의미 검색은 `Entity`, `Reminder`, `Statement`, `Event`의 `description` 임베딩 코사인 유사도로 수행한다.
 - 능동 탐색은 CLI 탐색 명령과 읽기 전용 Cypher 쿼리로 제공한다.
+
+## 훅 연동과 로컬 설정
+
+- CLI 환경의 자동 주입은 `mem4j hook` 서브커맨드로 제공한다.
+  - Claude Code: `SessionStart`에서 `claude-session-start`를, `UserPromptSubmit`에서 `claude-user-prompt`를 실행한다.
+  - `agy`: `SessionStart`에서 `agy-session-start`를, `PreInvocation`에서 `agy-pre-invocation`을 실행한다.
+- 머신별 기본 활성 스코프는 `~/.config/mem4j/config.json`에서 읽는다.
+  - `scopes`: 모든 세션에서 활성화하는 기본 스코프 목록(예: 사용자 스코프, `계정@호스트` 형식의 PC 환경 스코프)
+  - `workspaces`: 작업 디렉터리 경로별 추가 스코프 매핑(세션의 작업 디렉터리가 등록 경로와 같거나 그 하위 디렉터리일 때 합산)
+- 훅이 활성 스코프를 구성할 때 기본 스코프와 워크스페이스 스코프에서 나가는 방향(`->`) 1-hop으로 연결된 연관 `Scope`를 자동 포함한다.
+  - `disableModelInvocation`이 `true`인 `Scope`는 자동 포함에서 제외한다.
+- 프롬프트 시점 훅은 최소 길이 기준을 통과한 입력에만 임베딩과 리마인더 조회를 실행한다.
+  - 한글을 포함한 입력은 공백과 끝 문장부호를 제외하고 4자 이상일 때 통과한다.
+  - 한글이 없는 입력은 공백 기준 2단어 이상일 때 통과한다.
+- 훅은 장애 허용(fail-open) 방식으로 동작하며, 설정 누락·인증 실패·네트워크 오류가 발생해도 세션을 중단하지 않고 빈 응답을 반환한다.
 
 ## 지침 작성과 수정
 
