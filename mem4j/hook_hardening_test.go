@@ -36,13 +36,17 @@ func TestHookLogRotation(t *testing.T) {
 func TestPruneStaleStateFilesAndAtomicSave(t *testing.T) {
 	dir := t.TempDir()
 	oldFile := filepath.Join(dir, "old.json")
+	activeOldFile := filepath.Join(dir, "active.json")
 	freshFile := filepath.Join(dir, "fresh.json")
+	oldTmp := filepath.Join(dir, ".mem4j-state-123.tmp")
 	keepTxt := filepath.Join(dir, "note.txt")
 
-	if err := saveSessionState(oldFile, sessionState{Scopes: []string{"박광석"}}); err != nil {
-		t.Fatal(err)
+	for _, p := range []string{oldFile, activeOldFile, freshFile} {
+		if err := saveSessionState(p, sessionState{Scopes: []string{"박광석"}}); err != nil {
+			t.Fatal(err)
+		}
 	}
-	if err := saveSessionState(freshFile, sessionState{Scopes: []string{"박광석"}}); err != nil {
+	if err := os.WriteFile(oldTmp, []byte("partial"), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	if err := os.WriteFile(keepTxt, []byte("keep"), 0o600); err != nil {
@@ -50,32 +54,28 @@ func TestPruneStaleStateFilesAndAtomicSave(t *testing.T) {
 	}
 	now := time.Now()
 	staleTime := now.Add(-10 * 24 * time.Hour)
-	if err := os.Chtimes(oldFile, staleTime, staleTime); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.Chtimes(keepTxt, staleTime, staleTime); err != nil {
-		t.Fatal(err)
+	for _, p := range []string{oldFile, activeOldFile, oldTmp, keepTxt} {
+		if err := os.Chtimes(p, staleTime, staleTime); err != nil {
+			t.Fatal(err)
+		}
 	}
 
-	pruneStaleStateFiles(dir, 7*24*time.Hour, now)
+	pruneStaleStateFiles(dir, activeOldFile, 7*24*time.Hour, now)
 
 	if _, err := os.Stat(oldFile); !os.IsNotExist(err) {
 		t.Fatalf("old.json should be pruned, err=%v", err)
+	}
+	if _, err := os.Stat(oldTmp); !os.IsNotExist(err) {
+		t.Fatalf("stale temp file should be pruned, err=%v", err)
+	}
+	if _, err := os.Stat(activeOldFile); err != nil {
+		t.Fatalf("excluded active session file must remain: %v", err)
 	}
 	if _, err := os.Stat(freshFile); err != nil {
 		t.Fatalf("fresh.json should remain: %v", err)
 	}
 	if _, err := os.Stat(keepTxt); err != nil {
 		t.Fatalf("non-json file should remain: %v", err)
-	}
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, e := range entries {
-		if strings.HasSuffix(e.Name(), ".tmp") {
-			t.Fatalf("temp file left behind: %s", e.Name())
-		}
 	}
 }
 
@@ -96,6 +96,17 @@ func TestFormatSessionContextFallsBackToActiveFetchOverLimit(t *testing.T) {
 	}
 	if !strings.Contains(text, "<scope name=\"박광석\"") {
 		t.Fatalf("expected scope list to remain present")
+	}
+
+	noStateText := formatSessionContext(
+		[]string{"박광석", "코드 작성"},
+		"",
+		[]Instruction{{Key: "k1", Title: "긴 지침", Scopes: []string{"박광석", "코드 작성"}, Body: longBody}},
+		[]Scope{{Name: "박광석", Description: "사용자"}},
+		claudeSessionSoftLimit,
+	)
+	if !strings.Contains(noStateText, `mem4j instruction recall -scope "박광석" -scope "코드 작성"`) {
+		t.Fatalf("expected scope-flag fetch hint when statePath is empty, got: %s", noStateText)
 	}
 }
 
@@ -126,7 +137,7 @@ func TestPromptHookLogsInvalidConfigError(t *testing.T) {
 	if err := json.Unmarshal(bytes.TrimSpace(raw), &entry); err != nil {
 		t.Fatal(err)
 	}
-	if entry.Status != "error" || entry.Error == "" {
-		t.Fatalf("expected error logged, got: %+v", entry)
+	if entry.Status != "error" || !strings.Contains(entry.Error, "parse hook config") {
+		t.Fatalf("expected config parse error preserved in hook.log, got: %+v", entry)
 	}
 }

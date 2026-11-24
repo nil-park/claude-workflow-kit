@@ -77,7 +77,7 @@ func loadSessionState(path string) (sessionState, error) {
 }
 
 // saveSessionState writes to a temp file in the same directory and renames it
-// so concurrent hook processes never observe a half-written JSON file.
+// so readers do not observe a half-written JSON file.
 func saveSessionState(path string, st sessionState) error {
 	if path == "" {
 		return nil
@@ -112,14 +112,27 @@ func saveSessionState(path string, st sessionState) error {
 		_ = os.Remove(tmpPath)
 		return err
 	}
-	if err := os.Rename(tmpPath, path); err != nil {
+	if err := renameWithRetry(tmpPath, path); err != nil {
 		_ = os.Remove(tmpPath)
 		return err
 	}
 	return nil
 }
 
-func pruneStaleStateFiles(dir string, maxAge time.Duration, now time.Time) {
+func renameWithRetry(src, dst string) error {
+	var err error
+	for i, delay := range []time.Duration{0, 5 * time.Millisecond, 15 * time.Millisecond} {
+		if i > 0 {
+			time.Sleep(delay)
+		}
+		if err = os.Rename(src, dst); err == nil {
+			return nil
+		}
+	}
+	return err
+}
+
+func pruneStaleStateFiles(dir, excludePath string, maxAge time.Duration, now time.Time) {
 	if dir == "" {
 		var err error
 		dir, err = defaultStateDir()
@@ -131,16 +144,27 @@ func pruneStaleStateFiles(dir string, maxAge time.Duration, now time.Time) {
 	if err != nil {
 		return
 	}
+	cleanExclude := ""
+	if excludePath != "" {
+		cleanExclude = filepath.Clean(excludePath)
+	}
 	cutoff := now.Add(-maxAge)
 	for _, entry := range entries {
-		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
+		name := entry.Name()
+		isStateJSON := strings.HasSuffix(name, ".json")
+		isStateTmp := strings.HasPrefix(name, ".mem4j-state-") && strings.HasSuffix(name, ".tmp")
+		if entry.IsDir() || (!isStateJSON && !isStateTmp) {
+			continue
+		}
+		fullPath := filepath.Join(dir, name)
+		if cleanExclude != "" && filepath.Clean(fullPath) == cleanExclude {
 			continue
 		}
 		info, err := entry.Info()
 		if err != nil || !info.ModTime().Before(cutoff) {
 			continue
 		}
-		_ = os.Remove(filepath.Join(dir, entry.Name()))
+		_ = os.Remove(fullPath)
 	}
 }
 

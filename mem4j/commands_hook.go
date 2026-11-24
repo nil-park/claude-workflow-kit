@@ -93,7 +93,6 @@ func runSessionStartHook(action string, isAgy bool, opts hookOptions, stdin io.R
 		failOpenHook(isAgy, &entry, stdout, stderr, err)
 		return
 	}
-	pruneStaleStateFiles(opts.stateDir, stateRetention, start)
 	statePath, _ := resolveSessionStatePath(isAgy, in.sessionDir, in.sessionID, opts.stateDir)
 	st, _ := loadSessionState(statePath)
 	activeScopes := mergeScopeSlices(st.Scopes, resolveConfiguredScopes(cfg, in.workDirs))
@@ -108,6 +107,9 @@ func runSessionStartHook(action string, isAgy bool, opts hookOptions, stdin io.R
 	entry.ActiveScopes = activeScopes
 	st.Scopes = activeScopes
 	_ = saveSessionState(statePath, st)
+	if opts.stateDir == "" {
+		pruneStaleStateFiles("", statePath, stateRetention, start)
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), hookTimeout)
 	defer cancel()
@@ -181,7 +183,7 @@ func decodeSessionStartInput(isAgy bool, stdin io.Reader) (sessionStartInput, er
 
 func failOpenHook(isAgy bool, entry *hookLogEntry, stdout, stderr io.Writer, err error) {
 	entry.Status = "error"
-	entry.Error = err.Error()
+	appendEntryError(entry, err)
 	fmt.Fprintln(stderr, "mem4j hook:", err)
 	if isAgy {
 		writeAgyEmptyOutput(stdout)

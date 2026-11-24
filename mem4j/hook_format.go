@@ -58,7 +58,7 @@ func buildSessionContext(activeScopes []string, statePath string, insts []Instru
 		if statePath != "" {
 			fmt.Fprintf(&b, "\n적용 중인 상시 지침이 컨텍스트 길이 제한을 넘어 생략되었다. `mem4j instruction recall -state %q`로 능동 조회한다.\n", filepath.ToSlash(statePath))
 		} else {
-			b.WriteString("\n적용 중인 상시 지침이 컨텍스트 길이 제한을 넘어 생략되었다. `mem4j instruction recall`로 능동 조회한다.\n")
+			fmt.Fprintf(&b, "\n적용 중인 상시 지침이 컨텍스트 길이 제한을 넘어 생략되었다. `mem4j instruction recall %s`로 능동 조회한다.\n", formatScopeFlags(activeScopes))
 		}
 	} else if len(insts) > 0 {
 		b.WriteString("\n### 적용 중인 상시 지침\n\n")
@@ -69,6 +69,14 @@ func buildSessionContext(activeScopes []string, statePath string, insts []Instru
 		writeScopes(&b, allScopes)
 	}
 	return strings.TrimRight(b.String(), "\n")
+}
+
+func formatScopeFlags(scopes []string) string {
+	parts := make([]string, 0, len(scopes))
+	for _, s := range scopes {
+		parts = append(parts, fmt.Sprintf("-scope %q", s))
+	}
+	return strings.Join(parts, " ")
 }
 
 func formatPromptContext(activeScopes []string, reminders []Reminder, statements []Statement, events []Event) string {

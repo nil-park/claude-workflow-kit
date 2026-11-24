@@ -63,7 +63,19 @@ func rotateHookLogIfNeeded(logPath string, maxBytes int64) {
 	if err != nil || info.Size() < maxBytes {
 		return
 	}
-	backup := logPath + ".1"
-	_ = os.Remove(backup)
-	_ = os.Rename(logPath, backup)
+	// os.Rename replaces an existing backup on POSIX and Windows alike;
+	// avoiding a prior Remove preserves the backup if Rename fails.
+	_ = os.Rename(logPath, logPath+".1")
+}
+
+func appendEntryError(entry *hookLogEntry, err error) {
+	if err == nil {
+		return
+	}
+	msg := err.Error()
+	if entry.Error == "" {
+		entry.Error = msg
+		return
+	}
+	entry.Error += "; " + msg
 }

@@ -107,7 +107,7 @@ func runPromptHook(action string, isAgy bool, opts hookOptions, stdin io.Reader,
 	}
 	cfg, cfgErr := loadHookConfig(opts.configPath)
 	if cfgErr != nil && !errors.Is(cfgErr, os.ErrNotExist) {
-		entry.Error = cfgErr.Error()
+		appendEntryError(&entry, cfgErr)
 		fmt.Fprintln(stderr, "mem4j hook:", cfgErr)
 	}
 	activeScopes := mergeScopeSlices(st.Scopes, resolveConfiguredScopes(cfg, in.workDirs))

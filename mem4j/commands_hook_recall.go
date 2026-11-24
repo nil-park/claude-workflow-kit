@@ -15,6 +15,9 @@ func recallPromptContext(ctx context.Context, s *store, opts hookOptions, active
 		return "", err
 	}
 
+	qCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
 	var (
 		reminders  []Reminder
 		statements []Statement
@@ -28,17 +31,26 @@ func recallPromptContext(ctx context.Context, s *store, opts hookOptions, active
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			reminders, remErr = s.recallReminders(ctx, activeScopes, vec, opts.threshold, opts.limit)
+			reminders, remErr = s.recallReminders(qCtx, activeScopes, vec, opts.threshold, opts.limit)
+			if remErr != nil {
+				cancel()
+			}
 		}()
 	}
 	wg.Add(2)
 	go func() {
 		defer wg.Done()
-		statements, stmtErr = s.recallStatements(ctx, nil, vec, opts.threshold, opts.limit)
+		statements, stmtErr = s.recallStatements(qCtx, nil, vec, opts.threshold, opts.limit)
+		if stmtErr != nil {
+			cancel()
+		}
 	}()
 	go func() {
 		defer wg.Done()
-		events, evtErr = s.recallEvents(ctx, nil, vec, opts.threshold, opts.limit)
+		events, evtErr = s.recallEvents(qCtx, nil, vec, opts.threshold, opts.limit)
+		if evtErr != nil {
+			cancel()
+		}
 	}()
 	wg.Wait()
 

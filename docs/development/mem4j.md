@@ -30,8 +30,9 @@
   - `agy-pre-invocation`은 압축 뒤에 복원되지 않는 instant 지침 성격에 맞춰 `ephemeralMessage`로 주입한다.
 - 세션 상태 파일 경로와 폴백
   - Claude Code는 훅 stdin의 `scratchpad_dir` 아래 `mem4j-state.json`을, `agy`는 `artifactDirectoryPath` 아래 `scratch/mem4j-state.json`을 사용한다.
-  - 해당 디렉터리 필드가 비어 있는 환경에서는 `~/.config/mem4j/state/<세션ID>.json`으로 폴백하며, 7일 이상 미수정된 폴백 파일은 세션 시작 시 정리한다.
-  - 상태 파일 쓰기는 임시 파일 작성 뒤 이름 바꾸기(atomic rename)로 교체한다.
+  - 해당 디렉터리 필드가 비어 있는 환경에서는 `~/.config/mem4j/state/<세션ID>.json`으로 폴백한다.
+  - 세션 시작 시 기본 폴백 디렉터리에서 현재 세션 파일을 제외하고 7일 넘게 수정되지 않은 `.json`과 `.mem4j-state-*.tmp` 파일을 정리한다.
+  - 상태 파일 쓰기는 반쯤 쓰인 JSON이 읽히지 않도록 임시 파일 작성 뒤 이름 바꾸기로 교체한다(짧은 재시도 포함).
   - Claude Code는 컴팩션 뒤 `SessionStart`가 다시 실행될 때 상태 파일의 기존 업무 스코프를 그대로 이어받아 상시 지침을 복원한다.
 - `agy` 컴팩션 뒤 복원
   - `agy`는 컨텍스트 압축 뒤에 `SessionStart`를 다시 호출하지 않는다.
