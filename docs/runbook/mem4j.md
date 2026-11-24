@@ -27,9 +27,11 @@ mem4j scope neighbors -name "듀오 세션" -depth 1
 ### 스코프 조합에 적용되는 상시 지침
 
 - 여러 스코프에 함께 연결된 `Instruction`을 조회하려면 해당 스코프를 모두 `-scope`로 지정한다.
+- 세션 도중 활성 스코프를 누적하려면 `SessionStart`가 알려 준 세션 상태 파일 경로를 `-state`로 함께 넘긴다.
 
 ```bash
 mem4j instruction recall -scope "<사용자>" -scope "듀오 세션"
+mem4j instruction recall -state "<세션 상태 파일 경로>" -scope "코드 작성"
 ```
 
 ### 프롬프트 기반 리마인더 조회
@@ -67,6 +69,24 @@ mem4j statement list -entity "Recallar 안드로이드 앱"
 mem4j statement recall -query "안드로이드 앱에서 토픽 편집할 수 있어?"
 mem4j event list -entity "Recallar 안드로이드 앱"
 mem4j event recall -query "앱 이름 변경"
+```
+
+## 훅 동작 확인과 로그 점검
+
+- 훅은 `~/.config/mem4j/config.json`에서 기본 스코프와 워크스페이스 매핑을 읽는다.
+- 샘플 JSON을 stdin으로 넘겨 각 훅의 출력을 직접 확인할 수 있다.
+
+```bash
+echo '{"cwd":"C:/Git/claude-workflow-kit","source":"startup"}' | mem4j hook claude-session-start
+echo '{"cwd":"C:/Git/claude-workflow-kit","prompt":"응"}' | mem4j hook claude-user-prompt
+echo '{"workspacePaths":["C:/Git/claude-workflow-kit"]}' | mem4j hook agy-session-start
+echo '{"conversationId":"smoke-1","workspacePaths":["C:/Git/claude-workflow-kit"],"lastUserInput":"변경 사항 커밋하고 PR 올려줘"}' | mem4j hook agy-pre-invocation
+```
+
+- 훅 실행 이력과 필터링·유사도 점수는 `~/.config/mem4j/hook.log`에 JSONL 형식으로 누적된다.
+
+```bash
+tail -n 20 ~/.config/mem4j/hook.log
 ```
 
 ## Neo4j Aura 콘솔에서 조회

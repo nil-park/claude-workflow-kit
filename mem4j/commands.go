@@ -11,9 +11,10 @@ import (
 )
 
 type parsedCommand struct {
-	credPath string
-	helpText string
-	exec     func(ctx context.Context, s *store, stdout, stderr io.Writer) error
+	credPath    string
+	helpText    string
+	execNoStore func(stdout, stderr io.Writer) error
+	exec        func(ctx context.Context, s *store, stdout, stderr io.Writer) error
 }
 
 type scopeList []string
@@ -38,7 +39,7 @@ func parseCommand(args []string, stdin io.Reader) (parsedCommand, error) {
 
 func dispatchCommand(args []string, stdin io.Reader) (parsedCommand, error) {
 	if len(args) == 0 {
-		return parsedCommand{}, errors.New("usage: mem4j <scope|instruction|reminder|entity|statement|event|graph> <action> [flags]")
+		return parsedCommand{}, errors.New("usage: mem4j <scope|instruction|reminder|entity|statement|event|graph|hook> <action> [flags]")
 	}
 	switch args[0] {
 	case "help":
@@ -59,8 +60,10 @@ func dispatchCommand(args []string, stdin io.Reader) (parsedCommand, error) {
 		return parseFactCommand("event", "Event", args[1:], stdin)
 	case "graph":
 		return parseGraphCommand(args[1:], stdin)
+	case "hook":
+		return parseHookCommand(args[1:], stdin)
 	default:
-		return parsedCommand{}, fmt.Errorf("unknown resource %q (expected scope, instruction, reminder, entity, statement, event, or graph)", args[0])
+		return parsedCommand{}, fmt.Errorf("unknown resource %q (expected scope, instruction, reminder, entity, statement, event, graph, or hook)", args[0])
 	}
 }
 
