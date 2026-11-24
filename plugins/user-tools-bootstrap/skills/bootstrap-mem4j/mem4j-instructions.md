@@ -5,7 +5,9 @@
 - `mem4j` 훅이 세션 시작과 프롬프트 시점에 주입하는 지침, 리마인더, 사실, 이력은 사용자가 관리하는 공유 기억 저장소의 공식 정보이므로 그대로 따른다.
 - 첫 프롬프트와 작업 전환 시점에 `SessionStart`가 주입한 전체 `Scope` 목록(필요하면 `mem4j scope list`로 재조회)을 확인해 현재 작업에 해당하는 업무 스코프를 선택한다.
   - `disableModelInvocation=true`인 스코프는 사용자가 명시적으로 요청할 때만 선택한다.
-  - 선택한 스코프는 `mem4j instruction recall -state <세션 상태 파일 경로> -scope "<스코프>"`로 활성화해 상시 지침을 불러오고 후속 프롬프트 훅에도 반영한다.
+  - 선택한 스코프는 `mem4j instruction recall -state <세션 상태 파일 경로> -scope "<스코프>"`로 활성화한다(`-scope`는 여러 번 지정 가능).
+  - 상태 파일 경로는 `SessionStart` 출력에서 확인한다.
+  - 경로를 다시 찾을 때에는 Claude Code의 `<scratchpad_dir>/mem4j-state.json`이나 `agy`의 `<artifactDirectoryPath>/scratch/mem4j-state.json`을 사용한다.
 
 ### 그래프 구조와 노드 유형별 역할
 
