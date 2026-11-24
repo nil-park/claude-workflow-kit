@@ -1,14 +1,10 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
-	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"slices"
@@ -16,94 +12,12 @@ import (
 	"time"
 )
 
-type hookLogEntry struct {
-	Timestamp    string   `json:"ts"`
-	Event        string   `json:"event"`
-	Status       string   `json:"status"`
-	Reason       string   `json:"reason,omitempty"`
-	ActiveScopes []string `json:"activeScopes,omitempty"`
-	MatchedKeys  []string `json:"matchedKeys,omitempty"`
-	TopScore     float64  `json:"topScore,omitempty"`
-	DurationMs   int64    `json:"durationMs"`
-	Error        string   `json:"error,omitempty"`
-}
+const stateRetention = 7 * 24 * time.Hour
 
 type sessionState struct {
 	Scopes              []string `json:"scopes,omitempty"`
 	LastTurnKey         string   `json:"lastTurnKey,omitempty"`
 	LastCheckpointCount int      `json:"lastCheckpointCount,omitempty"`
-}
-
-func appendHookLog(logPath string, entry hookLogEntry) {
-	if logPath == "" {
-		var err error
-		logPath, err = defaultHookLogPath()
-		if err != nil {
-			return
-		}
-	}
-	if entry.Timestamp == "" {
-		entry.Timestamp = time.Now().UTC().Format(time.RFC3339)
-	}
-	if err := os.MkdirAll(filepath.Dir(logPath), 0o700); err != nil {
-		return
-	}
-	var buf bytes.Buffer
-	enc := json.NewEncoder(&buf)
-	enc.SetEscapeHTML(false)
-	if err := enc.Encode(entry); err != nil {
-		return
-	}
-	f, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o600)
-	if err != nil {
-		return
-	}
-	defer f.Close()
-	_, _ = f.Write(buf.Bytes())
-}
-
-func agyTurnKeyFromCount(userInputs int, hasTranscript bool, prompt string) string {
-	sum := sha256.Sum256([]byte(normalizeText(prompt)))
-	hash := hex.EncodeToString(sum[:8])
-	if hasTranscript {
-		return fmt.Sprintf("u:%d:%s", userInputs, hash)
-	}
-	return "p:" + hash
-}
-
-func scanAgyTranscript(path string) (userInputs, checkpoints int, err error) {
-	if path == "" {
-		return 0, 0, os.ErrNotExist
-	}
-	f, err := os.Open(path)
-	if err != nil {
-		return 0, 0, err
-	}
-	defer f.Close()
-
-	reader := bufio.NewReader(f)
-	for {
-		line, err := reader.ReadBytes('\n')
-		if trimmed := bytes.TrimSpace(line); len(trimmed) > 0 {
-			var step struct {
-				Type string `json:"type"`
-			}
-			if json.Unmarshal(trimmed, &step) == nil {
-				if step.Type == "USER_INPUT" {
-					userInputs++
-				} else if step.Type == "CHECKPOINT" {
-					checkpoints++
-				}
-			}
-		}
-		if err != nil {
-			if errors.Is(err, io.EOF) {
-				break
-			}
-			return 0, 0, err
-		}
-	}
-	return userInputs, checkpoints, nil
 }
 
 func resolveSessionStatePath(isAgy bool, sessionDir, sessionID, stateDirOverride string) (string, error) {
@@ -162,12 +76,15 @@ func loadSessionState(path string) (sessionState, error) {
 	return st, nil
 }
 
+// saveSessionState writes to a temp file in the same directory and renames it
+// so readers do not observe a half-written JSON file.
 func saveSessionState(path string, st sessionState) error {
 	if path == "" {
 		return nil
 	}
 	st.Scopes = mergeScopeSlices(st.Scopes, nil)
-	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return err
 	}
 	var buf bytes.Buffer
@@ -177,7 +94,78 @@ func saveSessionState(path string, st sessionState) error {
 	if err := enc.Encode(st); err != nil {
 		return err
 	}
-	return os.WriteFile(path, buf.Bytes(), 0o600)
+	tmp, err := os.CreateTemp(dir, ".mem4j-state-*.tmp")
+	if err != nil {
+		return err
+	}
+	tmpPath := tmp.Name()
+	if _, err := tmp.Write(buf.Bytes()); err != nil {
+		_ = tmp.Close()
+		_ = os.Remove(tmpPath)
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		_ = os.Remove(tmpPath)
+		return err
+	}
+	if err := os.Chmod(tmpPath, 0o600); err != nil {
+		_ = os.Remove(tmpPath)
+		return err
+	}
+	if err := renameWithRetry(tmpPath, path); err != nil {
+		_ = os.Remove(tmpPath)
+		return err
+	}
+	return nil
+}
+
+func renameWithRetry(src, dst string) error {
+	var err error
+	for i, delay := range []time.Duration{0, 5 * time.Millisecond, 15 * time.Millisecond} {
+		if i > 0 {
+			time.Sleep(delay)
+		}
+		if err = os.Rename(src, dst); err == nil {
+			return nil
+		}
+	}
+	return err
+}
+
+func pruneStaleStateFiles(dir, excludePath string, maxAge time.Duration, now time.Time) {
+	if dir == "" {
+		var err error
+		dir, err = defaultStateDir()
+		if err != nil {
+			return
+		}
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return
+	}
+	cleanExclude := ""
+	if excludePath != "" {
+		cleanExclude = filepath.Clean(excludePath)
+	}
+	cutoff := now.Add(-maxAge)
+	for _, entry := range entries {
+		name := entry.Name()
+		isStateJSON := strings.HasSuffix(name, ".json")
+		isStateTmp := strings.HasPrefix(name, ".mem4j-state-") && strings.HasSuffix(name, ".tmp")
+		if entry.IsDir() || (!isStateJSON && !isStateTmp) {
+			continue
+		}
+		fullPath := filepath.Join(dir, name)
+		if cleanExclude != "" && filepath.Clean(fullPath) == cleanExclude {
+			continue
+		}
+		info, err := entry.Info()
+		if err != nil || !info.ModTime().Before(cutoff) {
+			continue
+		}
+		_ = os.Remove(fullPath)
+	}
 }
 
 func mergeScopeSlices(a, b []string) []string {

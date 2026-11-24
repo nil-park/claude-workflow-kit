@@ -21,6 +21,7 @@
 
 - Claude Code `additionalContext` 제약
   - 길이가 10,000자를 넘으면 Claude Code가 텍스트를 세션 디렉터리 파일로 저장하고 앞 2,000자 미리보기와 경로만 전달한다.
+  - `claude-session-start`는 출력이 9,000자를 넘으면 상시 지침 본문을 생략하고 `mem4j instruction recall -state`로 능동 조회하라는 안내만 주입한다.
   - 시스템 명령어 형식의 문구는 프롬프트 인젝션 방어를 유발할 수 있으므로, 훅 출력 머리말은 출처와 사실을 밝히는 서술형으로 작성한다.
   - `~/.claude/CLAUDE.md`와 `~/.gemini/GEMINI.md`에 `<!-- mem4j:start -->`와 `<!-- mem4j:end -->` 관리용 마커 블록으로 `mem4j` 훅 신뢰 선언과 기본 탐색·정정 안내를 배치한다.
 - `agy` `PreInvocation` 중복 호출 방지
@@ -30,6 +31,8 @@
 - 세션 상태 파일 경로와 폴백
   - Claude Code는 훅 stdin의 `scratchpad_dir` 아래 `mem4j-state.json`을, `agy`는 `artifactDirectoryPath` 아래 `scratch/mem4j-state.json`을 사용한다.
   - 해당 디렉터리 필드가 비어 있는 환경에서는 `~/.config/mem4j/state/<세션ID>.json`으로 폴백한다.
+  - 세션 시작 시 기본 폴백 디렉터리에서 현재 세션 파일을 제외하고 7일 넘게 수정되지 않은 `.json`과 `.mem4j-state-*.tmp` 파일을 정리한다.
+  - 상태 파일 쓰기는 반쯤 쓰인 JSON이 읽히지 않도록 임시 파일 작성 뒤 이름 바꾸기로 교체한다(짧은 재시도 포함).
   - Claude Code는 컴팩션 뒤 `SessionStart`가 다시 실행될 때 상태 파일의 기존 업무 스코프를 그대로 이어받아 상시 지침을 복원한다.
 - `agy` 컴팩션 뒤 복원
   - `agy`는 컨텍스트 압축 뒤에 `SessionStart`를 다시 호출하지 않는다.
@@ -39,10 +42,11 @@
   - 훅은 그래프의 `Scope` 링크를 일괄 자동 확장하지 않고, `config.json`과 세션 상태 파일에 명시된 스코프만 활성 스코프로 사용한다.
   - 에이전트는 첫 프롬프트와 작업 전환 시점에 `SessionStart`가 주입한 전체 `Scope` 목록이나 `mem4j scope list`를 확인해 필요한 업무 스코프를 선택한다.
   - 선택한 스코프는 `mem4j instruction recall -state <상태 파일> -scope <이름>`으로 활성화한다.
-- 프롬프트 실행 로그
-  - 프롬프트 길이 필터(기준은 [아키텍처 문서](../architecture/mem4j.md#훅-연동과-로컬-설정) 참고)와 `Reminder`·`Statement`·`Event` 조회 결과는 `~/.config/mem4j/hook.log`에 JSONL 형식으로 기록한다.
+- 프롬프트 실행 로그와 쿼리 병렬화
+  - 프롬프트 훅은 단일 쿼리 임베딩으로 `Reminder`·`Statement`·`Event` 세 읽기 쿼리를 병렬 실행해 대기 시간을 줄인다.
+  - 프롬프트 길이 필터(기준은 [아키텍처 문서](../architecture/mem4j.md#훅-연동과-로컬-설정) 참고)와 조회 결과는 `~/.config/mem4j/hook.log`에 JSONL 형식으로 기록한다.
+  - `hook.log`가 5MB를 넘으면 `hook.log.1`로 교체한 뒤 새 파일에 기록하며, 로그 쓰기가 실패해도 훅 동작은 중단하지 않는다.
   - 이벤트, 필터 통과 여부, 활성 스코프, 매칭 키 목록, 최고 유사도 점수, 소요 시간, 오류를 남겨 `threshold` 조정 근거로 사용한다.
-  - 로그 파일 쓰기가 실패해도 훅 동작은 중단하지 않는다.
 - 타임아웃과 장애 허용
   - `mem4j hook`은 내부 실행 타임아웃을 10초로 설정해, 외부 API가 지연되더라도 세션 입력 대기가 길어지지 않게 제한한다.
   - 설정·자격 증명·네트워크 오류가 발생해도 종료 코드 0과 빈 응답을 반환한다.

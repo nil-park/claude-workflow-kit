@@ -107,6 +107,9 @@ func runSessionStartHook(action string, isAgy bool, opts hookOptions, stdin io.R
 	entry.ActiveScopes = activeScopes
 	st.Scopes = activeScopes
 	_ = saveSessionState(statePath, st)
+	if opts.stateDir == "" {
+		pruneStaleStateFiles("", statePath, stateRetention, start)
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), hookTimeout)
 	defer cancel()
@@ -117,7 +120,11 @@ func runSessionStartHook(action string, isAgy bool, opts hookOptions, stdin io.R
 	}
 	defer closeStore()
 
-	text, err := fetchSessionContext(ctx, s, activeScopes, statePath)
+	maxRunes := claudeSessionSoftLimit
+	if isAgy {
+		maxRunes = 0
+	}
+	text, err := fetchSessionContext(ctx, s, activeScopes, statePath, maxRunes)
 	if err != nil {
 		failOpenHook(isAgy, &entry, stdout, stderr, err)
 		return
@@ -134,7 +141,7 @@ func runSessionStartHook(action string, isAgy bool, opts hookOptions, stdin io.R
 	}
 }
 
-func fetchSessionContext(ctx context.Context, s *store, activeScopes []string, statePath string) (string, error) {
+func fetchSessionContext(ctx context.Context, s *store, activeScopes []string, statePath string, maxRunes int) (string, error) {
 	candidates, err := s.fetchCandidates(ctx, activeScopes)
 	if err != nil {
 		return "", err
@@ -144,7 +151,7 @@ func fetchSessionContext(ctx context.Context, s *store, activeScopes []string, s
 		return "", err
 	}
 	merged := Merge(candidates, activeScopes)
-	return formatSessionContext(activeScopes, statePath, merged, allScopes), nil
+	return formatSessionContext(activeScopes, statePath, merged, allScopes, maxRunes), nil
 }
 
 func decodeSessionStartInput(isAgy bool, stdin io.Reader) (sessionStartInput, error) {
@@ -176,7 +183,7 @@ func decodeSessionStartInput(isAgy bool, stdin io.Reader) (sessionStartInput, er
 
 func failOpenHook(isAgy bool, entry *hookLogEntry, stdout, stderr io.Writer, err error) {
 	entry.Status = "error"
-	entry.Error = err.Error()
+	appendEntryError(entry, err)
 	fmt.Fprintln(stderr, "mem4j hook:", err)
 	if isAgy {
 		writeAgyEmptyOutput(stdout)
