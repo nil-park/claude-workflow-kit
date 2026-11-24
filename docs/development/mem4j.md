@@ -25,12 +25,18 @@
   - `~/.claude/CLAUDE.md`와 `~/.gemini/GEMINI.md`에 `<!-- mem4j:start -->`와 `<!-- mem4j:end -->` 관리용 마커 블록으로 `mem4j` 훅 신뢰 선언과 기본 탐색·정정 안내를 배치한다.
 - `agy` `PreInvocation` 중복 호출 방지
   - 한 턴 안에서 도구를 여러 번 호출하면 `PreInvocation`도 매 호출마다 실행된다.
-  - `agy-pre-invocation`은 세션별 상태 파일에 마지막으로 처리한 사용자 입력 위치를 기록해, 같은 턴의 후속 모델 호출에서는 리마인더 조회를 건너뛴다.
+  - `agy-pre-invocation`은 세션 상태 파일(`mem4j-state.json`)에 마지막으로 처리한 사용자 입력 위치를 기록해, 같은 턴의 후속 모델 호출에서는 리마인더 조회를 건너뛴다.
   - `agy-pre-invocation`은 압축 뒤에 복원되지 않는 instant 지침 성격에 맞춰 `ephemeralMessage`로 주입한다.
+- 세션 상태 파일 경로와 폴백
+  - Claude Code는 훅 stdin의 `scratchpad_dir` 아래 `mem4j-state.json`을, `agy`는 `artifactDirectoryPath` 아래 `scratch/mem4j-state.json`을 사용한다.
+  - 해당 디렉터리 필드가 비어 있는 환경에서는 `~/.config/mem4j/state/<세션ID>.json`으로 폴백한다.
+  - Claude Code는 컴팩션 뒤 `SessionStart`가 다시 실행될 때 상태 파일의 기존 업무 스코프를 그대로 이어받아 상시 지침을 복원한다.
 - `agy` 컴팩션 뒤 복원
   - `agy`는 컨텍스트 압축 뒤에 `SessionStart`를 다시 호출하지 않으므로, 압축 복원 시점의 재주입은 기존 `agy-compaction-hook`이나 후속 작업 범위로 분리한다.
-- `Scope` 1-hop 확장 방향
-  - `Scope` 간 연결은 나가는 방향(`->`) 1-hop만 자동 확장해, 상위 플랫폼 스코프에서 무관한 다른 리포지토리 스코프로 역방향 확장되지 않도록 제한한다.
+- 스코프 선택 방식
+  - 훅은 그래프의 `Scope` 링크를 일괄 자동 확장하지 않고, `config.json`과 세션 상태 파일에 명시된 스코프만 활성 스코프로 사용한다.
+  - 에이전트는 첫 프롬프트와 작업 전환 시점에 `SessionStart`가 주입한 전체 `Scope` 목록이나 `mem4j scope list`를 확인해 필요한 업무 스코프를 선택한다.
+  - 선택한 스코프는 `mem4j instruction recall -state <상태 파일> -scope <이름>`으로 활성화한다.
 - 프롬프트 실행 로그
   - 프롬프트 길이 필터(기준은 [아키텍처 문서](../architecture/mem4j.md#훅-연동과-로컬-설정) 참고)와 리마인더 조회 결과는 `~/.config/mem4j/hook.log`에 JSONL 형식으로 기록한다.
   - 이벤트, 필터 통과 여부, 활성 스코프, 매칭 리마인더, 최고 유사도 점수, 소요 시간, 오류를 남겨 `threshold` 조정 근거로 사용한다.

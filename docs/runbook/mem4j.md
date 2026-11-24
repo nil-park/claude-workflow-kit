@@ -27,9 +27,11 @@ mem4j scope neighbors -name "듀오 세션" -depth 1
 ### 스코프 조합에 적용되는 상시 지침
 
 - 여러 스코프에 함께 연결된 `Instruction`을 조회하려면 해당 스코프를 모두 `-scope`로 지정한다.
+- 세션 도중 활성 스코프를 누적하려면 `SessionStart`가 알려 준 세션 상태 파일 경로를 `-state`로 함께 넘긴다.
 
 ```bash
 mem4j instruction recall -scope "<사용자>" -scope "듀오 세션"
+mem4j instruction recall -state "<세션 상태 파일 경로>" -scope "코드 작성"
 ```
 
 ### 프롬프트 기반 리마인더 조회
