@@ -9,15 +9,26 @@ import (
 )
 
 type claudeUserPromptInput struct {
-	Cwd    string `json:"cwd"`
-	Prompt string `json:"prompt"`
+	SessionID     string `json:"session_id"`
+	ScratchpadDir string `json:"scratchpad_dir"`
+	Cwd           string `json:"cwd"`
+	Prompt        string `json:"prompt"`
 }
 
 type agyPreInvocationInput struct {
-	ConversationID string   `json:"conversationId"`
-	WorkspacePaths []string `json:"workspacePaths"`
-	TranscriptPath string   `json:"transcriptPath"`
-	LastUserInput  string   `json:"lastUserInput"`
+	ConversationID        string   `json:"conversationId"`
+	ArtifactDirectoryPath string   `json:"artifactDirectoryPath"`
+	WorkspacePaths        []string `json:"workspacePaths"`
+	TranscriptPath        string   `json:"transcriptPath"`
+	LastUserInput         string   `json:"lastUserInput"`
+}
+
+type promptHookInput struct {
+	prompt         string
+	workDirs       []string
+	sessionDir     string
+	sessionID      string
+	transcriptPath string
 }
 
 func parsePromptHook(action string, args []string, stdin io.Reader) (parsedCommand, error) {
@@ -26,13 +37,7 @@ func parsePromptHook(action string, args []string, stdin io.Reader) (parsedComma
 	cfgPath := fs.String("config", "", "hook config file (default ~/.config/mem4j/config.json)")
 	gcpCred := fs.String("gcp-credentials", "", "GCP service account JSON (default ~/.config/mem4j/.secrets/gcp.json)")
 	logPath := fs.String("log", "", "hook JSONL log file (default ~/.config/mem4j/hook.log)")
-	var stateDir *string
-	if isAgy {
-		stateDir = fs.String("state-dir", "", "state directory for agy turn deduplication (default ~/.config/mem4j/state)")
-	} else {
-		empty := ""
-		stateDir = &empty
-	}
+	stateDir := fs.String("state-dir", "", "override directory for session state files")
 	threshold := fs.Float64("threshold", defaultReminderThreshold, "minimum cosine similarity score (-1..1)")
 	limit := fs.Int("limit", defaultReminderLimit, "maximum number of reminders to return")
 	if err := parseFlags(fs, args); err != nil {
@@ -64,45 +69,50 @@ func runPromptHook(action string, isAgy bool, opts hookOptions, stdin io.Reader,
 		appendHookLog(opts.logPath, entry)
 	}()
 
-	prompt, workDirs, convID, transcriptPath, err := decodePromptInput(isAgy, stdin)
+	in, err := decodePromptInput(isAgy, stdin)
 	if err != nil {
 		failOpenHook(isAgy, &entry, stdout, stderr, fmt.Errorf("decode stdin: %w", err))
 		return
 	}
+	statePath, _ := resolveSessionStatePath(isAgy, in.sessionDir, in.sessionID, opts.stateDir)
+	st, _ := loadSessionState(statePath)
 	var turnKey string
 	if isAgy {
-		turnKey = agyTurnKey(transcriptPath, prompt)
-		if isDuplicateAgyTurn(opts.stateDir, convID, turnKey) {
+		turnKey = agyTurnKey(in.transcriptPath, in.prompt)
+		if turnKey != "" && st.LastTurnKey == turnKey {
 			entry.Status = "skipped"
 			entry.Reason = "duplicate_turn"
 			writeAgyEmptyOutput(stdout)
 			return
 		}
 	}
-	if !shouldRecallPrompt(prompt) {
+	if !shouldRecallPrompt(in.prompt) {
 		entry.Status = "skipped"
 		entry.Reason = "short_prompt"
 		if isAgy {
-			_ = saveAgyTurn(opts.stateDir, convID, turnKey)
+			st.LastTurnKey = turnKey
+			_ = saveSessionState(statePath, st)
 			writeAgyEmptyOutput(stdout)
 		}
 		return
 	}
-	cfg, err := loadHookConfig(opts.configPath)
-	if err != nil {
-		failOpenHook(isAgy, &entry, stdout, stderr, err)
+	cfg, cfgErr := loadHookConfig(opts.configPath)
+	if cfgErr != nil && len(st.Scopes) == 0 {
+		failOpenHook(isAgy, &entry, stdout, stderr, cfgErr)
 		return
 	}
-	baseScopes := resolveConfiguredScopes(cfg, workDirs)
-	if len(baseScopes) == 0 {
+	activeScopes := mergeScopeSlices(st.Scopes, resolveConfiguredScopes(cfg, in.workDirs))
+	if len(activeScopes) == 0 {
 		entry.Status = "skipped"
 		entry.Reason = "no_scopes"
 		if isAgy {
-			_ = saveAgyTurn(opts.stateDir, convID, turnKey)
+			st.LastTurnKey = turnKey
+			_ = saveSessionState(statePath, st)
 			writeAgyEmptyOutput(stdout)
 		}
 		return
 	}
+	entry.ActiveScopes = activeScopes
 	ctx, cancel := context.WithTimeout(context.Background(), hookTimeout)
 	defer cancel()
 	s, closeStore, err := openStore(ctx, opts.credPath)
@@ -112,18 +122,12 @@ func runPromptHook(action string, isAgy bool, opts hookOptions, stdin io.Reader,
 	}
 	defer closeStore()
 
-	activeScopes, err := s.expandScopesOutgoing(ctx, baseScopes)
-	if err != nil {
-		failOpenHook(isAgy, &entry, stdout, stderr, err)
-		return
-	}
-	entry.ActiveScopes = activeScopes
 	emb, err := newVertexEmbedder(ctx, opts.gcpCredPath)
 	if err != nil {
 		failOpenHook(isAgy, &entry, stdout, stderr, err)
 		return
 	}
-	vec, err := emb.Embed(ctx, prompt, taskTypeQuery)
+	vec, err := emb.Embed(ctx, in.prompt, taskTypeQuery)
 	if err != nil {
 		failOpenHook(isAgy, &entry, stdout, stderr, err)
 		return
@@ -140,7 +144,9 @@ func runPromptHook(action string, isAgy bool, opts hookOptions, stdin io.Reader,
 		}
 	}
 	if isAgy {
-		_ = saveAgyTurn(opts.stateDir, convID, turnKey)
+		st.LastTurnKey = turnKey
+		st.Scopes = activeScopes
+		_ = saveSessionState(statePath, st)
 	}
 	text := formatReminderContext(activeScopes, reminders)
 	if isAgy {
@@ -155,20 +161,32 @@ func runPromptHook(action string, isAgy bool, opts hookOptions, stdin io.Reader,
 	}
 }
 
-func decodePromptInput(isAgy bool, stdin io.Reader) (prompt string, workDirs []string, convID, transcriptPath string, err error) {
+func decodePromptInput(isAgy bool, stdin io.Reader) (promptHookInput, error) {
 	if isAgy {
 		var in agyPreInvocationInput
 		if err := json.NewDecoder(stdin).Decode(&in); err != nil {
-			return "", nil, "", "", err
+			return promptHookInput{}, err
 		}
-		return in.LastUserInput, in.WorkspacePaths, in.ConversationID, in.TranscriptPath, nil
+		return promptHookInput{
+			prompt:         in.LastUserInput,
+			workDirs:       in.WorkspacePaths,
+			sessionDir:     in.ArtifactDirectoryPath,
+			sessionID:      in.ConversationID,
+			transcriptPath: in.TranscriptPath,
+		}, nil
 	}
 	var in claudeUserPromptInput
 	if err := json.NewDecoder(stdin).Decode(&in); err != nil {
-		return "", nil, "", "", err
+		return promptHookInput{}, err
 	}
+	var workDirs []string
 	if in.Cwd != "" {
 		workDirs = []string{in.Cwd}
 	}
-	return in.Prompt, workDirs, "", "", nil
+	return promptHookInput{
+		prompt:     in.Prompt,
+		workDirs:   workDirs,
+		sessionDir: in.ScratchpadDir,
+		sessionID:  in.SessionID,
+	}, nil
 }

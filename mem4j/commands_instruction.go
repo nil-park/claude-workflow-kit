@@ -9,24 +9,40 @@ import (
 
 func parseInstructionRecall(args []string) (parsedCommand, error) {
 	fs, cred := newFlagSet("instruction recall")
+	statePath := fs.String("state", "", "session state file to merge active scopes into")
 	var scopes scopeList
 	fs.Var(&scopes, "scope", "active scope name, repeatable")
 	if err := parseFlags(fs, args); err != nil {
 		return parsedCommand{}, err
 	}
-	if len(scopes) == 0 {
-		return parsedCommand{}, errors.New("instruction recall requires at least one -scope")
+	if len(scopes) == 0 && *statePath == "" {
+		return parsedCommand{}, errors.New("instruction recall requires at least one -scope or -state")
 	}
 	return parsedCommand{
 		credPath: *cred,
 		exec: func(ctx context.Context, s *store, stdout, stderr io.Writer) error {
-			candidates, err := s.fetchCandidates(ctx, scopes)
+			active := []string(scopes)
+			if *statePath != "" {
+				st, err := loadSessionState(*statePath)
+				if err != nil {
+					return err
+				}
+				active = mergeScopeSlices(st.Scopes, scopes)
+				if len(active) == 0 {
+					return errors.New("instruction recall: no scopes specified or stored in state")
+				}
+				st.Scopes = active
+				if err := saveSessionState(*statePath, st); err != nil {
+					return err
+				}
+			}
+			candidates, err := s.fetchCandidates(ctx, active)
 			if err != nil {
 				return err
 			}
-			merged := Merge(candidates, scopes)
+			merged := Merge(candidates, active)
 			if len(merged) == 0 {
-				missing, err := s.missingScopes(ctx, scopes)
+				missing, err := s.missingScopes(ctx, active)
 				if err != nil {
 					return err
 				}

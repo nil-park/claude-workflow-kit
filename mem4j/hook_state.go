@@ -11,6 +11,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 )
@@ -25,6 +26,11 @@ type hookLogEntry struct {
 	TopScore     float64  `json:"topScore,omitempty"`
 	DurationMs   int64    `json:"durationMs"`
 	Error        string   `json:"error,omitempty"`
+}
+
+type sessionState struct {
+	Scopes      []string `json:"scopes,omitempty"`
+	LastTurnKey string   `json:"lastTurnKey,omitempty"`
 }
 
 func appendHookLog(logPath string, entry hookLogEntry) {
@@ -100,20 +106,32 @@ func countTranscriptUserInputs(path string) (int, error) {
 	return count, nil
 }
 
-func stateFilePath(stateDir, convID string) (string, error) {
-	if stateDir == "" {
-		var err error
-		stateDir, err = defaultStateDir()
-		if err != nil {
-			return "", err
+func resolveSessionStatePath(isAgy bool, sessionDir, sessionID, stateDirOverride string) (string, error) {
+	if stateDirOverride != "" {
+		if sessionID == "" {
+			return "", nil
 		}
+		return filepath.Join(stateDirOverride, sanitizeStateID(sessionID)+".json"), nil
 	}
-	return filepath.Join(stateDir, sanitizeStateID(convID)+".txt"), nil
+	if trimmed := strings.TrimSpace(sessionDir); trimmed != "" {
+		if isAgy {
+			return filepath.Join(trimmed, "scratch", "mem4j-state.json"), nil
+		}
+		return filepath.Join(trimmed, "mem4j-state.json"), nil
+	}
+	if sessionID == "" {
+		return "", nil
+	}
+	dir, err := defaultStateDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, sanitizeStateID(sessionID)+".json"), nil
 }
 
-func sanitizeStateID(convID string) string {
+func sanitizeStateID(id string) string {
 	var b strings.Builder
-	for _, r := range convID {
+	for _, r := range id {
 		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_' {
 			b.WriteRune(r)
 		}
@@ -121,35 +139,57 @@ func sanitizeStateID(convID string) string {
 	if b.Len() > 0 && b.Len() <= 80 {
 		return b.String()
 	}
-	sum := sha256.Sum256([]byte(convID))
+	sum := sha256.Sum256([]byte(id))
 	return hex.EncodeToString(sum[:12])
 }
 
-func isDuplicateAgyTurn(stateDir, convID, turnKey string) bool {
-	if convID == "" || turnKey == "" {
-		return false
-	}
-	path, err := stateFilePath(stateDir, convID)
-	if err != nil {
-		return false
+func loadSessionState(path string) (sessionState, error) {
+	if path == "" {
+		return sessionState{}, nil
 	}
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		return false
+		if os.IsNotExist(err) {
+			return sessionState{}, nil
+		}
+		return sessionState{}, err
 	}
-	return strings.TrimSpace(string(raw)) == turnKey
+	var st sessionState
+	if err := json.Unmarshal(raw, &st); err != nil {
+		return sessionState{}, err
+	}
+	st.Scopes = mergeScopeSlices(st.Scopes, nil)
+	return st, nil
 }
 
-func saveAgyTurn(stateDir, convID, turnKey string) error {
-	if convID == "" || turnKey == "" {
+func saveSessionState(path string, st sessionState) error {
+	if path == "" {
 		return nil
 	}
-	path, err := stateFilePath(stateDir, convID)
-	if err != nil {
-		return err
-	}
+	st.Scopes = mergeScopeSlices(st.Scopes, nil)
 	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		return err
 	}
-	return os.WriteFile(path, []byte(turnKey+"\n"), 0o600)
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", "  ")
+	if err := enc.Encode(st); err != nil {
+		return err
+	}
+	return os.WriteFile(path, buf.Bytes(), 0o600)
+}
+
+func mergeScopeSlices(a, b []string) []string {
+	merged := make([]string, 0, len(a)+len(b))
+	for _, list := range [][]string{a, b} {
+		for _, s := range list {
+			if n := normalizeText(s); n != "" {
+				merged = append(merged, n)
+			}
+		}
+	}
+	out := dedup(merged)
+	slices.Sort(out)
+	return out
 }

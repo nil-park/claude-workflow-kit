@@ -12,12 +12,22 @@ import (
 const hookTimeout = 10 * time.Second
 
 type claudeSessionStartInput struct {
-	Cwd    string `json:"cwd"`
-	Source string `json:"source"`
+	SessionID     string `json:"session_id"`
+	ScratchpadDir string `json:"scratchpad_dir"`
+	Cwd           string `json:"cwd"`
+	Source        string `json:"source"`
 }
 
 type agySessionStartInput struct {
-	WorkspacePaths []string `json:"workspacePaths"`
+	ConversationID        string   `json:"conversationId"`
+	ArtifactDirectoryPath string   `json:"artifactDirectoryPath"`
+	WorkspacePaths        []string `json:"workspacePaths"`
+}
+
+type sessionStartInput struct {
+	workDirs   []string
+	sessionDir string
+	sessionID  string
 }
 
 type hookOptions struct {
@@ -51,10 +61,11 @@ func parseSessionStartHook(action string, args []string, stdin io.Reader) (parse
 	fs, cred := newFlagSet("hook " + action)
 	cfgPath := fs.String("config", "", "hook config file (default ~/.config/mem4j/config.json)")
 	logPath := fs.String("log", "", "hook JSONL log file (default ~/.config/mem4j/hook.log)")
+	stateDir := fs.String("state-dir", "", "override directory for session state files")
 	if err := parseFlags(fs, args); err != nil {
 		return parsedCommand{}, err
 	}
-	opts := hookOptions{configPath: *cfgPath, credPath: *cred, logPath: *logPath}
+	opts := hookOptions{configPath: *cfgPath, credPath: *cred, logPath: *logPath, stateDir: *stateDir}
 	isAgy := action == "agy-session-start"
 	return parsedCommand{
 		execNoStore: func(stdout, stderr io.Writer) error {
@@ -72,7 +83,7 @@ func runSessionStartHook(action string, isAgy bool, opts hookOptions, stdin io.R
 		appendHookLog(opts.logPath, entry)
 	}()
 
-	workDirs, err := decodeSessionWorkDirs(isAgy, stdin)
+	in, err := decodeSessionStartInput(isAgy, stdin)
 	if err != nil {
 		failOpenHook(isAgy, &entry, stdout, stderr, fmt.Errorf("decode stdin: %w", err))
 		return
@@ -82,8 +93,10 @@ func runSessionStartHook(action string, isAgy bool, opts hookOptions, stdin io.R
 		failOpenHook(isAgy, &entry, stdout, stderr, err)
 		return
 	}
-	baseScopes := resolveConfiguredScopes(cfg, workDirs)
-	if len(baseScopes) == 0 {
+	statePath, _ := resolveSessionStatePath(isAgy, in.sessionDir, in.sessionID, opts.stateDir)
+	st, _ := loadSessionState(statePath)
+	activeScopes := mergeScopeSlices(st.Scopes, resolveConfiguredScopes(cfg, in.workDirs))
+	if len(activeScopes) == 0 {
 		entry.Status = "skipped"
 		entry.Reason = "no_scopes"
 		if isAgy {
@@ -91,6 +104,10 @@ func runSessionStartHook(action string, isAgy bool, opts hookOptions, stdin io.R
 		}
 		return
 	}
+	entry.ActiveScopes = activeScopes
+	st.Scopes = activeScopes
+	_ = saveSessionState(statePath, st)
+
 	ctx, cancel := context.WithTimeout(context.Background(), hookTimeout)
 	defer cancel()
 	s, closeStore, err := openStore(ctx, opts.credPath)
@@ -100,12 +117,6 @@ func runSessionStartHook(action string, isAgy bool, opts hookOptions, stdin io.R
 	}
 	defer closeStore()
 
-	activeScopes, err := s.expandScopesOutgoing(ctx, baseScopes)
-	if err != nil {
-		failOpenHook(isAgy, &entry, stdout, stderr, err)
-		return
-	}
-	entry.ActiveScopes = activeScopes
 	candidates, err := s.fetchCandidates(ctx, activeScopes)
 	if err != nil {
 		failOpenHook(isAgy, &entry, stdout, stderr, err)
@@ -117,7 +128,7 @@ func runSessionStartHook(action string, isAgy bool, opts hookOptions, stdin io.R
 		return
 	}
 	merged := Merge(candidates, activeScopes)
-	text := formatSessionContext(activeScopes, merged, allScopes)
+	text := formatSessionContext(activeScopes, statePath, merged, allScopes)
 	if isAgy {
 		err = writeAgySessionOutput(stdout, text)
 	} else {
@@ -130,22 +141,31 @@ func runSessionStartHook(action string, isAgy bool, opts hookOptions, stdin io.R
 	}
 }
 
-func decodeSessionWorkDirs(isAgy bool, stdin io.Reader) ([]string, error) {
+func decodeSessionStartInput(isAgy bool, stdin io.Reader) (sessionStartInput, error) {
 	if isAgy {
 		var in agySessionStartInput
 		if err := json.NewDecoder(stdin).Decode(&in); err != nil {
-			return nil, err
+			return sessionStartInput{}, err
 		}
-		return in.WorkspacePaths, nil
+		return sessionStartInput{
+			workDirs:   in.WorkspacePaths,
+			sessionDir: in.ArtifactDirectoryPath,
+			sessionID:  in.ConversationID,
+		}, nil
 	}
 	var in claudeSessionStartInput
 	if err := json.NewDecoder(stdin).Decode(&in); err != nil {
-		return nil, err
+		return sessionStartInput{}, err
 	}
-	if in.Cwd == "" {
-		return nil, nil
+	var workDirs []string
+	if in.Cwd != "" {
+		workDirs = []string{in.Cwd}
 	}
-	return []string{in.Cwd}, nil
+	return sessionStartInput{
+		workDirs:   workDirs,
+		sessionDir: in.ScratchpadDir,
+		sessionID:  in.SessionID,
+	}, nil
 }
 
 func failOpenHook(isAgy bool, entry *hookLogEntry, stdout, stderr io.Writer, err error) {

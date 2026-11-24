@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"path/filepath"
 	"strings"
 )
 
@@ -30,13 +31,16 @@ type agyInjectOutput struct {
 	InjectSteps []agyInjectStep `json:"injectSteps"`
 }
 
-func formatSessionContext(activeScopes []string, insts []Instruction, allScopes []Scope) string {
+func formatSessionContext(activeScopes []string, statePath string, insts []Instruction, allScopes []Scope) string {
 	if len(insts) == 0 && len(allScopes) == 0 {
 		return ""
 	}
 	var b strings.Builder
 	b.WriteString("다음은 사용자 공유 기억 저장소(mem4j)에서 현재 세션의 활성 스코프 기준으로 조회한 정보이다.\n")
 	fmt.Fprintf(&b, "활성 스코프: %s\n", strings.Join(activeScopes, ", "))
+	if statePath != "" {
+		fmt.Fprintf(&b, "세션 상태 파일: %s\n", filepath.ToSlash(statePath))
+	}
 	if len(insts) > 0 {
 		b.WriteString("\n### 적용 중인 상시 지침\n\n")
 		writeMerged(&b, insts)
