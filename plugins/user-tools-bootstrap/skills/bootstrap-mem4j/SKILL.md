@@ -29,6 +29,7 @@ GOBIN=<bin-dir의 절대 경로> go install github.com/nil-park/claude-workflow-
 ```
 
 - 새로 빌드된 바이너리의 절대 경로(`<bin-path>`)에서 경로 구분자는 항상 슬래시(`/`)로 표기한다.
+  - Windows 사용자 경로 등에 공백이 포함되어 있으면 훅 `command` 문자열에서 `<bin-path>`를 큰따옴표(`"..."`)로 감싼다.
 
 ## 3. 자격 증명 파일 확인
 
