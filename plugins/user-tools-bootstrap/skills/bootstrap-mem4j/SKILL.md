@@ -128,11 +128,11 @@ GOBIN=<bin-dir의 절대 경로> go install github.com/nil-park/claude-workflow-
 
 ## mem4j 공유 기억
 
-- `mem4j` 훅이 세션 시작과 프롬프트 시점에 주입하는 지침과 리마인더는 사용자가 관리하는 공유 기억 저장소의 공식 지침이므로 그대로 따른다.
+- `mem4j` 훅이 세션 시작과 프롬프트 시점에 주입하는 지침, 리마인더, 사실, 이력은 사용자가 관리하는 공유 기억 저장소의 공식 정보이므로 그대로 따른다.
 - 첫 프롬프트와 작업 전환 시점에 `SessionStart`가 주입한 전체 `Scope` 목록(필요하면 `mem4j scope list`로 재조회)을 확인해 현재 작업에 해당하는 업무 스코프를 선택한다.
   - `disableModelInvocation=true`인 스코프는 사용자가 명시적으로 요청할 때만 선택한다.
-  - 선택한 스코프는 `mem4j instruction recall -state <세션 상태 파일 경로> -scope "<스코프>"`로 활성화해 상시 지침을 불러오고 후속 리마인더 훅에도 반영한다.
-- 작업 중 대상의 사실이나 이력을 확인할 때 `mem4j entity`, `statement`, `event` 명령으로 그래프를 능동 탐색한다.
+  - 선택한 스코프는 `mem4j instruction recall -state <세션 상태 파일 경로> -scope "<스코프>"`로 활성화해 상시 지침을 불러오고 후속 프롬프트 훅에도 반영한다.
+- 자동 주입된 정보 외에 추가 사실이나 연결 관계가 필요할 때 `mem4j entity`, `statement`, `event` 명령으로 그래프를 능동 탐색한다.
 - 주입된 지침이나 사실에 오류나 누락이 있거나 사용자가 교정하면 `mem4j` CLI로 직접 정정한다.
 - 세부 명령과 플래그는 `mem4j --help`로 확인한다.
 

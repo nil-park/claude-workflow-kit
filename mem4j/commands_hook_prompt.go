@@ -39,7 +39,7 @@ func parsePromptHook(action string, args []string, stdin io.Reader) (parsedComma
 	logPath := fs.String("log", "", "hook JSONL log file (default ~/.config/mem4j/hook.log)")
 	stateDir := fs.String("state-dir", "", "override directory for session state files")
 	threshold := fs.Float64("threshold", defaultReminderThreshold, "minimum cosine similarity score (-1..1)")
-	limit := fs.Int("limit", defaultReminderLimit, "maximum number of reminders to return")
+	limit := fs.Int("limit", defaultReminderLimit, "maximum number of items per category to return")
 	if err := parseFlags(fs, args); err != nil {
 		return parsedCommand{}, err
 	}
@@ -96,22 +96,8 @@ func runPromptHook(action string, isAgy bool, opts hookOptions, stdin io.Reader,
 		}
 		return
 	}
-	cfg, cfgErr := loadHookConfig(opts.configPath)
-	if cfgErr != nil && len(st.Scopes) == 0 {
-		failOpenHook(isAgy, &entry, stdout, stderr, cfgErr)
-		return
-	}
+	cfg, _ := loadHookConfig(opts.configPath)
 	activeScopes := mergeScopeSlices(st.Scopes, resolveConfiguredScopes(cfg, in.workDirs))
-	if len(activeScopes) == 0 {
-		entry.Status = "skipped"
-		entry.Reason = "no_scopes"
-		if isAgy {
-			st.LastTurnKey = turnKey
-			_ = saveSessionState(statePath, st)
-			writeAgyEmptyOutput(stdout)
-		}
-		return
-	}
 	entry.ActiveScopes = activeScopes
 	ctx, cancel := context.WithTimeout(context.Background(), hookTimeout)
 	defer cancel()
@@ -132,23 +118,31 @@ func runPromptHook(action string, isAgy bool, opts hookOptions, stdin io.Reader,
 		failOpenHook(isAgy, &entry, stdout, stderr, err)
 		return
 	}
-	reminders, err := s.recallReminders(ctx, activeScopes, vec, opts.threshold, opts.limit)
+	var reminders []Reminder
+	if len(activeScopes) > 0 {
+		reminders, err = s.recallReminders(ctx, activeScopes, vec, opts.threshold, opts.limit)
+		if err != nil {
+			failOpenHook(isAgy, &entry, stdout, stderr, err)
+			return
+		}
+	}
+	statements, err := s.recallStatements(ctx, nil, vec, opts.threshold, opts.limit)
 	if err != nil {
 		failOpenHook(isAgy, &entry, stdout, stderr, err)
 		return
 	}
-	for i, r := range reminders {
-		entry.MatchedKeys = append(entry.MatchedKeys, r.Key)
-		if i == 0 {
-			entry.TopScore = r.Score
-		}
+	events, err := s.recallEvents(ctx, nil, vec, opts.threshold, opts.limit)
+	if err != nil {
+		failOpenHook(isAgy, &entry, stdout, stderr, err)
+		return
 	}
+	recordPromptMatches(&entry, reminders, statements, events)
 	if isAgy {
 		st.LastTurnKey = turnKey
 		st.Scopes = activeScopes
 		_ = saveSessionState(statePath, st)
 	}
-	text := formatReminderContext(activeScopes, reminders)
+	text := formatPromptContext(activeScopes, reminders, statements, events)
 	if isAgy {
 		err = writeAgyPromptOutput(stdout, text)
 	} else {

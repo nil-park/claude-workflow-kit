@@ -15,24 +15,11 @@ func TestShouldRecallPrompt(t *testing.T) {
 		prompt string
 		want   bool
 	}{
-		{"", false},
-		{"   ", false},
-		{"응", false},
-		{"좋아.", false},
-		{"맞아!!", false},
-		{"오케이~", false},
-		{"커밋해", false},
-		{"커밋해.", false},
-		{"커밋푸시", true},
-		{"커밋 푸시", true},
-		{"커밋하자.", true},
-		{"진행하자.", true},
-		{"PR 올려", true},
-		{"ping", false},
-		{"hello!", false},
-		{"commit", false},
-		{"commit push", true},
-		{"fix bug", true},
+		{"", false}, {"   ", false}, {"응", false}, {"좋아.", false},
+		{"맞아!!", false}, {"오케이~", false}, {"커밋해", false}, {"커밋해.", false},
+		{"커밋푸시", true}, {"커밋 푸시", true}, {"커밋하자.", true}, {"진행하자.", true},
+		{"PR 올려", true}, {"ping", false}, {"hello!", false}, {"commit", false},
+		{"commit push", true}, {"fix bug", true},
 	}
 	for _, tc := range cases {
 		if got := shouldRecallPrompt(tc.prompt); got != tc.want {
@@ -173,11 +160,20 @@ func TestHookOutputFormatting(t *testing.T) {
 		t.Fatalf("invalid claude json: %+v (err=%v)", parsed, err)
 	}
 
+	promptText := formatPromptContext(
+		[]string{"박광석"},
+		[]Reminder{{Key: "r1", Title: "규칙", Scopes: []string{"박광석"}, Score: 0.85, Body: "리마인더"}},
+		[]Statement{{Key: "s1", Title: "사실", Entities: []string{"Recallar"}, Score: 0.91, Body: "안드로이드 앱"}},
+		[]Event{{Key: "e1", Title: "이력", OccurredAt: "2026-11-01", Entities: []string{"Recallar"}, Score: 0.88, Body: "이름 변경"}},
+	)
+	if !strings.Contains(promptText, "<reminder") || !strings.Contains(promptText, "<statement") || !strings.Contains(promptText, "<event") {
+		t.Fatalf("unexpected prompt text: %s", promptText)
+	}
 	var agyOut bytes.Buffer
-	if err := writeAgyPromptOutput(&agyOut, "리마인더 내용"); err != nil {
+	if err := writeAgyPromptOutput(&agyOut, promptText); err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(agyOut.String(), `"ephemeralMessage":"리마인더 내용"`) {
+	if !strings.Contains(agyOut.String(), `"ephemeralMessage":`) {
 		t.Fatalf("unexpected agy prompt json: %s", agyOut.String())
 	}
 }

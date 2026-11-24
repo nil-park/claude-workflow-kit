@@ -52,15 +52,49 @@ func formatSessionContext(activeScopes []string, statePath string, insts []Instr
 	return strings.TrimRight(b.String(), "\n")
 }
 
-func formatReminderContext(activeScopes []string, reminders []Reminder) string {
-	if len(reminders) == 0 {
+func formatPromptContext(activeScopes []string, reminders []Reminder, statements []Statement, events []Event) string {
+	if len(reminders) == 0 && len(statements) == 0 && len(events) == 0 {
 		return ""
 	}
 	var b strings.Builder
-	b.WriteString("다음은 사용자 공유 기억 저장소(mem4j)에서 현재 프롬프트와 관련해 조회한 조건부 리마인더이다.\n")
-	fmt.Fprintf(&b, "활성 스코프: %s\n\n", strings.Join(activeScopes, ", "))
-	writeReminders(&b, reminders)
+	b.WriteString("다음은 사용자 공유 기억 저장소(mem4j)에서 현재 프롬프트와 관련해 조회한 기억이다.\n")
+	if len(activeScopes) > 0 {
+		fmt.Fprintf(&b, "활성 스코프: %s\n", strings.Join(activeScopes, ", "))
+	}
+	if len(reminders) > 0 {
+		b.WriteString("\n### 조건부 리마인더\n\n")
+		writeReminders(&b, reminders)
+	}
+	if len(statements) > 0 {
+		b.WriteString("\n### 관련 사실\n\n")
+		writeStatements(&b, statements, true)
+	}
+	if len(events) > 0 {
+		b.WriteString("\n### 관련 이력\n\n")
+		writeEvents(&b, events, true)
+	}
 	return strings.TrimRight(b.String(), "\n")
+}
+
+func recordPromptMatches(entry *hookLogEntry, reminders []Reminder, statements []Statement, events []Event) {
+	for _, r := range reminders {
+		entry.MatchedKeys = append(entry.MatchedKeys, "reminder:"+r.Key)
+		if r.Score > entry.TopScore {
+			entry.TopScore = r.Score
+		}
+	}
+	for _, s := range statements {
+		entry.MatchedKeys = append(entry.MatchedKeys, "statement:"+s.Key)
+		if s.Score > entry.TopScore {
+			entry.TopScore = s.Score
+		}
+	}
+	for _, e := range events {
+		entry.MatchedKeys = append(entry.MatchedKeys, "event:"+e.Key)
+		if e.Score > entry.TopScore {
+			entry.TopScore = e.Score
+		}
+	}
 }
 
 func writeJSONLine(w io.Writer, v any) error {

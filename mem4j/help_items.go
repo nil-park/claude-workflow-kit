@@ -75,8 +75,8 @@ var actionHelpItems = map[string][]helpItem{
 	},
 	"hook": {
 		{"claude-session-start", "Inject active instructions and scope list on Claude Code SessionStart"},
-		{"claude-user-prompt", "Inject matching reminders on Claude Code UserPromptSubmit"},
+		{"claude-user-prompt", "Inject matching reminders, statements, and events on Claude Code UserPromptSubmit"},
 		{"agy-session-start", "Inject active instructions and scope list on agy SessionStart"},
-		{"agy-pre-invocation", "Inject matching reminders on agy PreInvocation (once per user turn)"},
+		{"agy-pre-invocation", "Inject matching reminders, statements, and events on agy PreInvocation (once per user turn)"},
 	},
 }
