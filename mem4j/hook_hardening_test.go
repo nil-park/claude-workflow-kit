@@ -46,6 +46,15 @@ func TestPruneStaleStateFilesAndAtomicSave(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
+	if entries, err := os.ReadDir(dir); err != nil {
+		t.Fatal(err)
+	} else {
+		for _, e := range entries {
+			if strings.HasSuffix(e.Name(), ".tmp") {
+				t.Fatalf("temp file left behind by saveSessionState: %s", e.Name())
+			}
+		}
+	}
 	if err := os.WriteFile(oldTmp, []byte("partial"), 0o600); err != nil {
 		t.Fatal(err)
 	}

@@ -22,42 +22,44 @@ func recallPromptContext(ctx context.Context, s *store, opts hookOptions, active
 		reminders  []Reminder
 		statements []Statement
 		events     []Event
-		remErr     error
-		stmtErr    error
-		evtErr     error
+		firstErr   error
+		errOnce    sync.Once
 		wg         sync.WaitGroup
 	)
+	recordErr := func(err error) {
+		if err != nil {
+			errOnce.Do(func() {
+				firstErr = err
+				cancel()
+			})
+		}
+	}
 	if len(activeScopes) > 0 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			reminders, remErr = s.recallReminders(qCtx, activeScopes, vec, opts.threshold, opts.limit)
-			if remErr != nil {
-				cancel()
-			}
+			var err error
+			reminders, err = s.recallReminders(qCtx, activeScopes, vec, opts.threshold, opts.limit)
+			recordErr(err)
 		}()
 	}
 	wg.Add(2)
 	go func() {
 		defer wg.Done()
-		statements, stmtErr = s.recallStatements(qCtx, nil, vec, opts.threshold, opts.limit)
-		if stmtErr != nil {
-			cancel()
-		}
+		var err error
+		statements, err = s.recallStatements(qCtx, nil, vec, opts.threshold, opts.limit)
+		recordErr(err)
 	}()
 	go func() {
 		defer wg.Done()
-		events, evtErr = s.recallEvents(qCtx, nil, vec, opts.threshold, opts.limit)
-		if evtErr != nil {
-			cancel()
-		}
+		var err error
+		events, err = s.recallEvents(qCtx, nil, vec, opts.threshold, opts.limit)
+		recordErr(err)
 	}()
 	wg.Wait()
 
-	for _, qErr := range []error{remErr, stmtErr, evtErr} {
-		if qErr != nil {
-			return "", qErr
-		}
+	if firstErr != nil {
+		return "", firstErr
 	}
 	recordPromptMatches(entry, reminders, statements, events)
 	return formatPromptContext(activeScopes, reminders, statements, events), nil
