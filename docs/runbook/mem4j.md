@@ -69,6 +69,24 @@ mem4j event list -entity "Recallar 안드로이드 앱"
 mem4j event recall -query "앱 이름 변경"
 ```
 
+## 훅 동작 확인과 로그 점검
+
+- 훅은 `~/.config/mem4j/config.json`에서 기본 스코프와 워크스페이스 매핑을 읽는다.
+- 샘플 JSON을 stdin으로 넘겨 각 훅의 출력을 직접 확인할 수 있다.
+
+```bash
+echo '{"cwd":"C:/Git/claude-workflow-kit","source":"startup"}' | mem4j hook claude-session-start
+echo '{"cwd":"C:/Git/claude-workflow-kit","prompt":"응"}' | mem4j hook claude-user-prompt
+echo '{"workspacePaths":["C:/Git/claude-workflow-kit"]}' | mem4j hook agy-session-start
+echo '{"conversationId":"smoke-1","workspacePaths":["C:/Git/claude-workflow-kit"],"lastUserInput":"변경 사항 커밋하고 PR 올려줘"}' | mem4j hook agy-pre-invocation
+```
+
+- 훅 실행 이력과 필터링·유사도 점수는 `~/.config/mem4j/hook.log`에 JSONL 형식으로 누적된다.
+
+```bash
+tail -n 20 ~/.config/mem4j/hook.log
+```
+
 ## Neo4j Aura 콘솔에서 조회
 
 - Aura 콘솔 `Queries` 탭의 Saved Cypher 업로드 기능으로 [mem4j-aura-queries.csv](mem4j-aura-queries.csv)를 올려 사용한다.
