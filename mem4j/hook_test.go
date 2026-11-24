@@ -155,6 +155,7 @@ func TestHookOutputFormatting(t *testing.T) {
 		`C:\tmp\scratch\mem4j-state.json`,
 		[]Instruction{{Key: "k1", Title: "규칙", Scopes: []string{"박광석"}, Body: "본문"}},
 		[]Scope{{Name: "박광석", Description: "사용자"}},
+		claudeSessionSoftLimit,
 	)
 	if !strings.Contains(sessionText, "활성 스코프: 박광석") || !strings.Contains(sessionText, "세션 상태 파일: C:/tmp/scratch/mem4j-state.json") {
 		t.Fatalf("unexpected session text: %s", sessionText)

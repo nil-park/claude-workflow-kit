@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"os"
 	"time"
 )
 
@@ -103,7 +105,11 @@ func runPromptHook(action string, isAgy bool, opts hookOptions, stdin io.Reader,
 		}
 		return
 	}
-	cfg, _ := loadHookConfig(opts.configPath)
+	cfg, cfgErr := loadHookConfig(opts.configPath)
+	if cfgErr != nil && !errors.Is(cfgErr, os.ErrNotExist) {
+		entry.Error = cfgErr.Error()
+		fmt.Fprintln(stderr, "mem4j hook:", cfgErr)
+	}
 	activeScopes := mergeScopeSlices(st.Scopes, resolveConfiguredScopes(cfg, in.workDirs))
 	entry.ActiveScopes = activeScopes
 
@@ -118,7 +124,7 @@ func runPromptHook(action string, isAgy bool, opts hookOptions, stdin io.Reader,
 
 	var sessionMsg, promptMsg string
 	if needReload && len(activeScopes) > 0 {
-		sessionMsg, err = fetchSessionContext(ctx, s, activeScopes, statePath)
+		sessionMsg, err = fetchSessionContext(ctx, s, activeScopes, statePath, 0)
 		if err != nil {
 			failOpenHook(isAgy, &entry, stdout, stderr, err)
 			return
@@ -147,34 +153,6 @@ func runPromptHook(action string, isAgy bool, opts hookOptions, stdin io.Reader,
 		entry.Error = err.Error()
 		fmt.Fprintln(stderr, "mem4j hook:", err)
 	}
-}
-
-func recallPromptContext(ctx context.Context, s *store, opts hookOptions, activeScopes []string, prompt string, entry *hookLogEntry) (string, error) {
-	emb, err := newVertexEmbedder(ctx, opts.gcpCredPath)
-	if err != nil {
-		return "", err
-	}
-	vec, err := emb.Embed(ctx, prompt, taskTypeQuery)
-	if err != nil {
-		return "", err
-	}
-	var reminders []Reminder
-	if len(activeScopes) > 0 {
-		reminders, err = s.recallReminders(ctx, activeScopes, vec, opts.threshold, opts.limit)
-		if err != nil {
-			return "", err
-		}
-	}
-	statements, err := s.recallStatements(ctx, nil, vec, opts.threshold, opts.limit)
-	if err != nil {
-		return "", err
-	}
-	events, err := s.recallEvents(ctx, nil, vec, opts.threshold, opts.limit)
-	if err != nil {
-		return "", err
-	}
-	recordPromptMatches(entry, reminders, statements, events)
-	return formatPromptContext(activeScopes, reminders, statements, events), nil
 }
 
 func decodePromptInput(isAgy bool, stdin io.Reader) (promptHookInput, error) {

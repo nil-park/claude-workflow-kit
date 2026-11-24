@@ -93,6 +93,7 @@ func runSessionStartHook(action string, isAgy bool, opts hookOptions, stdin io.R
 		failOpenHook(isAgy, &entry, stdout, stderr, err)
 		return
 	}
+	pruneStaleStateFiles(opts.stateDir, stateRetention, start)
 	statePath, _ := resolveSessionStatePath(isAgy, in.sessionDir, in.sessionID, opts.stateDir)
 	st, _ := loadSessionState(statePath)
 	activeScopes := mergeScopeSlices(st.Scopes, resolveConfiguredScopes(cfg, in.workDirs))
@@ -117,7 +118,11 @@ func runSessionStartHook(action string, isAgy bool, opts hookOptions, stdin io.R
 	}
 	defer closeStore()
 
-	text, err := fetchSessionContext(ctx, s, activeScopes, statePath)
+	maxRunes := claudeSessionSoftLimit
+	if isAgy {
+		maxRunes = 0
+	}
+	text, err := fetchSessionContext(ctx, s, activeScopes, statePath, maxRunes)
 	if err != nil {
 		failOpenHook(isAgy, &entry, stdout, stderr, err)
 		return
@@ -134,7 +139,7 @@ func runSessionStartHook(action string, isAgy bool, opts hookOptions, stdin io.R
 	}
 }
 
-func fetchSessionContext(ctx context.Context, s *store, activeScopes []string, statePath string) (string, error) {
+func fetchSessionContext(ctx context.Context, s *store, activeScopes []string, statePath string, maxRunes int) (string, error) {
 	candidates, err := s.fetchCandidates(ctx, activeScopes)
 	if err != nil {
 		return "", err
@@ -144,7 +149,7 @@ func fetchSessionContext(ctx context.Context, s *store, activeScopes []string, s
 		return "", err
 	}
 	merged := Merge(candidates, activeScopes)
-	return formatSessionContext(activeScopes, statePath, merged, allScopes), nil
+	return formatSessionContext(activeScopes, statePath, merged, allScopes, maxRunes), nil
 }
 
 func decodeSessionStartInput(isAgy bool, stdin io.Reader) (sessionStartInput, error) {
