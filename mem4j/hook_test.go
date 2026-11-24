@@ -72,8 +72,12 @@ func TestSessionStatePathsAndAgyTurnDedup(t *testing.T) {
 	if err := os.WriteFile(transcript, []byte(lines), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	key1 := agyTurnKey(transcript, "계속 진행해줘")
-	st := sessionState{Scopes: []string{"박광석", "코드 작성"}, LastTurnKey: key1}
+	u1, cp1, err := scanAgyTranscript(transcript)
+	if err != nil || u1 != 1 || cp1 != 0 {
+		t.Fatalf("scan1 = (%d, %d, %v), want (1, 0, nil)", u1, cp1, err)
+	}
+	key1 := agyTurnKeyFromCount(u1, true, "계속 진행해줘")
+	st := sessionState{Scopes: []string{"박광석", "코드 작성"}, LastTurnKey: key1, LastCheckpointCount: cp1}
 	if err := saveSessionState(agyPath, st); err != nil {
 		t.Fatal(err)
 	}
@@ -82,11 +86,16 @@ func TestSessionStatePathsAndAgyTurnDedup(t *testing.T) {
 		t.Fatalf("unexpected loaded state: %+v (err=%v)", loaded, err)
 	}
 
+	lines += `{"source":"SYSTEM_SDK","type":"CHECKPOINT","content":"compacted"}` + "\n"
 	lines += `{"source":"USER_EXPLICIT","type":"USER_INPUT","content":"계속 진행해줘"}` + "\n"
 	if err := os.WriteFile(transcript, []byte(lines), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if key2 := agyTurnKey(transcript, "계속 진행해줘"); key2 == loaded.LastTurnKey {
+	u2, cp2, err := scanAgyTranscript(transcript)
+	if err != nil || u2 != 2 || cp2 != 1 {
+		t.Fatalf("scan2 = (%d, %d, %v), want (2, 1, nil)", u2, cp2, err)
+	}
+	if key2 := agyTurnKeyFromCount(u2, true, "계속 진행해줘"); key2 == loaded.LastTurnKey {
 		t.Fatalf("new turn with identical prompt must produce new key: %q", key2)
 	}
 }
@@ -170,11 +179,11 @@ func TestHookOutputFormatting(t *testing.T) {
 		t.Fatalf("unexpected prompt text: %s", promptText)
 	}
 	var agyOut bytes.Buffer
-	if err := writeAgyPromptOutput(&agyOut, promptText); err != nil {
+	if err := writeAgyStepsOutput(&agyOut, sessionText, promptText); err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(agyOut.String(), `"ephemeralMessage":`) {
-		t.Fatalf("unexpected agy prompt json: %s", agyOut.String())
+	if !strings.Contains(agyOut.String(), `"systemMessage":`) || !strings.Contains(agyOut.String(), `"ephemeralMessage":`) {
+		t.Fatalf("unexpected agy steps json: %s", agyOut.String())
 	}
 }
 

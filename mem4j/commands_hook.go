@@ -117,18 +117,11 @@ func runSessionStartHook(action string, isAgy bool, opts hookOptions, stdin io.R
 	}
 	defer closeStore()
 
-	candidates, err := s.fetchCandidates(ctx, activeScopes)
+	text, err := fetchSessionContext(ctx, s, activeScopes, statePath)
 	if err != nil {
 		failOpenHook(isAgy, &entry, stdout, stderr, err)
 		return
 	}
-	allScopes, err := s.listScopes(ctx)
-	if err != nil {
-		failOpenHook(isAgy, &entry, stdout, stderr, err)
-		return
-	}
-	merged := Merge(candidates, activeScopes)
-	text := formatSessionContext(activeScopes, statePath, merged, allScopes)
 	if isAgy {
 		err = writeAgySessionOutput(stdout, text)
 	} else {
@@ -139,6 +132,19 @@ func runSessionStartHook(action string, isAgy bool, opts hookOptions, stdin io.R
 		entry.Error = err.Error()
 		fmt.Fprintln(stderr, "mem4j hook:", err)
 	}
+}
+
+func fetchSessionContext(ctx context.Context, s *store, activeScopes []string, statePath string) (string, error) {
+	candidates, err := s.fetchCandidates(ctx, activeScopes)
+	if err != nil {
+		return "", err
+	}
+	allScopes, err := s.listScopes(ctx)
+	if err != nil {
+		return "", err
+	}
+	merged := Merge(candidates, activeScopes)
+	return formatSessionContext(activeScopes, statePath, merged, allScopes), nil
 }
 
 func decodeSessionStartInput(isAgy bool, stdin io.Reader) (sessionStartInput, error) {

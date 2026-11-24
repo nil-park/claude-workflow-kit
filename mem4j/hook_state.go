@@ -29,8 +29,9 @@ type hookLogEntry struct {
 }
 
 type sessionState struct {
-	Scopes      []string `json:"scopes,omitempty"`
-	LastTurnKey string   `json:"lastTurnKey,omitempty"`
+	Scopes              []string `json:"scopes,omitempty"`
+	LastTurnKey         string   `json:"lastTurnKey,omitempty"`
+	LastCheckpointCount int      `json:"lastCheckpointCount,omitempty"`
 }
 
 func appendHookLog(logPath string, entry hookLogEntry) {
@@ -61,38 +62,37 @@ func appendHookLog(logPath string, entry hookLogEntry) {
 	_, _ = f.Write(buf.Bytes())
 }
 
-type agyTranscriptLine struct {
-	Type string `json:"type"`
-}
-
-func agyTurnKey(transcriptPath, prompt string) string {
+func agyTurnKeyFromCount(userInputs int, hasTranscript bool, prompt string) string {
 	sum := sha256.Sum256([]byte(normalizeText(prompt)))
 	hash := hex.EncodeToString(sum[:8])
-	if transcriptPath != "" {
-		if count, err := countTranscriptUserInputs(transcriptPath); err == nil {
-			return fmt.Sprintf("u:%d:%s", count, hash)
-		}
+	if hasTranscript {
+		return fmt.Sprintf("u:%d:%s", userInputs, hash)
 	}
 	return "p:" + hash
 }
 
-func countTranscriptUserInputs(path string) (int, error) {
+func scanAgyTranscript(path string) (userInputs, checkpoints int, err error) {
+	if path == "" {
+		return 0, 0, os.ErrNotExist
+	}
 	f, err := os.Open(path)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 	defer f.Close()
 
 	reader := bufio.NewReader(f)
-	count := 0
 	for {
 		line, err := reader.ReadBytes('\n')
-		if len(line) > 0 {
-			trimmed := bytes.TrimSpace(line)
-			if len(trimmed) > 0 {
-				var step agyTranscriptLine
-				if json.Unmarshal(trimmed, &step) == nil && step.Type == "USER_INPUT" {
-					count++
+		if trimmed := bytes.TrimSpace(line); len(trimmed) > 0 {
+			var step struct {
+				Type string `json:"type"`
+			}
+			if json.Unmarshal(trimmed, &step) == nil {
+				if step.Type == "USER_INPUT" {
+					userInputs++
+				} else if step.Type == "CHECKPOINT" {
+					checkpoints++
 				}
 			}
 		}
@@ -100,10 +100,10 @@ func countTranscriptUserInputs(path string) (int, error) {
 			if errors.Is(err, io.EOF) {
 				break
 			}
-			return 0, err
+			return 0, 0, err
 		}
 	}
-	return count, nil
+	return userInputs, checkpoints, nil
 }
 
 func resolveSessionStatePath(isAgy bool, sessionDir, sessionID, stateDirOverride string) (string, error) {

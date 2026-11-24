@@ -76,17 +76,24 @@ func runPromptHook(action string, isAgy bool, opts hookOptions, stdin io.Reader,
 	}
 	statePath, _ := resolveSessionStatePath(isAgy, in.sessionDir, in.sessionID, opts.stateDir)
 	st, _ := loadSessionState(statePath)
+
 	var turnKey string
+	var checkpoints int
+	needReload := false
 	if isAgy {
-		turnKey = agyTurnKey(in.transcriptPath, in.prompt)
-		if turnKey != "" && st.LastTurnKey == turnKey {
+		userInputs, cp, scanErr := scanAgyTranscript(in.transcriptPath)
+		checkpoints = cp
+		turnKey = agyTurnKeyFromCount(userInputs, scanErr == nil, in.prompt)
+		needReload = scanErr == nil && checkpoints > st.LastCheckpointCount
+		if !needReload && turnKey != "" && st.LastTurnKey == turnKey {
 			entry.Status = "skipped"
 			entry.Reason = "duplicate_turn"
 			writeAgyEmptyOutput(stdout)
 			return
 		}
 	}
-	if !shouldRecallPrompt(in.prompt) {
+	doRecall := shouldRecallPrompt(in.prompt)
+	if !doRecall && !needReload {
 		entry.Status = "skipped"
 		entry.Reason = "short_prompt"
 		if isAgy {
@@ -99,6 +106,7 @@ func runPromptHook(action string, isAgy bool, opts hookOptions, stdin io.Reader,
 	cfg, _ := loadHookConfig(opts.configPath)
 	activeScopes := mergeScopeSlices(st.Scopes, resolveConfiguredScopes(cfg, in.workDirs))
 	entry.ActiveScopes = activeScopes
+
 	ctx, cancel := context.WithTimeout(context.Background(), hookTimeout)
 	defer cancel()
 	s, closeStore, err := openStore(ctx, opts.credPath)
@@ -108,51 +116,65 @@ func runPromptHook(action string, isAgy bool, opts hookOptions, stdin io.Reader,
 	}
 	defer closeStore()
 
-	emb, err := newVertexEmbedder(ctx, opts.gcpCredPath)
-	if err != nil {
-		failOpenHook(isAgy, &entry, stdout, stderr, err)
-		return
-	}
-	vec, err := emb.Embed(ctx, in.prompt, taskTypeQuery)
-	if err != nil {
-		failOpenHook(isAgy, &entry, stdout, stderr, err)
-		return
-	}
-	var reminders []Reminder
-	if len(activeScopes) > 0 {
-		reminders, err = s.recallReminders(ctx, activeScopes, vec, opts.threshold, opts.limit)
+	var sessionMsg, promptMsg string
+	if needReload && len(activeScopes) > 0 {
+		sessionMsg, err = fetchSessionContext(ctx, s, activeScopes, statePath)
 		if err != nil {
 			failOpenHook(isAgy, &entry, stdout, stderr, err)
 			return
 		}
 	}
-	statements, err := s.recallStatements(ctx, nil, vec, opts.threshold, opts.limit)
-	if err != nil {
-		failOpenHook(isAgy, &entry, stdout, stderr, err)
-		return
+	if doRecall {
+		promptMsg, err = recallPromptContext(ctx, s, opts, activeScopes, in.prompt, &entry)
+		if err != nil {
+			failOpenHook(isAgy, &entry, stdout, stderr, err)
+			return
+		}
 	}
-	events, err := s.recallEvents(ctx, nil, vec, opts.threshold, opts.limit)
-	if err != nil {
-		failOpenHook(isAgy, &entry, stdout, stderr, err)
-		return
-	}
-	recordPromptMatches(&entry, reminders, statements, events)
 	if isAgy {
 		st.LastTurnKey = turnKey
 		st.Scopes = activeScopes
+		if checkpoints > st.LastCheckpointCount {
+			st.LastCheckpointCount = checkpoints
+		}
 		_ = saveSessionState(statePath, st)
-	}
-	text := formatPromptContext(activeScopes, reminders, statements, events)
-	if isAgy {
-		err = writeAgyPromptOutput(stdout, text)
+		err = writeAgyStepsOutput(stdout, sessionMsg, promptMsg)
 	} else {
-		err = writeClaudeHookOutput(stdout, "UserPromptSubmit", text)
+		err = writeClaudeHookOutput(stdout, "UserPromptSubmit", promptMsg)
 	}
 	if err != nil {
 		entry.Status = "error"
 		entry.Error = err.Error()
 		fmt.Fprintln(stderr, "mem4j hook:", err)
 	}
+}
+
+func recallPromptContext(ctx context.Context, s *store, opts hookOptions, activeScopes []string, prompt string, entry *hookLogEntry) (string, error) {
+	emb, err := newVertexEmbedder(ctx, opts.gcpCredPath)
+	if err != nil {
+		return "", err
+	}
+	vec, err := emb.Embed(ctx, prompt, taskTypeQuery)
+	if err != nil {
+		return "", err
+	}
+	var reminders []Reminder
+	if len(activeScopes) > 0 {
+		reminders, err = s.recallReminders(ctx, activeScopes, vec, opts.threshold, opts.limit)
+		if err != nil {
+			return "", err
+		}
+	}
+	statements, err := s.recallStatements(ctx, nil, vec, opts.threshold, opts.limit)
+	if err != nil {
+		return "", err
+	}
+	events, err := s.recallEvents(ctx, nil, vec, opts.threshold, opts.limit)
+	if err != nil {
+		return "", err
+	}
+	recordPromptMatches(entry, reminders, statements, events)
+	return formatPromptContext(activeScopes, reminders, statements, events), nil
 }
 
 func decodePromptInput(isAgy bool, stdin io.Reader) (promptHookInput, error) {
@@ -162,11 +184,8 @@ func decodePromptInput(isAgy bool, stdin io.Reader) (promptHookInput, error) {
 			return promptHookInput{}, err
 		}
 		return promptHookInput{
-			prompt:         in.LastUserInput,
-			workDirs:       in.WorkspacePaths,
-			sessionDir:     in.ArtifactDirectoryPath,
-			sessionID:      in.ConversationID,
-			transcriptPath: in.TranscriptPath,
+			prompt: in.LastUserInput, workDirs: in.WorkspacePaths,
+			sessionDir: in.ArtifactDirectoryPath, sessionID: in.ConversationID, transcriptPath: in.TranscriptPath,
 		}, nil
 	}
 	var in claudeUserPromptInput
@@ -177,10 +196,5 @@ func decodePromptInput(isAgy bool, stdin io.Reader) (promptHookInput, error) {
 	if in.Cwd != "" {
 		workDirs = []string{in.Cwd}
 	}
-	return promptHookInput{
-		prompt:     in.Prompt,
-		workDirs:   workDirs,
-		sessionDir: in.ScratchpadDir,
-		sessionID:  in.SessionID,
-	}, nil
+	return promptHookInput{prompt: in.Prompt, workDirs: workDirs, sessionDir: in.ScratchpadDir, sessionID: in.SessionID}, nil
 }

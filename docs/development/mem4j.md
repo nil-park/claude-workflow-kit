@@ -32,7 +32,9 @@
   - 해당 디렉터리 필드가 비어 있는 환경에서는 `~/.config/mem4j/state/<세션ID>.json`으로 폴백한다.
   - Claude Code는 컴팩션 뒤 `SessionStart`가 다시 실행될 때 상태 파일의 기존 업무 스코프를 그대로 이어받아 상시 지침을 복원한다.
 - `agy` 컴팩션 뒤 복원
-  - `agy`는 컨텍스트 압축 뒤에 `SessionStart`를 다시 호출하지 않으므로, 압축 복원 시점의 재주입은 기존 `agy-compaction-hook`이나 후속 작업 범위로 분리한다.
+  - `agy`는 컨텍스트 압축 뒤에 `SessionStart`를 다시 호출하지 않는다.
+  - 대신 `agy-pre-invocation`이 `transcript.jsonl`의 `CHECKPOINT` 수 증가를 감지한다.
+  - 새 체크포인트가 감지되면 `mem4j-state.json`의 활성 스코프 기준으로 상시 지침과 스코프 목록을 `systemMessage`로 재주입한다.
 - 스코프 선택 방식
   - 훅은 그래프의 `Scope` 링크를 일괄 자동 확장하지 않고, `config.json`과 세션 상태 파일에 명시된 스코프만 활성 스코프로 사용한다.
   - 에이전트는 첫 프롬프트와 작업 전환 시점에 `SessionStart`가 주입한 전체 `Scope` 목록이나 `mem4j scope list`를 확인해 필요한 업무 스코프를 선택한다.

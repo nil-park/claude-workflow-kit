@@ -136,14 +136,19 @@ func writeAgySessionOutput(w io.Writer, msg string) error {
 	})
 }
 
-func writeAgyPromptOutput(w io.Writer, msg string) error {
-	if msg == "" {
+func writeAgyStepsOutput(w io.Writer, sessionMsg, promptMsg string) error {
+	steps := make([]agyInjectStep, 0, 2)
+	if sessionMsg != "" {
+		steps = append(steps, agyInjectStep{
+			SystemMessage: &agySystemMessageInner{SystemMessage: sessionMsg},
+		})
+	}
+	if promptMsg != "" {
+		steps = append(steps, agyInjectStep{EphemeralMessage: promptMsg})
+	}
+	if len(steps) == 0 {
 		writeAgyEmptyOutput(w)
 		return nil
 	}
-	return writeJSONLine(w, agyInjectOutput{
-		InjectSteps: []agyInjectStep{
-			{EphemeralMessage: msg},
-		},
-	})
+	return writeJSONLine(w, agyInjectOutput{InjectSteps: steps})
 }
