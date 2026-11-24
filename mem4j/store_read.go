@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 )
@@ -106,4 +107,36 @@ func (s *store) listScopes(ctx context.Context) ([]Scope, error) {
 		scopes = append(scopes, Scope{Name: name, Description: desc, DisableModelInvocation: disable})
 	}
 	return scopes, nil
+}
+
+const expandScopesOutgoingQuery = `
+MATCH (s:Scope)-[r]->(t:Scope)
+WHERE s.name IN $scopes
+  AND type(r) <> 'APPLIES_IN' AND type(r) <> 'ABOUT'
+  AND coalesce(t.disableModelInvocation, false) = false
+RETURN DISTINCT t.name AS name
+LIMIT $limit`
+
+func (s *store) expandScopesOutgoing(ctx context.Context, scopes []string) ([]string, error) {
+	base := dedup(scopes)
+	if len(base) == 0 {
+		return nil, nil
+	}
+	res, err := neo4j.ExecuteQuery(ctx, s.driver, expandScopesOutgoingQuery,
+		map[string]any{"scopes": base, "limit": candidateLimit},
+		neo4j.EagerResultTransformer, neo4j.ExecuteQueryWithDatabase(s.db), neo4j.ExecuteQueryWithReadersRouting(),
+		neo4j.ExecuteQueryWithTransactionConfig(neo4j.WithTxTimeout(txTimeout)))
+	if err != nil {
+		return nil, err
+	}
+	expanded := append([]string{}, base...)
+	for _, rec := range res.Records {
+		raw, _ := rec.Get("name")
+		if name, ok := raw.(string); ok && name != "" {
+			expanded = append(expanded, name)
+		}
+	}
+	out := dedup(expanded)
+	slices.Sort(out)
+	return out, nil
 }

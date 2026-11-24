@@ -19,6 +19,8 @@ func TestRunHelpSucceedsWithoutCredentials(t *testing.T) {
 		"instruction -h":    {[]string{"instruction", "-h"}, []string{"mem4j instruction <action>", "recall", "unlink"}},
 		"reminder --help":   {[]string{"reminder", "--help"}, []string{"mem4j reminder <action>", "recall", "create"}},
 		"graph -h":          {[]string{"graph", "-h"}, []string{"mem4j graph <action>", "query"}},
+		"hook -h":           {[]string{"hook", "-h"}, []string{"mem4j hook <action>", "claude-session-start", "agy-pre-invocation"}},
+		"hook action -h":    {[]string{"hook", "agy-pre-invocation", "-h"}, []string{"mem4j hook agy-pre-invocation [flags]", "-config", "-threshold", "-state-dir", "-log"}},
 		"action -h":         {[]string{"reminder", "recall", "-h"}, []string{"mem4j reminder recall [flags]", "-threshold", "-limit", "-gcp-credentials", "-scope"}},
 		"action --help":     {[]string{"scope", "create", "--help"}, []string{"mem4j scope create [flags]", "-name", "-description", "-disable-model-invocation"}},
 		"help action":       {[]string{"help", "graph", "query"}, []string{"mem4j graph query [flags]", "-cypher", "-file"}},

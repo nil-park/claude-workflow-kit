@@ -47,26 +47,37 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
 		_, err := io.WriteString(stdout, cmd.helpText)
 		return err
 	}
+	if cmd.execNoStore != nil {
+		return cmd.execNoStore(stdout, stderr)
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
-	credPath := cmd.credPath
+	s, closeStore, err := openStore(ctx, cmd.credPath)
+	if err != nil {
+		return err
+	}
+	defer closeStore()
+
+	return cmd.exec(ctx, s, stdout, stderr)
+}
+
+func openStore(ctx context.Context, credPath string) (*store, func(), error) {
+	var err error
 	if credPath == "" {
 		credPath, err = defaultCredentialsPath()
 		if err != nil {
-			return err
+			return nil, nil, err
 		}
 	}
 	cred, err := readCredentials(credPath)
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
 	driver, err := neo4j.NewDriverWithContext(cred.URI, neo4j.BasicAuth(cred.Username, cred.Password, ""))
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
-	defer driver.Close(ctx)
-
-	return cmd.exec(ctx, &store{driver: driver, db: cred.Database}, stdout, stderr)
+	return &store{driver: driver, db: cred.Database}, func() { _ = driver.Close(ctx) }, nil
 }
 
 // writeMerged tags each instruction with its scopes, so the agent can weigh
