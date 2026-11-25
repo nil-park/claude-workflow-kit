@@ -176,6 +176,9 @@ func TestHookOutputFormatting(t *testing.T) {
 		[]Statement{{Key: "s1", Title: "사실", Entities: []string{"Recallar"}, Score: 0.91, Body: "안드로이드 앱"}},
 		[]Event{{Key: "e1", Title: "이력", OccurredAt: "2026-11-01", Entities: []string{"Recallar"}, Score: 0.88, Body: "이름 변경"}},
 	)
+	if !strings.Contains(promptText, "현재 프롬프트만 비교해 조회했으므로 현재 작업과 무관한 항목이 포함될 수 있다.") {
+		t.Fatalf("prompt text missing similarity caveat: %s", promptText)
+	}
 	if !strings.Contains(promptText, "<reminder") || !strings.Contains(promptText, "<statement") || !strings.Contains(promptText, "<event") {
 		t.Fatalf("unexpected prompt text: %s", promptText)
 	}

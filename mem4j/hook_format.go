@@ -85,6 +85,7 @@ func formatPromptContext(activeScopes []string, reminders []Reminder, statements
 	}
 	var b strings.Builder
 	b.WriteString("다음은 사용자 공유 기억 저장소(mem4j)에서 현재 프롬프트와 관련해 조회한 기억이다.\n")
+	b.WriteString("현재 프롬프트만 비교해 조회했으므로 현재 작업과 무관한 항목이 포함될 수 있다.\n")
 	if len(activeScopes) > 0 {
 		fmt.Fprintf(&b, "활성 스코프: %s\n", strings.Join(activeScopes, ", "))
 	}

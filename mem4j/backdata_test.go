@@ -41,6 +41,11 @@ func TestBackDataUsageErrorsBeforeConnecting(t *testing.T) {
 	}{
 		"entity missing action":       {[]string{"entity"}, "usage:"},
 		"entity create missing desc":  {[]string{"entity", "create", "-name", "e"}, "-description"},
+		"entity edit missing name":    {[]string{"entity", "edit", "-new-name", "e2"}, "-name"},
+		"entity edit no fields":       {[]string{"entity", "edit", "-name", "e"}, "at least one of -new-name or -description"},
+		"entity edit empty new-name":  {[]string{"entity", "edit", "-name", "e", "-new-name", ""}, "cannot be empty"},
+		"entity edit same new-name":   {[]string{"entity", "edit", "-name", "e", "-new-name", "e"}, "must differ"},
+		"entity edit empty desc":      {[]string{"entity", "edit", "-name", "e", "-description", ""}, "cannot be empty"},
 		"entity recall no query":      {[]string{"entity", "recall"}, "-query or -file"},
 		"entity link reserved rel":    {[]string{"entity", "link", "-from", "a", "-to", "b", "-type", "ABOUT"}, "reserved"},
 		"entity link self":            {[]string{"entity", "link", "-from", "a", "-to", "a", "-type", "USES"}, "cannot be the same"},
@@ -65,6 +70,19 @@ func TestBackDataUsageErrorsBeforeConnecting(t *testing.T) {
 		err := run(args, strings.NewReader(""), io.Discard, io.Discard)
 		if err == nil || !strings.Contains(err.Error(), tc.want) {
 			t.Errorf("%s: err = %v, want it to mention %q", name, err, tc.want)
+		}
+	}
+}
+
+func TestParseEntityEditFlags(t *testing.T) {
+	validCases := map[string][]string{
+		"rename only":     {"-name", "old", "-new-name", "new"},
+		"desc only":       {"-name", "old", "-description", "updated desc"},
+		"rename and desc": {"-name", "old", "-new-name", "new", "-description", "updated desc"},
+	}
+	for name, args := range validCases {
+		if _, err := parseEntityEdit(args); err != nil {
+			t.Errorf("%s: parseEntityEdit(%v) = %v, want nil", name, args, err)
 		}
 	}
 }
