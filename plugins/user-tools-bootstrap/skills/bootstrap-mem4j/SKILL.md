@@ -138,5 +138,8 @@ GOBIN=<bin-dir의 절대 경로> go install github.com/nil-park/claude-workflow-
 
 - `mem4j scope list`로 AuraDB 연결이 정상인지 확인한다.
 - 빌드된 바이너리 경로, 등록한 스코프 목록, 갱신한 설정 파일 목록을 보고한다.
-- 훅은 등록 이후 새로 시작한 세션부터 적용된다고 안내한다.
+- Claude Code는 프롬프트 훅이 설치한 세션에 즉시 적용되고 `SessionStart`는 다음 세션부터 적용된다고 안내한다.
+  - 설치한 세션에서 작업을 이어 가려면 `mem4j instruction recall -state <scratchpad_dir>/mem4j-state.json`으로 상태 파일을 만들고 기본 지침을 불러온다.
+  - 이때 `config.json`의 기본 `scopes`와 현재 작업 디렉터리에 해당하는 `workspaces` 스코프를 모두 `-scope`로 넘긴다.
+- `agy` 훅은 등록 이후 새로 시작한 세션부터 적용된다고 안내한다.
 - 이 스킬을 다시 실행하면 `main`의 최신 커밋으로 바이너리를 새로 빌드하고 관리용 블록을 갱신한다고 안내한다.

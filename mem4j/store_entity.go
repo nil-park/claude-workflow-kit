@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 )
 
 const (
-	lockEntityQuery = "MATCH (e:Entity {name: $name}) SET e._lock = true REMOVE e._lock RETURN e.name AS name"
+	lockEntityQuery = "MATCH (e:Entity {name: $name}) SET e._lock = true REMOVE e._lock RETURN e.name AS name, e:Scope AS isScope"
 )
 
 var relTypePattern = regexp.MustCompile(`^[A-Z][A-Z0-9_]*$`)
@@ -76,22 +77,54 @@ func (s *store) createEntity(ctx context.Context, name, description string, embe
 	})
 }
 
-func (s *store) editEntity(ctx context.Context, name, description string, embedding []float64) error {
-	params := map[string]any{"name": name, "description": description, "embedding": embedding}
+func (s *store) editEntity(ctx context.Context, name string, newName, description *string, embedding []float64) error {
 	return s.withWriteTx(ctx, func(tx neo4j.ManagedTransaction) error {
-		if err := checkNodeExists(ctx, tx, "MATCH (e:Entity {name: $name}) RETURN e.name AS name", params, "entity", name); err != nil {
+		row, found, err := querySingleRow(ctx, tx, lockEntityQuery, map[string]any{"name": name})
+		if err != nil {
 			return err
 		}
+		if !found {
+			return fmt.Errorf("entity %q not found", name)
+		}
+		params := map[string]any{"name": name}
+		setClauses := make([]string, 0, 3)
+		if newName != nil {
+			if isScope, _ := row["isScope"].(bool); isScope {
+				return fmt.Errorf("cannot rename entity %q because it also has the Scope label", name)
+			}
+			dupRow, _, err := querySingleRow(ctx, tx, `
+				OPTIONAL MATCH (e:Entity {name: $newName})
+				OPTIONAL MATCH (sc:Scope {name: $newName})
+				RETURN (e IS NOT NULL OR sc IS NOT NULL) AS exists`,
+				map[string]any{"newName": *newName})
+			if err != nil {
+				return err
+			}
+			if exists, _ := dupRow["exists"].(bool); exists {
+				return fmt.Errorf("entity or scope %q already exists", *newName)
+			}
+			params["newName"] = *newName
+			setClauses = append(setClauses, "e.name = $newName")
+		}
+		if description != nil {
+			params["description"] = *description
+			params["embedding"] = embedding
+			setClauses = append(setClauses, "e.description = $description", "e.embedding = $embedding")
+		}
 		return runAndConsume(ctx, tx,
-			"MATCH (e:Entity {name: $name}) SET e.description = $description, e.embedding = $embedding", params)
+			"MATCH (e:Entity {name: $name}) SET "+strings.Join(setClauses, ", "), params)
 	})
 }
 
 func (s *store) deleteEntity(ctx context.Context, name string) error {
 	params := map[string]any{"name": name}
 	return s.withWriteTx(ctx, func(tx neo4j.ManagedTransaction) error {
-		if err := checkNodeExists(ctx, tx, lockEntityQuery, params, "entity", name); err != nil {
+		locked, found, err := querySingleRow(ctx, tx, lockEntityQuery, params)
+		if err != nil {
 			return err
+		}
+		if !found {
+			return fmt.Errorf("entity %q not found", name)
 		}
 		row, _, err := querySingleRow(ctx, tx,
 			"MATCH (e:Entity {name: $name})<-[:ABOUT]-(n) WHERE n:Statement OR n:Event RETURN count(n) AS linked",
@@ -102,11 +135,7 @@ func (s *store) deleteEntity(ctx context.Context, name string) error {
 		if linked, _ := row["linked"].(int64); linked > 0 {
 			return fmt.Errorf("entity %q still has %d linked statement(s) or event(s)", name, linked)
 		}
-		dual, _, err := querySingleRow(ctx, tx, "MATCH (e:Entity {name: $name}) RETURN e:Scope AS isScope", params)
-		if err != nil {
-			return err
-		}
-		if isScope, _ := dual["isScope"].(bool); isScope {
+		if isScope, _ := locked["isScope"].(bool); isScope {
 			return runAndConsume(ctx, tx, "MATCH (e:Entity {name: $name}) REMOVE e:Entity, e.embedding", params)
 		}
 		return runAndConsume(ctx, tx, "MATCH (e:Entity {name: $name}) DETACH DELETE e", params)

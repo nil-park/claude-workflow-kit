@@ -46,7 +46,7 @@ var actionHelpItems = map[string][]helpItem{
 		{"list", "List all entities with descriptions"},
 		{"recall", "Find entities by embedding similarity"},
 		{"create", "Create an entity (or promote matching scope) with embedding"},
-		{"edit", "Update an entity description and re-embed"},
+		{"edit", "Rename an entity or update its description (re-embedded)"},
 		{"link", "Create a relationship between two entities"},
 		{"unlink", "Delete a relationship between two entities"},
 		{"neighbors", "Traverse connected entities and 1-hop statements/events"},

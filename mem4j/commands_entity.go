@@ -138,29 +138,61 @@ func parseEntityEdit(args []string) (parsedCommand, error) {
 	fs, cred := newFlagSet("entity edit")
 	gcpCred := fs.String("gcp-credentials", "", "GCP service account JSON (default ~/.config/mem4j/.secrets/gcp.json)")
 	name := fs.String("name", "", "entity name")
-	desc := fs.String("description", "", "new entity description")
+	newNameFlag := fs.String("new-name", "", "new entity name")
+	desc := fs.String("description", "", "new entity description (re-embedded)")
 	if err := parseFlags(fs, args); err != nil {
 		return parsedCommand{}, err
 	}
-	n, d := normalizeText(*name), normalizeText(*desc)
-	if n == "" || d == "" {
-		return parsedCommand{}, errors.New("entity edit requires -name and -description")
+	n := normalizeText(*name)
+	if n == "" {
+		return parsedCommand{}, errors.New("entity edit requires -name")
+	}
+	var newName, newDesc *string
+	if flagProvided(fs, "new-name") {
+		nn := normalizeText(*newNameFlag)
+		if nn == "" {
+			return parsedCommand{}, errors.New("entity edit: -new-name cannot be empty")
+		}
+		if nn == n {
+			return parsedCommand{}, errors.New("entity edit: -new-name must differ from -name")
+		}
+		newName = &nn
+	}
+	if flagProvided(fs, "description") {
+		d := normalizeText(*desc)
+		if d == "" {
+			return parsedCommand{}, errors.New("entity edit: -description cannot be empty")
+		}
+		newDesc = &d
+	}
+	if newName == nil && newDesc == nil {
+		return parsedCommand{}, errors.New("entity edit requires at least one of -new-name or -description")
 	}
 	return parsedCommand{
 		credPath: *cred,
 		exec: func(ctx context.Context, s *store, stdout, _ io.Writer) error {
-			emb, err := newVertexEmbedder(ctx, *gcpCred)
-			if err != nil {
+			var vec []float64
+			if newDesc != nil {
+				emb, err := newVertexEmbedder(ctx, *gcpCred)
+				if err != nil {
+					return err
+				}
+				vec, err = emb.Embed(ctx, *newDesc, taskTypeDocument)
+				if err != nil {
+					return err
+				}
+			}
+			if err := s.editEntity(ctx, n, newName, newDesc, vec); err != nil {
 				return err
 			}
-			vec, err := emb.Embed(ctx, d, taskTypeDocument)
-			if err != nil {
-				return err
+			switch {
+			case newName != nil && newDesc != nil:
+				fmt.Fprintf(stdout, "renamed entity %q to %q and updated description\n", n, *newName)
+			case newName != nil:
+				fmt.Fprintf(stdout, "renamed entity %q to %q\n", n, *newName)
+			default:
+				fmt.Fprintf(stdout, "updated entity %q\n", n)
 			}
-			if err := s.editEntity(ctx, n, d, vec); err != nil {
-				return err
-			}
-			fmt.Fprintf(stdout, "updated entity %q\n", n)
 			return nil
 		},
 	}, nil
