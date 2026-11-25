@@ -35,11 +35,16 @@
 
 - 모든 쓰기는 직접 Cypher를 실행하지 않고 `mem4j` CLI 명령을 거친다(세부 플래그는 `mem4j <리소스> <액션> --help`로 확인).
 - 새 `Scope`나 `Entity`를 만들기 전에 `mem4j scope list`나 `mem4j entity recall`로 기존 노드가 있는지 먼저 확인해 중복 생성을 피한다.
-- `Entity`, `Reminder`, `Statement`, `Event`의 의미 검색은 `description`만 임베딩하므로, 나중에 어떤 상황과 질의로 검색될지를 기준으로 `description`을 작성한다.
+- `Entity`, `Reminder`, `Statement`, `Event`의 의미 검색은 `description`만 임베딩해 사용자 프롬프트 원문과 대조한다.
+  - 모든 `description`은 해당 대상을 다루는 사용자 프롬프트에 나올 어휘로 작성한다.
   - `Entity`: 정식 이름, 별칭, 약어, 핵심 역할을 함께 적어 다른 표현으로 질문해도 검색되게 한다.
   - `Reminder`: 사용자 프롬프트에 작업 의도가 드러나는 구체적인 시점을 적는다.
     - 셸 세부 문법처럼 프롬프트에 나타나지 않는 조건이나 상시 규칙은 `Reminder` 대신 `Instruction`으로 작성한다.
-  - `Statement`·`Event`: 사용자가 던질 질문에 맞물리는 핵심 사실과 키워드를 명확하게 서술한다(본문이 짧으면 본문을 그대로 쓸 수 있다).
+  - `Statement`·`Event`: 사용자가 할 질문에 답이 되는 핵심 사실과 질문에 나올 키워드를 명확하게 서술한다(본문이 짧으면 본문을 그대로 쓸 수 있다).
+    - 스코프로 필터링되지 않으므로 `description`에 프로젝트, 제품, 도구 같은 대상 이름을 명시한다.
+- 수정으로 노드의 의미가 바뀌면 같은 `edit` 호출에 `-description`을 함께 넘긴다.
+  - `-title`이나 `-body`만 수정하면 기존 임베딩이 그대로 남는다.
+- `Entity`, `Reminder`, `Statement`, `Event`를 쓰거나 고친 뒤에는 예상 프롬프트로 해당 `recall`을 실행해 점수가 약 `0.80` 이상인지 확인한다.
 - `Instruction`을 작성·수정할 때에는 포함되는 스코프 조합마다 `mem4j instruction recall`로 병합 결과를 확인해 충돌이나 문맥 어긋남을 점검한다.
   - 지침 단위는 문장 순서를 바꾸면 의미가 깨지는 최소 묶음으로 단독 완결되게 작성한다.
 
